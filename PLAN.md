@@ -11,33 +11,30 @@ contract, build the kernel against a real site, then settle the UI.
 
 ---
 
-## Step 1 — Pin the definition language against a real site — **IN PROGRESS (2026-07-22)**
+## Step 1 — Pin the definition language against a real site — **DONE (2026-07-22)**
 
-The load-bearing gap. The deck's ch. 3 fragment is illustrative and self-contradictory (nodes float
-free of the hierarchy; `configLineage` enumerated per component competes with the catalog as a second
-source of truth; per-node `targets` arrays contradict standard-plus-exceptions; dataflow capability
-vocabulary leaks in).
+The load-bearing gap, closed. The deck's illustrative ch. 3 fragment (nodes floating free of the
+hierarchy; per-component `configLineage`; per-node `targets` arrays; dataflow vocabulary) is replaced
+by the real schema and a fixture excerpt.
 
-Deliverables, all in this repo:
+Deliverables:
 
-- [ ] `schema/deployment-definition.schema.json` — the real, versioned definition schema.
-- [ ] `schema/DEFINITION.md` — what each element means and which settled decision it encodes.
-- [ ] `fixtures/dallas/` — the **golden fixture**: the Dallas bottling site
-      (`bottling-company-test/`) expressed in the definition language.
-- [ ] `fixtures/dallas/TRACEABILITY.md` — hand-verification that the fixture could regenerate the
-      harness's files: definition element → harness file mapping, plus every model gap found.
-- [ ] Deck ch. 3: replace the illustrative fragment with a schema-conformant excerpt + pointer to
-      `schema/`.
+- [x] `schema/deployment-definition.schema.json` — `edgecommons.io/v1alpha1`, JSON Schema 2020-12.
+- [x] `schema/DEFINITION.md` — element-by-element explainer + semantic rules S-1..S-9.
+- [x] `schema/validate.py` — proto-kernel validator (schema + S-rules + binding resolution).
+- [x] `fixtures/dallas/` — the golden fixture: 3 nodes, 4 scopes, 10 component assignments;
+      layers mechanically extracted from the harness catalogs (single-sourced, deduped).
+- [x] `fixtures/dallas/TRACEABILITY.md` — element → harness-file mapping, the slice-1 oracle set
+      (16 config files + 3 supervisor confs), and findings F-1..F-9.
+- [x] Deck ch. 3: fragment replaced with a schema-conformant fixture excerpt + pointer to `schema/`.
 
-Schema must encode: node placement in the hierarchy (single parent scope); config lineage **derived**
-from placement, never enumerated per component; target standard + governed per-scope exceptions (no
-per-node target arrays); two-stream separation (artifact pin vs config refs); per-node thing identity
-(per-thing decision); per-component config source selecting the delivery adapter and restart impact;
-**no** dataflow/capability vocabulary. The definition + layer files are the authoring form that
-*compiles into* per-node ConfigComponent catalogs (single source of truth).
-
-Acceptance: if the language cannot express the Dallas site cleanly, the model is wrong — record the
-correction, do not force the fixture.
+**Acceptance met:** the language expresses the Dallas site cleanly. Headline findings — F-1: the
+harness's "duplicated" scope nodes differed *only* in embedded `hierarchy`/`identity`, i.e. derived
+content hand-copied into authored layers (hence rule S-4); F-2: placement-derived truncation
+reproduces the site node's 3-level catalog with no special case; F-3: the packaging template's
+placeholders are a hand-rolled `bindings.json`; F-4 (the one real gap, additive): cross-node service
+references (line bridge → site broker) want a first-class `${node:…}` reference in v1alpha2 — bindings
+suffice meanwhile. Validation: `python schema/validate.py fixtures/dallas/definition.yaml` is green.
 
 ## Step 2 — Deck subtractions — **DONE (2026-07-22)**
 

@@ -266,38 +266,46 @@
               </p>
               <div class="schema-example">
                 <div>
-                  <h4>Illustrative source shape</h4>
+                  <h4>Source shape — excerpt of the Dallas golden fixture</h4>
                   <p>
-                    This is intentionally smaller than the rendered output. It names the desired running system, pins
-                    component artifacts, references config lineage, and declares target policies.
+                    The normative schema is <code>schema/deployment-definition.schema.json</code>
+                    (<code>edgecommons.io/v1alpha1</code>), explained in <code>schema/DEFINITION.md</code>; the full
+                    fixture in <code>fixtures/dallas/</code> expresses the Dallas bottling site and is traceability-proven
+                    against the hand-maintained harness. Note what the shape encodes: a node's single
+                    <code>scope</code> placement <em>derives</em> its entire config lineage (never enumerated per
+                    component), the artifact pin and the config leaf are separate streams, external endpoints are
+                    <code>${binding:&hellip;}</code> tokens resolved from the environment's bindings file, and there
+                    are no per-node target arrays — one standard, governed exceptions.
                   </p>
                 </div>
-                <pre>{
-  "apiVersion": "edgecommons.io/v1alpha1",
-  "kind": "DeploymentDefinition",
-  "metadata": { "name": "dallas-filling-line", "owner": "manufacturing-platform" },
-  "environments": ["lab", "prod"],
-  "nodes": [
-    {
-      "id": "gw-fill-01",
-      "targets": ["HOST", "GREENGRASS"],
-      "components": [
-        {
-          "name": "telemetry-processor",
-          "artifact": { "version": "1.4.2", "digest": "sha256:..." },
-          "configLineage": [
-            { "scope": "enterprise/acme", "ref": "layers/enterprise/acme.json" },
-            { "scope": "site/dallas", "ref": "layers/sites/dallas.json" },
-            { "scope": "line/filling-line-7", "ref": "layers/lines/filling-line-7.json" },
-            { "scope": "component/telemetry-processor", "ref": "layers/components/telemetry-processor.json" }
-          ],
-          "runtime": { "messaging": "local-mqtt", "state": "durable-stream" }
-        }
-      ]
-    }
-  ],
-  "policies": ["least-privilege", "rendered-artifacts-must-validate", "prod-requires-approval"]
-}</pre>
+                <pre>apiVersion: edgecommons.io/v1alpha1
+kind: DeploymentDefinition
+metadata: { name: dallas-bottling }
+hierarchy:
+  levels: [enterprise, site, line, device]
+  scopes:
+    - { id: enterprise/bottles-r-us, parent: null,   layer: layers/scopes/enterprise-bottles-r-us.json }
+    - { id: site/dallas,       parent: enterprise/bottles-r-us, layer: layers/scopes/site-dallas.json }
+    - { id: line/packaging-line, parent: site/dallas, layer: layers/scopes/line-packaging-line.json }
+targetStandard: { family: HOST, exceptions: [] }
+environments:
+  - { name: local, protection: open, bindings: bindings/local.json }
+nodes:
+  - key: gw-pack-01
+    scope: line/packaging-line        # placement -> derived lineage, levels, identity
+    identity: { thingName: gw-pack-01 }
+    localBroker: { kind: emqx, port: 1883, launch: { order: 10 } }
+    configProvider:                    # the node's ConfigComponent; bootstrap is never recursive
+      configSource: FILE
+      catalog: { path: /run/config/config-catalog.json, watch: true }
+      launch: { order: 25, waitFor: ["localhost:1883"] }
+    components:
+      - name: opcua-adapter
+        artifact: { source: { kind: sibling, repo: opcua-adapter } }   # artifact stream
+        configSource: CONFIG_COMPONENT                                 # delivery + restart impact
+        layer: layers/components/packaging-line/opcua-adapter.json     # config stream (leaf only)
+        launch: { order: 30, waitFor: ["localhost:1883"], settleSeconds: 6 }
+        # the leaf's endpoint is "${binding:external.kepware.endpoint}"</pre>
               </div>
               <p>
                 The model must also carry negative space: what does not belong in the deployment source. Secret values
