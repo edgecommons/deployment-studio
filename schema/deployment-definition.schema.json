@@ -120,8 +120,13 @@
           "description": "TCP readiness gates evaluated before exec (host:port)."
         },
         "settleSeconds": { "type": "integer", "minimum": 0, "description": "Extra sleep before exec after gates pass." },
+        "exec": { "type": "string", "description": "Program invocation override (interpreter wrappers, install paths, diverging binary names). Default: the component name on PATH." },
         "workingDir": { "type": "string" },
-        "env": { "type": "object", "additionalProperties": { "type": "string" } }
+        "env": { "type": "object", "additionalProperties": { "type": "string" } },
+        "user": { "type": "string", "description": "Process user (supervisord 'user=')." },
+        "startSecs": { "type": "integer", "minimum": 0 },
+        "startRetries": { "type": "integer", "minimum": 0 },
+        "stopWaitSecs": { "type": "integer", "minimum": 0 }
       }
     },
     "artifact": {
@@ -154,7 +159,9 @@
       "additionalProperties": false,
       "properties": {
         "clientId": { "type": "string", "description": "Broker client id. Default convention: '<node-key>-<component>'." },
-        "requestTimeoutSeconds": { "type": "integer", "minimum": 1 }
+        "type": { "type": "string", "description": "Connection type hint emitted into messaging.local (e.g. 'mqtt'), where the component's library expects it." },
+        "requestTimeoutSeconds": { "type": "integer", "minimum": 1 },
+        "file": { "type": "string", "description": "Messaging file name override (default '<component>-messaging.json')." }
       }
     },
     "component": {
@@ -168,6 +175,10 @@
         "layer": {
           "type": "string",
           "description": "Repo-relative path to this component's config leaf (the catalog component body / the component slice of a rendered FILE config). Lineage above the leaf is DERIVED from the node's placement - never enumerated here (S-7)."
+        },
+        "catalogKey": {
+          "type": "string",
+          "description": "Display key for this leaf in the rendered catalog's components map (default: PascalCase of the component name). Authored metadata; runtime matching uses the leaf's component.token."
         },
         "files": {
           "type": "array",
@@ -225,21 +236,17 @@
         "configProvider": {
           "type": "object",
           "description": "The node's ConfigComponent instance, when components on this node use -c CONFIG_COMPONENT. Its own bootstrap config is a RENDERED effective config (scope-chain merge + this block) delivered via its bootstrap configSource; it never recursively depends on itself.",
-          "required": ["configSource"],
+          "required": ["configSource", "layer", "catalogPath"],
           "additionalProperties": false,
           "properties": {
             "configSource": { "$ref": "#/$defs/configSource", "$comment": "Bootstrap source: FILE/ENV/GG_CONFIG/CONFIGMAP - S-9: not CONFIG_COMPONENT." },
             "artifact": { "$ref": "#/$defs/artifact" },
-            "catalog": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "path": { "type": "string", "description": "On-node path the rendered per-node catalog is staged to and served from." },
-                "watch": { "type": "boolean", "default": true },
-                "pushOnCatalogReload": { "type": "boolean", "default": true },
-                "allowVolatileCatalogUpdates": { "type": "boolean", "default": false }
-              }
+            "layer": {
+              "type": "string",
+              "description": "The provider's own config overlay (its tags/logging/component block, including component.global.configComponent with catalogSource). Merged over the scope chain to produce the rendered bootstrap document. May reference '${provider:catalog.path}', resolved from catalogPath."
             },
+            "catalogPath": { "type": "string", "description": "On-node path the rendered per-node catalog is staged to and served from; also stamps the catalog's provenance.uri." },
+            "versionBase": { "type": "string", "description": "Override for the catalog version prefix (default: the node's scope values joined by '-'). The config-release tag is appended at render time." },
             "messaging": { "$ref": "#/$defs/messaging" },
             "launch": { "$ref": "#/$defs/launch" }
           }

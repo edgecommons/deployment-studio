@@ -51,13 +51,26 @@ Each is a ruling accepted by the user; propagated deck + reviews together. Regis
 | 2.6 | **Node-identity section** (ch. 3): node key ↔ platform identity via `bindings.json`; default = names equal; replacement cheap, rename expensive, decommission keeps history. Schema fields land in step 1. | **DONE** (REVIEW #14) |
 | 2.7 | ~~HOST delivery evidence: degrade honestly, no receipt machinery; inspection utility demand-gated.~~ | **DONE** (roadmap `26a197c`, carried into `design/`; REVIEW #7 refinement) |
 
-## Step 3 — Slice 1: kernel + HOST renderer — **NOT STARTED**
+## Step 3 — Slice 1: kernel + HOST renderer — **DONE (2026-07-22)**
 
-Rust kernel crate + HOST renderer, exactly as the deck's roadmap chapter sequences it.
-Acceptance: **byte-for-byte regeneration** of a hand-maintained site's files; oracle corpus =
-`bottling-company-test/` via the Step-1 fixture. No service, no hosting decision consumed.
-(Then, per deck ch. 13: evidence in CI → Greengrass renderer + Rust CLI port → storage/K8s → UI →
-execution/convergence.)
+`kernel/` — Rust crate `edgecommons-deploy`, binary `ec-deploy` (`validate` / `render` / `oracle`):
+typed model, semantic validator (S-1..S-9, mirrors `schema/validate.py`), the shipped merge contract,
+placement-derived lineage, `${binding:…}`/`${provider:…}` token resolution, and the HOST renderer —
+per-node catalogs, rendered bootstrap configs, messaging files, supervisord confs, plus `plan.json`
+(with per-component restart impact by config source) and `requirements.json`. Deterministic by
+construction: no timestamps, no randomness. Builds natively on Windows; clippy-clean.
+
+**Acceptance (the Dallas oracle, 22 files):** `kernel/tests/dallas_oracle.rs` renders the fixture and
+compares against the harness — **13/13 messaging files byte-identical; 3/3 catalogs semantic-equal;
+the only remaining deltas are two documented, deliberate improvements** (the bootstraps' `tags.scenario`
+drift F-10, and the packaging conf's runtime template-render step replaced by render-time binding
+substitution F-3). Remaining byte deltas beyond those are hand-formatting (inline arrays, comments).
+**Full byte-for-byte parity is reached by adoption**: replace the harness's hand files with the
+generated canonical output (also fixes F-10) and let the harness E2E prove behavioral equivalence —
+a `bottling-company-test` change, proposed separately, not taken unilaterally.
+
+Next per deck ch. 13 (not started): evidence bundles in CI → Greengrass renderer + CLI port →
+storage/K8s → UI → execution/convergence.
 
 ## Step 4 — UI decisions — **NOT STARTED (after Step 2)**
 

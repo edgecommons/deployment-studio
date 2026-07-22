@@ -73,8 +73,12 @@ hand-written `config-component-config.json` files turn out to be.
 ### `nodes[].configProvider` — the bootstrap that cannot recurse
 
 When a node's components use `CONFIG_COMPONENT`, the node carries its ConfigComponent instance. Its own
-bootstrap config is a rendered effective config delivered by a non-recursive source (S-9, the deck's
-"important boundary" callout), and its `catalog.path` is where the compiled per-node catalog is staged.
+bootstrap config is a **rendered** document — the scope-chain merge plus the provider's own `layer`
+overlay (tags/logging/component block, whose `catalogSource.path` is the `${provider:catalog.path}`
+token resolved from `catalogPath`) — delivered by a non-recursive source (S-9, the deck's "important
+boundary" callout). `catalogPath` is where the compiled per-node catalog is staged and stamps the
+catalog's `provenance.uri`; `versionBase` overrides the derived catalog-version prefix where a hand
+naming already exists (Dallas F-11).
 
 ### `environments[].bindings` — the answered half of the IaC handshake
 
@@ -88,8 +92,11 @@ the hand-rolled ancestor of exactly this mechanism.
 The node-local broker is first-class in the HOST story ("starts a local broker and a set of component
 processes" — deck ch. 7). Auxiliaries are *declared* controlled processes (the deck's negative-space rule:
 no smuggled scripts) — the Dallas filling line's field simulator is one. `launch` captures per-process
-orchestration intent (order, TCP gates, settle time, working dir, env) that the supervisord renderer emits
-verbatim; deriving order from dependencies instead is a future refinement, not v1.
+orchestration intent (order, TCP gates, settle time, exec override for interpreter wrappers and diverging
+binary names, working dir, env, process user, and the supervision timings `startSecs`/`startRetries`/
+`stopWaitSecs`) that the supervisord renderer emits verbatim; deriving order from dependencies instead is
+a future refinement, not v1. `messaging` carries the wire-visible client id, optional connection `type`
+hint, request timeout, and a `file` name override where a hand shorthand already exists (Dallas F-12).
 
 ### What is deliberately absent
 

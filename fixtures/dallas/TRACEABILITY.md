@@ -69,6 +69,37 @@ and reachability assumptions; compose is one way a lab satisfies them. The site 
   images but invoked nowhere; a compiler would not regenerate them. Flagged for harness cleanup.
 - **F-9 — file-replicator egress.** The `/mnt/replicated` bind is a provisioning mount the definition's
   requirements would declare; the component's ingress/egress paths live in its leaf, already extracted.
+- **F-10 — Bootstrap drift (found by the oracle run).** The three hand-written
+  `config-component-config.json` files carry the enterprise layer's `tags.appId` but silently drop its
+  `tags.scenario`, while every catalog-served component receives both. The rendered bootstrap (scope-chain
+  merge + provider overlay) restores `scenario` — the render is *more* consistent than the hand files.
+  This is precisely the class of hand-maintenance drift the compiler exists to eliminate.
+- **F-11 — The site catalog's hand-named version.** Line catalog versions follow
+  `<scope values joined>-<release>`; the site catalog's `bottles-r-us-dallas-site-initial` does not
+  (a naming inconsistency, not a pattern). Covered by `configProvider.versionBase` as an explicit
+  authored override; the derived pattern remains the default.
+- **F-12 — Shorthand names are authored metadata.** The harness's messaging file names
+  (`bridge-`, `filerep-`, `console-`, `opcua-`, `modbus-`, `telemetry-messaging.json`) and catalog
+  display keys (`OpcUaAdapter`, …) are hand-chosen and not mechanically derivable; the schema carries
+  them as `messaging.file` and `catalogKey` overrides with derivable defaults.
+
+## Oracle results (2026-07-22, kernel slice 1)
+
+`cargo test -p edgecommons-deploy` / `ec-deploy oracle` render the fixture and compare all **22**
+oracle files (13 messaging + 3 bootstraps + 3 catalogs + 3 supervisord confs):
+
+- **13/13 messaging files byte-identical** (CRLF-normalized).
+- **3/3 catalogs semantic-equal** — packaging compared against its template after binding
+  substitution; residual byte deltas are hand-formatting only (inline arrays, spacing).
+- **3/3 bootstraps differ by exactly one path each** — `tags.scenario` present in the render (F-10).
+- **site + filling confs semantic-equal; packaging conf differs in exactly one value** — the
+  config-component command, where render-time binding substitution replaces the runtime
+  `render-packaging-catalog` step (F-3). Comments and section ordering in hand confs are not compared.
+
+Net: **18/22 fully semantic-equal, and all four remaining deltas are the two documented, deliberate
+improvements.** Full byte-for-byte parity is reached by *adoption* — replacing the harness's hand
+files with the generated canonical output (which also fixes F-10) and letting the harness E2E prove
+behavioral equivalence. That is a bottling-company-test change, taken separately.
 
 ## Verdict
 
@@ -77,4 +108,5 @@ harness is derivable from `definition.yaml` + `layers/` + `bindings/local.json`,
 mechanisms (placement-derived lineage, binding tokens) replace the two most error-prone hand-maintained
 patterns (triplicated scope nodes, template substitution), and the only genuine gap found (F-4) is an
 additive schema feature, not a structural correction. Step 1's acceptance criterion is met; slice 1's
-byte-for-byte oracle set is the 16 config files plus 3 supervisor confs named above.
+oracle set is the **22 files** above (13 messaging + 3 bootstraps + 3 catalogs + 3 supervisor confs),
+and the kernel's oracle run against it is recorded in "Oracle results".

@@ -111,6 +111,8 @@ def main() -> None:
         uses_cc = any(c["configSource"] == "CONFIG_COMPONENT" for c in node["components"])
         if cp and cp["configSource"] == "CONFIG_COMPONENT":
             errors.append(f"S-9: node {key}: configProvider bootstrap must not be CONFIG_COMPONENT")
+        if cp and "layer" in cp:
+            check_layer(cp["layer"], f"{key}/configProvider")
         if uses_cc and not cp:
             errors.append(f"node {key}: components use CONFIG_COMPONENT but node has no configProvider")
         for comp in node["components"]:
