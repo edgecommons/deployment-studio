@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - First Run</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">DS</div>
+        <div>
+          <span>Deployment Studio</span>
+          <b>Workspace setup</b>
+        </div>
+      </div>
+      <div class="global-search">
+        <input aria-label="Search" placeholder="Search setup choices, registry components, or import sources">
+      </div>
+      <div class="top-actions">
+        <span class="pill">empty workspace</span>
+        <span class="pill">generate-only</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a class="active" href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a href="fleet.html">Fleet</a>
+        <a href="definition-map.html">Dataflows</a>
+        <a href="component-editor.html">Components</a>
+        <a href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Empty-state path</span>
+            <h1>Start with no fleet, no repo, and no deployment definitions.</h1>
+            <p>The first-run UI gives the user a safe sequence: create storage, define hierarchy levels and first instances, set the enterprise target standard, assign a component to a device, and render a lab bundle before any live apply is possible.</p>
+          </div>
+          <div class="actions">
+            <button class="button">Import artifacts</button>
+            <button class="button primary">Create workspace</button>
+          </div>
+        </header>
+
+        <section class="workbench setup" data-wizard>
+          <aside class="rail">
+            <h2>Setup progress</h2>
+            <div class="step-list">
+              <button class="step wizard-step active" type="button" data-wizard-go="storage"><strong>1</strong><div><b>Create or connect storage</b><span>required</span></div></button>
+              <button class="step wizard-step" type="button" data-wizard-go="hierarchy"><strong>2</strong><div><b>Build hierarchy</b><span>levels + first instances</span></div></button>
+              <button class="step wizard-step" type="button" data-wizard-go="target"><strong>3</strong><div><b>Set target standard</b><span data-current-target>Greengrass standard</span></div></button>
+              <button class="step wizard-step" type="button" data-wizard-go="component"><strong>4</strong><div><b>Add components</b><span data-assigned-count>2 assigned</span></div></button>
+              <button class="step wizard-step" type="button" data-wizard-go="render"><strong>5</strong><div><b>Render lab bundle</b><span>not promoted</span></div></button>
+            </div>
+          </aside>
+
+          <section class="stack">
+            <div class="panel wizard-panel active" data-wizard-panel="storage">
+              <h2>1. Choose how deployment definitions will be stored</h2>
+              <div class="grid-3" data-select-group>
+                <button class="card selectable active" data-step-check>
+                  <b>Create deployment repo</b>
+                  <p class="muted">Initialize the Git-backed source of truth with definitions, layers, targets, releases, and evidence.</p>
+                </button>
+                <button class="card selectable">
+                  <b>Connect existing repo</b>
+                  <p class="muted">Use an existing private repo and validate that required folders and branch rules exist.</p>
+                </button>
+                <button class="card selectable">
+                  <b>Import generated artifacts</b>
+                  <p class="muted">Map an existing supervisord, Kubernetes, or Greengrass deployment back into the model.</p>
+                </button>
+              </div>
+            </div>
+
+            <div class="panel hierarchy-builder wizard-panel" data-wizard-panel="hierarchy" data-hierarchy-builder>
+              <div class="hierarchy-toolbar">
+                <div>
+                  <h2>2. Define hierarchy levels and first instances</h2>
+                  <p class="muted">Level definitions are ordered metadata. Parentage is implied by position, and instance keys appear only in the graph below.</p>
+                </div>
+                <button class="button" type="button" data-add-level>Add level</button>
+              </div>
+
+              <h3 class="subhead">Hierarchy level definitions</h3>
+              <div class="hierarchy-chain" data-hierarchy-chain>
+                <div class="hierarchy-level" data-level>
+                  <strong data-order>1</strong>
+                  <label>Level type<select data-level-type><option selected>enterprise</option><option>region</option><option>site</option><option>building</option><option>zone</option><option>line</option><option>cell</option><option>edge node</option></select></label>
+                  <label>Display label<input data-level-label value="Enterprise"></label>
+                  <label>Description<input data-level-description value="Company-wide deployment root"></label>
+                  <div class="level-actions">
+                    <button type="button" data-move-up>Up</button>
+                    <button type="button" data-move-down>Down</button>
+                    <button type="button" data-delete-level>Delete</button>
+                  </div>
+                </div>
+                <div class="hierarchy-level" data-level>
+                  <strong data-order>2</strong>
+                  <label>Level type<select data-level-type><option>enterprise</option><option>region</option><option selected>site</option><option>building</option><option>zone</option><option>line</option><option>cell</option><option>edge node</option></select></label>
+                  <label>Display label<input data-level-label value="Site"></label>
+                  <label>Description<input data-level-description value="Plant or location boundary"></label>
+                  <div class="level-actions">
+                    <button type="button" data-move-up>Up</button>
+                    <button type="button" data-move-down>Down</button>
+                    <button type="button" data-delete-level>Delete</button>
+                  </div>
+                </div>
+                <div class="hierarchy-level" data-level>
+                  <strong data-order>3</strong>
+                  <label>Level type<select data-level-type><option>enterprise</option><option>region</option><option>site</option><option>building</option><option>zone</option><option selected>line</option><option>cell</option><option>edge node</option></select></label>
+                  <label>Display label<input data-level-label value="Line"></label>
+                  <label>Description<input data-level-description value="Production line or process area"></label>
+                  <div class="level-actions">
+                    <button type="button" data-move-up>Up</button>
+                    <button type="button" data-move-down>Down</button>
+                    <button type="button" data-delete-level>Delete</button>
+                  </div>
+                </div>
+                <div class="hierarchy-level" data-level>
+                  <strong data-order>4</strong>
+                  <label>Level type<select data-level-type><option>enterprise</option><option>region</option><option>site</option><option>building</option><option>zone</option><option>line</option><option>cell</option><option selected>edge node</option></select></label>
+                  <label>Display label<input data-level-label value="Edge node"></label>
+                  <label>Description<input data-level-description value="Deployable edge runtime node"></label>
+                  <div class="level-actions">
+                    <button type="button" data-move-up>Up</button>
+                    <button type="button" data-move-down>Down</button>
+                    <button type="button" data-delete-level>Delete</button>
+                  </div>
+                </div>
+              </div>
+              <div class="lineage-preview">
+                <span>Hierarchy shape</span>
+                <code data-lineage-preview>enterprise -> site -> line -> edge-node</code>
+              </div>
+
+              <div class="instance-graph">
+                <div class="hierarchy-toolbar">
+                  <div>
+                    <h3 class="subhead">Initial instance graph</h3>
+                    <p class="muted">Instances live inside levels. Each instance has an instance key and one parent instance, except the enterprise root.</p>
+                  </div>
+                  <button class="button" type="button">Add instance</button>
+                </div>
+                <div class="org-chart" data-instance-root>
+                  <div class="org-node-wrap">
+                    <button class="instance-node" type="button" data-instance-select data-instance-label="enterprise/acme" data-instance-detail="Enterprise root instance. Instance key acme.">
+                      <span>Enterprise</span><b>Acme Manufacturing</b><code>key: acme</code>
+                    </button>
+                    <div class="org-children">
+                      <div class="org-node-wrap">
+                        <button class="instance-node" type="button" data-instance-select data-instance-label="site/dallas" data-instance-detail="Site instance under enterprise/acme. Instance key dallas.">
+                          <span>Site</span><b>Dallas</b><code>key: dallas</code>
+                        </button>
+                        <div class="org-children">
+                          <div class="org-node-wrap">
+                            <button class="instance-node" type="button" data-instance-select data-instance-label="line/filling-line-7" data-instance-detail="Line instance under site/dallas. Instance key filling-line-7.">
+                              <span>Line</span><b>Filling line 7</b><code>key: filling-line-7</code>
+                            </button>
+                            <div class="org-children">
+                              <div class="org-node-wrap">
+                                <button class="instance-node active" type="button" data-instance-select data-instance-label="edge-node/gw-fill-01" data-instance-detail="Edge node instance under line/filling-line-7. Instance key gw-fill-01.">
+                                  <span>Edge node</span><b>gw-fill-01</b><code>key: gw-fill-01</code>
+                                </button>
+                              </div>
+                              <div class="org-node-wrap">
+                                <button class="instance-node" type="button" data-instance-select data-instance-label="edge-node/gw-fill-02" data-instance-detail="Second edge node instance under line/filling-line-7. Instance key gw-fill-02.">
+                                  <span>Edge node</span><b>gw-fill-02</b><code>key: gw-fill-02</code>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="org-node-wrap">
+                            <button class="instance-node" type="button" data-instance-select data-instance-label="line/packaging-2" data-instance-detail="Second line instance under site/dallas. Instance key packaging-2.">
+                              <span>Line</span><b>Packaging 2</b><code>key: packaging-2</code>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="org-node-wrap">
+                        <button class="instance-node" type="button" data-instance-select data-instance-label="site/austin" data-instance-detail="Second site instance under enterprise/acme. Instance key austin.">
+                          <span>Site</span><b>Austin</b><code>key: austin</code>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel wizard-panel" data-wizard-panel="target">
+              <h2>3. Set the enterprise target standard</h2>
+              <p class="muted">Most organizations standardize on one target family for deployments. Per-deployment platform exceptions are supported, but they should be governed and rare.</p>
+              <div class="target-grid" data-select-group>
+                <button class="target-card" data-preview-target="#setupPreview" data-preview="host" data-target-label="HOST standard">
+                  <b>HOST / supervisord standard</b>
+                  <span class="chip">enterprise default</span>
+                </button>
+                <button class="target-card" data-preview-target="#setupPreview" data-preview="kubernetes" data-target-label="Kubernetes standard">
+                  <b>Kubernetes standard</b>
+                  <span class="chip">enterprise default</span>
+                </button>
+                <button class="target-card active" data-preview-target="#setupPreview" data-preview="greengrass" data-target-label="Greengrass standard">
+                  <b>Greengrass standard</b>
+                  <span class="chip pass">enterprise default</span>
+                </button>
+              </div>
+              <div class="exception-policy">
+                <label><input type="checkbox"> Allow per-deployment target exceptions with platform-owner approval</label>
+                <span class="chip warn">exception path</span>
+              </div>
+            </div>
+
+            <div class="table-card wizard-panel" data-wizard-panel="component">
+              <h2>4. Add components to the selected edge</h2>
+              <p class="muted">Choose the hierarchy instance where components will run, then check the component templates to assign to that edge. Each checked row creates or updates a component instance for the selected deployment scope.</p>
+              <div class="assignment-layout">
+                <div class="panel soft-panel">
+                  <h3 class="subhead">Deployment scope</h3>
+                  <div class="assignment-tree" data-instance-root>
+                    <button class="tree-node scope-node" type="button" data-depth="0" data-instance-select data-instance-label="enterprise/acme" data-instance-detail="Enterprise root selected. Usually used only for defaults, not direct component deployment."><b>Acme Manufacturing</b><span>enterprise</span></button>
+                    <button class="tree-node scope-node" type="button" data-depth="1" data-instance-select data-instance-label="site/dallas" data-instance-detail="Site selected. Components assigned here would run on every included edge node if a rollout rule allows it."><b>Dallas</b><span>site</span></button>
+                    <button class="tree-node scope-node" type="button" data-depth="2" data-instance-select data-instance-label="line/filling-line-7" data-instance-detail="Line selected. Use this to deploy a component to all nodes in the line or to narrow to a specific edge node."><b>Filling line 7</b><span>line</span></button>
+                    <button class="tree-node scope-node active" type="button" data-depth="3" data-instance-select data-instance-label="edge-node/gw-fill-01" data-instance-detail="Edge node gw-fill-01 selected. Checked component instances will run on this device."><b>gw-fill-01</b><span>edge node</span></button>
+                    <button class="tree-node scope-node" type="button" data-depth="3" data-instance-select data-instance-label="edge-node/gw-fill-02" data-instance-detail="Edge node gw-fill-02 selected. Choose this for a second device-specific component instance."><b>gw-fill-02</b><span>edge node</span></button>
+                  </div>
+                </div>
+                <div class="panel soft-panel">
+                  <h3 class="subhead">Assignment summary</h3>
+                  <dl class="mini-dl">
+                    <dt>Selected scope</dt><dd data-selected-instance>edge-node/gw-fill-01</dd>
+                    <dt>Assignment mode</dt><dd>single edge node</dd>
+                    <dt>Target binding</dt><dd>Greengrass thing gw-fill-01</dd>
+                    <dt>Components</dt><dd data-assigned-count>2 assigned</dd>
+                  </dl>
+                  <p class="muted" data-selected-instance-detail>Edge node gw-fill-01 selected. Checked components will run on this device.</p>
+                </div>
+              </div>
+              <div class="component-assignment-grid">
+                <div class="table-card">
+                  <h3 class="subhead">Component catalog</h3>
+                  <table class="data-table" data-component-catalog>
+                    <thead>
+                      <tr><th>Added</th><th>Component</th><th>Runtime</th><th>Requires</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr class="row active" data-component-option data-row-detail="telemetry-processor is assigned to gw-fill-01 and configured for local pub/sub, durable buffer, and health."
+                        data-component-name="telemetry-processor" data-component-instance="archive" data-component-layer="edge-node/gw-fill-01 + component/telemetry-processor/archive" data-component-input="southbound.signal.update" data-component-storage="1073741824" data-component-health="/readyz">
+                        <td><label class="check-cell"><input type="checkbox" checked data-component-added><span>added</span></label></td>
+                        <td><b>telemetry-processor</b></td><td>Rust</td><td>local pub/sub, durable buffer</td><td><span class="state pass" data-component-status>assigned</span></td>
+                      </tr>
+                      <tr class="row" data-component-option data-row-detail="opcua-adapter is assigned to gw-fill-01 and needs endpoint configuration before render."
+                        data-component-name="opcua-adapter" data-component-instance="main" data-component-layer="edge-node/gw-fill-01 + component/opcua-adapter/main" data-component-input="opc.tcp://plc-17:4840" data-component-storage="n/a" data-component-health="/health">
+                        <td><label class="check-cell"><input type="checkbox" checked data-component-added><span>added</span></label></td>
+                        <td><b>opcua-adapter</b></td><td>Java</td><td>southbound network, local pub/sub</td><td><span class="state warn" data-component-status>needs config</span></td>
+                      </tr>
+                      <tr class="row" data-component-option data-row-detail="modbus-adapter is available but not assigned to gw-fill-01."
+                        data-component-name="modbus-adapter" data-component-instance="main" data-component-layer="edge-node/gw-fill-01 + component/modbus-adapter/main" data-component-input="tcp://10.30.7.42:502" data-component-storage="n/a" data-component-health="/health">
+                        <td><label class="check-cell"><input type="checkbox" data-component-added><span>add</span></label></td>
+                        <td><b>modbus-adapter</b></td><td>Python</td><td>device endpoint, local pub/sub</td><td><span class="state" data-component-status>available</span></td>
+                      </tr>
+                      <tr class="row" data-component-option data-row-detail="file-replicator is available but should usually be added after telemetry output is configured."
+                        data-component-name="file-replicator" data-component-instance="main" data-component-layer="edge-node/gw-fill-01 + component/file-replicator/main" data-component-input="processed.batch" data-component-storage="2147483648" data-component-health="/readyz">
+                        <td><label class="check-cell"><input type="checkbox" data-component-added><span>add</span></label></td>
+                        <td><b>file-replicator</b></td><td>Rust</td><td>durable buffer, file output</td><td><span class="state" data-component-status>available</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="panel soft-panel component-config">
+                  <h3 class="subhead">Configure selected component</h3>
+                  <dl class="mini-dl">
+                    <dt>Component</dt><dd data-config-component>telemetry-processor</dd>
+                    <dt>Runs on</dt><dd data-selected-instance>edge-node/gw-fill-01</dd>
+                  </dl>
+                  <div class="form-grid">
+                    <label>Instance id<input data-config-instance value="archive"></label>
+                    <label>Config layer<input data-config-layer value="edge-node/gw-fill-01 + component/telemetry-processor/archive"></label>
+                    <label>Input or endpoint<input data-config-input value="southbound.signal.update"></label>
+                    <label>Buffer bytes<input data-config-storage value="1073741824"></label>
+                    <label>Health path<input data-config-health value="/readyz"></label>
+                    <label>Save behavior<select><option>write component layer</option><option>open component editor after setup</option></select></label>
+                  </div>
+                  <p class="muted">This inline configuration captures the minimum required for the first render. The Components area provides the full editor for commands, secrets, policies, and advanced fields.</p>
+                  <a class="button" href="component-editor.html">Open full component editor</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-card wizard-panel" data-wizard-panel="render">
+              <div class="code-tabs" role="tablist" aria-label="First render output">
+                <button class="active" data-code="greengrass" data-code-target="#setupPreview" data-standard-render-tab role="tab" aria-selected="true">Greengrass standard</button>
+                <button data-code="lock" data-code-target="#setupPreview" role="tab" aria-selected="false">Release lock</button>
+              </div>
+              <pre id="setupPreview">RecipeFormatVersion: "2020-01-25"
+ComponentName: "com.mbreissi.edgecommons.TelemetryProcessor"
+ComponentVersion: "1.4.2"
+Manifests:
+  - Platform:
+      os: linux
+    Artifacts:
+      - URI: "s3://acme-edge-artifacts/telemetry-processor/1.4.2/telemetry-processor"
+    Lifecycle:
+      Install:
+        Script: "chmod +x {artifacts:path}/telemetry-processor"
+      Run:
+        Script: "{artifacts:path}/telemetry-processor --platform GREENGRASS -c GG_CONFIG"</pre>
+            </div>
+
+            <div class="wizard-actions">
+              <button class="button" type="button" data-wizard-prev>Back</button>
+              <button class="button primary" type="button" data-wizard-next>Next</button>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <h2>Setup inspector</h2>
+            <dl>
+              <dt>Current step</dt><dd data-current-step>Create or connect storage</dd>
+              <dt>Target standard</dt><dd data-current-target>Greengrass standard</dd>
+              <dt>Hierarchy shape</dt><dd data-inspector-hierarchy>enterprise -> site -> line -> edge-node</dd>
+              <dt>Selected instance</dt><dd data-selected-instance>edge-node/gw-fill-01</dd>
+              <dt>Source path</dt><dd>deployment/workspace.yaml</dd>
+              <dt>First milestone</dt><dd>validated lab render</dd>
+              <dt>Selected row</dt><dd data-selected-detail>telemetry-processor is assigned to gw-fill-01 and configured for local pub/sub, durable buffer, and health.</dd>
+            </dl>
+            <hr>
+            <ul class="checklist">
+              <li>Storage location selected</li>
+              <li>Hierarchy names valid</li>
+              <li>Target standard selected</li>
+              <li class="warn">Apply credentials not configured</li>
+            </ul>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

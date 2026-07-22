@@ -1,0 +1,6 @@
+# Browser-test droppings from local verification sessions
+.playwright-mcp/
+
+# Future build output
+target/
+node_modules/

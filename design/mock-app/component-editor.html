@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - Component Editor</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Component editor</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Search component fields, commands, instances, secret refs"></div>
+      <div class="top-actions"><span class="pill">telemetry-processor</span><span class="pill">standard: Greengrass</span><span class="pill">schema valid</span></div>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a href="fleet.html">Fleet</a>
+        <a href="definition-map.html">Dataflows</a>
+        <a class="active" href="component-editor.html">Components</a>
+        <a href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Component instance</span>
+            <h1>Edit one component without losing selected-target consequences.</h1>
+            <p>The screen uses concrete fields, compatibility checks, command verbs, and Greengrass render impact. It does not compare other target families after the target standard has been selected.</p>
+          </div>
+          <div class="actions"><button class="button">Duplicate instance</button><a class="button primary" href="render-review.html">Preview render</a></div>
+        </header>
+
+        <section class="workbench">
+          <aside class="rail">
+            <h2>Component list</h2>
+            <div class="tree">
+              <div class="tree-node"><b>opcua-adapter</b><span>Java, running</span></div>
+              <div class="tree-node"><b>modbus-adapter</b><span>Python, running</span></div>
+              <div class="tree-node active"><b>telemetry-processor</b><span>Rust, dirty config</span></div>
+              <div class="tree-node"><b>file-replicator</b><span>pending draft</span></div>
+              <div class="tree-node"><b>uns-bridge</b><span>northbound</span></div>
+            </div>
+          </aside>
+
+          <section class="stack">
+            <div class="panel">
+              <h2>Instance fields</h2>
+              <div class="form-grid">
+                <label>Instance id<input value="archive"></label>
+                <label>Input class<select><option>southbound.signal.update</option><option>processed.batch</option></select></label>
+                <label>Script engine<select><option>Rhai</option><option>Lua</option><option>None</option></select></label>
+                <label>Durable buffer<input value="1073741824"></label>
+                <label>Northbound token ref<input value="secret://prod/northbound/api-token"></label>
+                <label>Health endpoint<input value="/readyz"></label>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="table-card">
+                <h2>Command verbs</h2>
+                <table class="data-table">
+                  <thead><tr><th>Verb</th><th>Scope</th><th>Enabled</th><th>Audit</th></tr></thead>
+                  <tbody>
+                    <tr class="row active" data-row-detail="reload-routes triggers config reload without process restart."><td>reload-routes</td><td>instance</td><td><span class="state pass">yes</span></td><td>required</td></tr>
+                    <tr class="row" data-row-detail="flush-buffer can drop queued data and requires operator approval."><td>flush-buffer</td><td>instance</td><td><span class="state warn">guarded</span></td><td>required</td></tr>
+                    <tr class="row" data-row-detail="debug-snapshot is disabled in prod by policy."><td>debug-snapshot</td><td>component</td><td><span class="state block">no</span></td><td>blocked</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="table-card">
+                <h2>Secret references</h2>
+                <table class="data-table">
+                  <thead><tr><th>Name</th><th>Provider</th><th>Greengrass binding</th></tr></thead>
+                  <tbody>
+                    <tr><td>northbound/api-token</td><td>external secret ref</td><td>TES role alias and secret reference</td></tr>
+                    <tr><td>broker/client-cert</td><td>TLS cert ref</td><td>nucleus secret and mounted artifact path</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="table-card">
+              <h2>Greengrass render impact</h2>
+              <table class="data-table">
+                <thead><tr><th>Impact</th><th>Rendered change</th><th>Gate</th></tr></thead>
+                <tbody>
+                  <tr><td>Restart</td><td>component deployment revision</td><td><span class="state pass">planned</span></td></tr>
+                  <tr><td>Storage</td><td>artifact path and recipe environment</td><td><span class="state warn">smoke</span></td></tr>
+                  <tr><td>Permission</td><td>accessControl warning</td><td><span class="state warn">review</span></td></tr>
+                  <tr><td>Config</td><td>configurationUpdate merge</td><td><span class="state pass">lint</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <h2>Field inspector</h2>
+            <dl>
+              <dt>Selected</dt><dd data-selected-detail>reload-routes triggers config reload without process restart.</dd>
+              <dt>Schema</dt><dd>component.instances[].commands[]</dd>
+              <dt>Runtime effect</dt><dd>command metadata and audit event</dd>
+              <dt>Policy</dt><dd><span class="state pass">allowed in prod</span></dd>
+            </dl>
+            <hr>
+            <h2>Component layer</h2>
+            <pre>component:
+  instances:
+    - id: archive
+      inputClass: southbound.signal.update
+      streaming:
+        buffer:
+          maxDiskBytes: 1073741824</pre>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

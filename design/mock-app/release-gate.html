@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - Release Gate</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Releases</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Search evidence, approver, policy, audit event"></div>
+      <div class="top-actions"><span class="pill">standard: Greengrass</span><span class="pill">apply locked</span><span class="pill">2 approvals needed</span></div>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a href="fleet.html">Fleet</a>
+        <a href="definition-map.html">Dataflows</a>
+        <a href="component-editor.html">Components</a>
+        <a href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a class="active" href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Protected promotion</span>
+            <h1>Promotion, apply, audit, and rollback are separate controls.</h1>
+            <p>The gate page keeps generated Greengrass artifacts and deployment tooling tied to evidence. Apply controls stay disabled until selected-target approvals and smoke evidence exist.</p>
+          </div>
+          <div class="actions"><button class="button">Request approvals</button><button class="button primary">Promote release</button></div>
+        </header>
+
+        <section class="workbench two-col">
+          <section class="stack">
+            <div class="gate-list">
+              <div class="gate"><span class="dot"></span><div><b>Source schema</b><p class="muted">Deployment definition and effective configs validate.</p></div><span class="state pass">pass</span></div>
+              <div class="gate"><span class="dot warn"></span><div><b>Semantic policy</b><p class="muted">Greengrass subscription scope is broader than generated topic map.</p></div><span class="state warn">warn</span></div>
+              <div class="gate"><span class="dot"></span><div><b>Render lint</b><p class="muted">Greengrass recipe, deployment JSON, effective config, and optional exception artifacts parse with stable hashes.</p></div><span class="state pass">pass</span></div>
+              <div class="gate"><span class="dot"></span><div><b>IaC policy</b><p class="muted">Per-node AWS IoT thing and artifact-bucket plan input has no deny findings.</p></div><span class="state pass">pass</span></div>
+              <div class="gate"><span class="dot warn"></span><div><b>Target smoke</b><p class="muted">Greengrass device smoke is missing for this render hash.</p></div><span class="state warn">missing</span></div>
+              <div class="gate"><span class="dot"></span><div><b>Runtime health</b><p class="muted">Previous release healthy; rollback lock ready.</p></div><span class="state pass">pass</span></div>
+            </div>
+
+            <div class="approval-list">
+              <div class="approval"><span class="dot warn"></span><div><b>Platform owner</b><p class="muted">Required for all production releases.</p></div><button class="button">request</button></div>
+              <div class="approval"><span class="dot warn"></span><div><b>Security owner</b><p class="muted">Required because semantic policy has warning.</p></div><button class="button">request</button></div>
+              <div class="approval"><span class="dot"></span><div><b>Component owner</b><p class="muted">Approved component schema and route changes.</p></div><span class="state pass">approved</span></div>
+              <div class="approval"><span class="dot"></span><div><b>Edge operations</b><p class="muted">Per-node thing targets and rollback lock are scoped.</p></div><span class="state pass">scoped</span></div>
+            </div>
+
+            <div class="panel">
+              <h2>Apply mode</h2>
+              <div class="grid-3" data-select-group>
+                <button class="card selectable active" data-mode="Generate-only: write artifacts, evidence, and release lock to Git. External systems deploy the Greengrass standard."><b>Generate-only</b><p class="muted">Default and safest mode.</p></button>
+                <button class="card selectable" data-mode="Delegated apply: use promoted ReleaseLock to call the Greengrass deployment API."><b>Delegated apply</b><p class="muted">Requires credentials and approvals.</p></button>
+                <button class="card selectable" data-mode="Emergency rollback: apply previous Greengrass release lock with incident approval."><b>Rollback</b><p class="muted">Uses deploy-prod-2026-07-02.</p></button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <h2>Action lane</h2>
+            <dl>
+              <dt>Current mode</dt><dd data-mode-readout>Generate-only: write artifacts, evidence, and release lock to Git. External systems deploy the Greengrass standard.</dd>
+              <dt>Target standard</dt><dd>Greengrass</dd>
+              <dt>Apply state</dt><dd><span class="state warn">locked</span></dd>
+              <dt>Evidence hash</dt><dd>sha256:fb91c0</dd>
+              <dt>Rollback lock</dt><dd>deploy-prod-2026-07-02</dd>
+            </dl>
+            <hr>
+            <h2>Audit preview</h2>
+            <pre>event: deployment.release.requested
+releaseLock: deploy-prod-2026-07-08
+actor: user@example.com
+mode: generate-only
+standardTarget: greengrass
+exceptionTargets: []
+evidenceHash: sha256:fb91c0</pre>
+            <hr>
+            <button class="button primary">Write release lock</button>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

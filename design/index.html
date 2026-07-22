@@ -1,0 +1,1566 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EdgeCommons Deployment Studio Design</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#studio" aria-label="EdgeCommons Deployment Studio">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>
+          <strong>Deployment Studio</strong>
+          <small>EdgeCommons design artifact</small>
+        </span>
+      </a>
+      <nav aria-label="Page sections">
+        <a href="#book">Book</a>
+        <a href="#baseline">Baseline</a>
+        <a href="#model">Model</a>
+        <a href="#iac">IaC</a>
+        <a href="#devsecops">DevSecOps</a>
+        <a href="#storage">Versioning</a>
+        <a href="#ui">UI</a>
+        <a href="#runtime">Runtime</a>
+      </nav>
+    </header>
+
+    <main>
+      <section id="studio" class="band studio-band">
+        <div class="content studio-layout">
+          <div class="studio-copy">
+            <p class="eyebrow">Design thesis</p>
+            <h1>Deployment definitions become the missing control-plane layer above the existing runtime model.</h1>
+            <p class="lead">
+              EdgeCommons already abstracts component runtime services. The next layer should describe a whole running
+              solution once, keep that definition reviewable in Git, and render the platform artifacts needed for
+              HOST/supervisord, KUBERNETES, and GREENGRASS without replacing the libraries, CLI, templates, or console.
+            </p>
+            <div class="thesis-grid" aria-label="Design priorities">
+              <div>
+                <span>01</span>
+                <b>Extend, do not replace</b>
+                <p>The model emits the current CLI, config schema, recipes, ConfigMaps, and supervised process commands.</p>
+              </div>
+              <div>
+                <span>02</span>
+                <b>Source stays small</b>
+                <p>Git stores intent, locks, validation evidence, and optionally release render snapshots.</p>
+              </div>
+              <div>
+                <span>03</span>
+                <b>UI owns complexity</b>
+                <p>People edit components, nodes, secrets, and policies through semantic controls, not artifact YAML.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rail-panel" aria-label="Interactive deployment compiler map">
+            <div class="rail-header">
+              <span>Definition compiler</span>
+              <div class="status-pill">deterministic render</div>
+            </div>
+            <svg class="rail-map" viewBox="0 0 880 520" role="img" aria-labelledby="railTitle railDesc">
+              <title id="railTitle">Deployment definition compiler</title>
+              <desc id="railDesc">
+                A source definition is resolved through runtime profiles, validation, and renderers into
+                supervisord, Kubernetes, and Greengrass artifacts.
+              </desc>
+              <defs>
+                <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#17212b" flood-opacity="0.16" />
+                </filter>
+              </defs>
+              <path class="rail rail-main" d="M90 250 H315 C385 250 390 140 455 140 H770" />
+              <path class="rail rail-main" d="M315 250 C385 250 390 250 455 250 H770" />
+              <path class="rail rail-main" d="M315 250 C385 250 390 360 455 360 H770" />
+              <path class="rail rail-muted" d="M90 250 C200 250 205 445 330 445 H770" />
+              <g class="station source-station active-station" tabindex="0" data-station="source">
+                <rect x="42" y="190" width="150" height="120" rx="8" />
+                <text x="70" y="232">Deployment</text>
+                <text x="70" y="258">Definition</text>
+                <text x="70" y="285" class="station-small">source of truth</text>
+              </g>
+              <g class="station" tabindex="0" data-station="profile">
+                <rect x="268" y="204" width="132" height="92" rx="8" />
+                <text x="296" y="242">Runtime</text>
+                <text x="296" y="268">Profile</text>
+              </g>
+              <g class="station" tabindex="0" data-station="host">
+                <rect x="520" y="86" width="210" height="108" rx="8" />
+                <text x="548" y="124">HOST</text>
+                <text x="548" y="151">supervisord.conf</text>
+                <text x="548" y="176" class="station-small">FILE + MQTT</text>
+              </g>
+              <g class="station" tabindex="0" data-station="kubernetes">
+                <rect x="520" y="196" width="210" height="108" rx="8" />
+                <text x="548" y="234">KUBERNETES</text>
+                <text x="548" y="261">Deployment/Chart</text>
+                <text x="548" y="286" class="station-small">CONFIGMAP + probes</text>
+              </g>
+              <g class="station" tabindex="0" data-station="greengrass">
+                <rect x="520" y="306" width="210" height="108" rx="8" />
+                <text x="548" y="344">GREENGRASS</text>
+                <text x="548" y="371">recipe + deployment</text>
+                <text x="548" y="396" class="station-small">GG_CONFIG + IPC</text>
+              </g>
+              <g class="station validation-station" tabindex="0" data-station="evidence">
+                <rect x="316" y="401" width="170" height="88" rx="8" />
+                <text x="342" y="438">Validation</text>
+                <text x="342" y="465" class="station-small">evidence bundle</text>
+              </g>
+            </svg>
+            <div class="station-readout" id="stationReadout">
+              <b>Deployment Definition</b>
+              <p>Names the solution, environments, nodes, components, runtime inputs, policies, secret references, and target renderers.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="book" class="band book-band">
+        <div class="content book-layout">
+          <aside class="book-nav" aria-label="Design document chapters">
+            <p class="eyebrow">Design document</p>
+            <a href="#chapter-thesis">1. Thesis</a>
+            <a href="#chapter-current-state">2. Current State</a>
+            <a href="#chapter-model">3. Domain Model</a>
+            <a href="#chapter-config">4. Configuration</a>
+            <a href="#chapter-storage">5. Storage and Versioning</a>
+            <a href="#chapter-rendering">6. Renderers</a>
+            <a href="#chapter-targets">7. Target Deep Dives</a>
+            <a href="#iac">8. Infrastructure as Code</a>
+            <a href="#devsecops">9. DevSecOps</a>
+            <a href="#chapter-ui-depth">10. Product Surface</a>
+            <a href="#chapter-operations">11. Operations</a>
+            <a href="#chapter-runtime">12. Runtime and Hosting</a>
+            <a href="#chapter-roadmap">13. Roadmap</a>
+          </aside>
+
+          <article class="book-content">
+            <header class="book-intro">
+              <p class="eyebrow">Expanded design</p>
+              <h2>Deployment Studio as the EdgeCommons deployment control plane</h2>
+              <p>
+                This document treats deployment as a first-class EdgeCommons capability. The point is not to invent a
+                fourth platform, or to hide platform reality behind a lowest-common-denominator abstraction. The point is
+                to let a user describe a running solution in one semantic model, validate that model against the runtime
+                contracts EdgeCommons already ships, and then produce the exact platform-native artifacts needed by
+                host/supervisord, Kubernetes, and AWS IoT Greengrass.
+              </p>
+              <p>
+                The design therefore has two centers of gravity. The first is a stable domain model: solution,
+                environment, edge node, component instance, config layer, secret reference, policy, renderer, release,
+                and evidence. The second is a product workflow: author intent, preview render output, evaluate risk,
+                generate or apply through controlled integrations, and observe whether the edge fleet converged.
+              </p>
+            </header>
+
+            <section id="chapter-thesis" class="chapter">
+              <h3>1. Thesis: deployment is the missing layer above runtime configuration</h3>
+              <p>
+                EdgeCommons already makes component code portable across runtime services. A component can ask for
+                messaging, configuration, state, health, metrics, hierarchy, credentials, and command handling without
+                embedding every platform detail into the business logic. The deployment problem is the adjacent problem:
+                somebody still has to decide which components run together, which identity each one uses, how config is
+                layered, which storage and network resources are required, how secrets are referenced, and how all of
+                that becomes deployable artifacts.
+              </p>
+              <p>
+                Today that knowledge is scattered across templates, recipes, Helm-like chart fragments, Docker Compose
+                and supervisord examples, component READMEs, test infrastructure, and human memory. The scattering is
+                tolerable while examples are small. It becomes expensive when a production edge solution has many
+                component instances, multiple lines or cells in the same site, local broker topology, durable stream
+                buffers, Greengrass policy constraints, Kubernetes probes, per-target storage, and a safety process that
+                expects reviewable change history.
+              </p>
+              <p>
+                Deployment Studio should introduce a typed deployment definition that compiles to platform artifacts.
+                The compiler metaphor matters. The source definition remains concise and semantic. The renderer is
+                deterministic. Validation is layered. The output is inspectable. The release carries evidence. When a
+                user changes the source, the system can show both the semantic diff and the rendered impact before any
+                edge device is touched.
+              </p>
+              <div class="principle-grid" aria-label="Design principles">
+                <div>
+                  <b>Semantic source</b>
+                  <p>Store intent: components, topology, config layers, policies, secrets, targets, and promotion rules.</p>
+                </div>
+                <div>
+                  <b>Native output</b>
+                  <p>Emit artifacts operators already understand: INI, YAML, recipes, deployment JSON, lock files, and scripts.</p>
+                </div>
+                <div>
+                  <b>Deterministic evidence</b>
+                  <p>Tie every release to source commit, renderer version, artifact hashes, validation results, and apply history.</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="chapter-current-state" class="chapter">
+              <h3>2. Current state: what the deployment layer must preserve</h3>
+              <p>
+                The design is grounded in the current implementation rather than a hypothetical greenfield platform. The
+                core library already has a platform resolver, a strict runtime config schema, config-source selection,
+                messaging and health conventions, component templates, and platform-specific test infrastructure. Those
+                are the contracts the deployment layer should compile into.
+              </p>
+              <p>
+                The critical runtime distinction is that <code>HOST</code>, <code>KUBERNETES</code>, and
+                <code>GREENGRASS</code> are EdgeCommons runtime profiles, while supervisord, Helm, Kustomize, GDK,
+                Greengrass deployments, and CI/CD systems are deployment mechanisms. For example, a supervisord
+                artifact should still launch a component with <code>--platform HOST</code>. A Greengrass recipe should
+                still launch with <code>--platform GREENGRASS</code> and use <code>GG_CONFIG</code>. A Kubernetes
+                workload should keep the ConfigMap whole-volume mount and the health probe conventions already used by
+                the test chart.
+              </p>
+              <table class="book-table">
+                <thead>
+                  <tr>
+                    <th>Existing capability</th>
+                    <th>Deployment design implication</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Strict config schema with required <code>component</code> root</td>
+                    <td>Validate rendered effective config, not only deployment source shape.</td>
+                  </tr>
+                  <tr>
+                    <td>Hierarchical config has shipped in all four languages</td>
+                    <td>Author into an ordered lineage the runtime already serves and merges &mdash; a contract to target, not one to invent.</td>
+                  </tr>
+                  <tr>
+                    <td><code>create-component</code> is template and manifest driven</td>
+                    <td>Reuse the template manifest idea for deployment renderers and output packs.</td>
+                  </tr>
+                  <tr>
+                    <td>ConfigComponent already abstracts source providers</td>
+                    <td>Render Git content into the existing file and ConfigMap sources, or add a Git-backed catalog source. Either way, runtime clients stay unchanged.</td>
+                  </tr>
+                  <tr>
+                    <td>Edge Console has fleet, config, review, command, and RBAC seams</td>
+                    <td>Host the product workflow there only after identity, audit, and protected Git writes are production-grade.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section id="chapter-model" class="chapter">
+              <h3>3. Domain model: the source file is not a pile of target YAML</h3>
+              <p>
+                The source model should describe a solution at the level where users make deployment decisions. A user
+                thinks in sites, lines, gateways, components, routes, certificates, device-local directories, broker
+                topology, namespaces, device identities, approvals, and blast radius. Target YAML is a consequence of those
+                decisions, not the authoring surface.
+              </p>
+              <p>
+                A deployment definition can be represented as a folder so that large solutions remain reviewable. The
+                root document names the solution and environments. Component instance documents hold runtime and
+                deployment intent. Config layer documents hold ordered hierarchy scopes and component leaves. Target
+                profile documents capture platform-specific constraints that are legitimate platform facts rather than
+                arbitrary overrides.
+              </p>
+              <div class="schema-example">
+                <div>
+                  <h4>Illustrative source shape</h4>
+                  <p>
+                    This is intentionally smaller than the rendered output. It names the desired running system, pins
+                    component artifacts, references config lineage, and declares target policies.
+                  </p>
+                </div>
+                <pre>{
+  "apiVersion": "edgecommons.io/v1alpha1",
+  "kind": "DeploymentDefinition",
+  "metadata": { "name": "dallas-filling-line", "owner": "manufacturing-platform" },
+  "environments": ["lab", "prod"],
+  "nodes": [
+    {
+      "id": "gw-fill-01",
+      "targets": ["HOST", "GREENGRASS"],
+      "components": [
+        {
+          "name": "telemetry-processor",
+          "artifact": { "version": "1.4.2", "digest": "sha256:..." },
+          "configLineage": [
+            { "scope": "enterprise/acme", "ref": "layers/enterprise/acme.json" },
+            { "scope": "site/dallas", "ref": "layers/sites/dallas.json" },
+            { "scope": "line/filling-line-7", "ref": "layers/lines/filling-line-7.json" },
+            { "scope": "component/telemetry-processor", "ref": "layers/components/telemetry-processor.json" }
+          ],
+          "runtime": { "messaging": "local-mqtt", "state": "durable-stream" }
+        }
+      ]
+    }
+  ],
+  "policies": ["least-privilege", "rendered-artifacts-must-validate", "prod-requires-approval"]
+}</pre>
+              </div>
+              <p>
+                The model must also carry negative space: what does not belong in the deployment source. Secret values
+                do not belong there. Fully rendered Kubernetes manifests do not belong there unless they are release
+                snapshots. Arbitrary shell scripts do not belong there unless they are declared as controlled hooks with
+                platform, phase, inputs, and review policy. This keeps the definition understandable and makes the UI
+                credible: the UI edits model fields, not blobs.
+              </p>
+            </section>
+
+            <section id="chapter-config" class="chapter">
+              <h3>4. Configuration and ConfigComponent: authored layers, strict runtime output</h3>
+              <p>
+                Configuration is the place where deployment abstraction can either become useful or become dangerous.
+                EdgeCommons runtime clients already expect a single effective config document that validates against the
+                canonical schema. The deployment layer can make authoring more humane, but it must not loosen that
+                contract. The safe rule is simple: users author deployment intent and raw config layers; renderers and
+                clients produce one effective runtime config; the effective config is what gets validated and observed.
+              </p>
+              <p>
+                Hierarchical config has shipped in all four languages, so this chapter describes an existing contract
+                rather than a proposal. <code>ConfigComponent</code> serves a raw <em>lineage bundle</em>: an ordered
+                array of layers, each carrying a scope claim and a config fragment, ending in exactly one component
+                layer. The SDK client merges <code>layers[].config</code> in array order &mdash; later layers win,
+                objects merge recursively, arrays and scalars replace wholesale, an explicit <code>null</code> replaces
+                &mdash; and validates only the merged effective document against the canonical schema. Layer metadata
+                (<code>id</code>, <code>kind</code>, <code>scope</code>) never reaches that document. The server never
+                pre-merges and never validates a partial layer as if it were a component config.
+              </p>
+              <p>
+                Two properties of the shipped contract shape the authoring surface directly. First, the hierarchy is
+                <b>user-defined</b>: <code>hierarchy.levels</code> is any depth the customer wants &mdash; enterprise,
+                site, building, zone, line is only the common example &mdash; and it must end with
+                <code>device</code>. Second, <b>the device is not a catalog node</b>. It resolves from the running
+                platform's thing name, so the catalog's nodes stop above it and components are the leaves. The client
+                also enforces ownership: a child layer may not overwrite an ancestor's scope value or an
+                ancestor-owned identity value, and an invalid reload keeps the previous effective config rather than
+                notifying listeners with a broken one. Deployment Studio authors <em>into</em> those rules and should
+                make lineage visible without forcing users to read the final JSON first.
+              </p>
+              <p>
+                ConfigComponent is the natural bridge from static files to centralized configuration. Its catalog already
+                loads through a source abstraction with file, ConfigMap, and env providers. A deployment system can extend that seam with a
+                Git-backed catalog source, or it can render Git content into the existing file/ConfigMap sources. The
+                first path gives direct version awareness and branch/ref pinning. The second path is simpler and keeps
+                the server unchanged, but shifts Git loading into CI/CD or the deployment renderer.
+              </p>
+              <div class="config-deep-grid">
+                <div>
+                  <h4>Authoring view</h4>
+                  <p>Users edit scope layers and component leaves with schema-aware forms, ownership badges, examples, and lineage-aware diffs.</p>
+                </div>
+                <div>
+                  <h4>Runtime view</h4>
+                  <p>Components consume one effective config through FILE, CONFIGMAP, GG_CONFIG, or CONFIG_COMPONENT sources.</p>
+                </div>
+                <div>
+                  <h4>Audit view</h4>
+                  <p>Release evidence records the Studio's hash of each authored layer file, the effective config hash, the validation result, and the <code>version</code> and <code>provenance</code> the bundle itself carries.</p>
+                </div>
+              </div>
+              <div class="book-callout">
+                <b>Important boundary</b>
+                <p>
+                  A component that bootstraps from ConfigComponent cannot depend recursively on ConfigComponent for its
+                  own bootstrap configuration. Deployment Studio should flag this while editing, before a user discovers
+                  the loop on an edge device.
+                </p>
+              </div>
+            </section>
+
+            <section id="chapter-storage" class="chapter">
+              <h3>5. Storage and versioning: Git is the audit log, not merely a backup</h3>
+              <p>
+                Deployment definitions need diff, review, history, rollback, provenance, and separation between proposed
+                and approved state. Git is a natural storage layer because it already supplies those primitives and
+                integrates with the DevSecOps systems that will evaluate changes. The design should treat Git as the
+                durable source of truth and use the UI as a structured editor and reviewer for that source.
+              </p>
+              <p>
+                A production workflow should write every proposed change to a branch. The UI can show the friendly
+                semantic diff, but the underlying change is still a real branch and a real commit. Promotion should tag a
+                commit or create a release object whose manifest points to the definition commit, the renderer version,
+                artifact hashes, validation results, supply-chain attestations, and target apply records.
+              </p>
+              <p>
+                That release object correlates <b>two independent streams; it does not fuse them</b>. Config releases and
+                artifact releases are versioned and reconciled separately, each with its own drift signal and its own
+                rollback target, so a config change ships without reshipping the binary and a binary ships without
+                rewriting config. The manifest records which version of each was in effect together &mdash; that is what
+                makes a coalesced apply auditable &mdash; but it never forces the two to move as one. Fusing them would
+                reproduce precisely the coupling the platform's own decision register rejects.
+              </p>
+              <div class="book-callout">
+                <b>Recommended repository layout</b>
+                <p>
+                  Use intent folders for definitions and layer inputs; use generated snapshots only for approved releases
+                  or for environments that require GitOps pull controllers. Avoid committing every transient preview
+                  render because that creates noise and makes review harder.
+                </p>
+              </div>
+              <div class="repo-map" aria-label="Repository layout map">
+                <pre>deployment/
+  definitions/
+    dallas-filling-line.yaml
+  layers/
+    shared/device-base.json
+    components/telemetry-processor.json
+  targets/
+    host/prod.yaml
+    kubernetes/prod.yaml
+    greengrass/prod.yaml
+  policies/
+    least-privilege.rego
+    promotion.yaml
+  releases/
+    2026-07-08T01-15Z/
+      manifest.json
+      evidence.json
+      rendered/
+        host/
+        kubernetes/
+        greengrass/</pre>
+                <div>
+                  <h4>What the UI controls</h4>
+                  <p>
+                    The UI creates branches, edits typed definition files, runs render previews, opens pull requests, and
+                    reads validation evidence. It should never make an unreviewed direct write to the protected release
+                    branch in production mode.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section id="chapter-rendering" class="chapter">
+              <h3>6. Rendering: target adapters preserve platform reality</h3>
+              <p>
+                The renderer layer is where the abstraction pays rent. It must hide repetitive mechanics without hiding
+                important target-specific decisions. HOST/supervisord, Kubernetes, and Greengrass have different
+                ownership models, health semantics, configuration delivery mechanisms, credential stories, and rollback
+                behavior. A renderer should produce native artifacts and a normalized deployment plan, but it should not
+                pretend those targets behave the same.
+              </p>
+              <div class="renderer-matrix">
+                <div>
+                  <h4>HOST / supervisord</h4>
+                  <p>
+                    Render process groups, priorities, restart behavior, wait gates, directory creation, local broker
+                    configuration, and EdgeCommons CLI commands. Treat supervisord as a HOST deployment strategy, not as
+                    a separate runtime platform.
+                  </p>
+                </div>
+                <div>
+                  <h4>Kubernetes</h4>
+                  <p>
+                    Render ConfigMaps, Deployments or StatefulSets, Services, probes, optional RBAC, optional
+                    ServiceMonitor, PVCs, and labels/annotations that connect the workload back to the deployment
+                    release.
+                  </p>
+                </div>
+                <div>
+                  <h4>Greengrass</h4>
+                  <p>
+                    Render recipes, GDK configuration, component artifacts, accessControl, lifecycle, runWith,
+                    configurationUpdate merge/reset, and cloud or local deployment commands.
+                  </p>
+                </div>
+              </div>
+              <p>
+                Every renderer should also emit a machine-readable plan. The plan is the common currency for validation,
+                UI display, policy checks, and deployment. It should describe creates, updates, deletes, restarts,
+                config mutations, credentials touched, target identities, and rollback affordances. This plan gives the
+                UI a stable model even when the generated files differ radically.
+              </p>
+            </section>
+
+            <section id="chapter-targets" class="chapter">
+              <h3>7. Target deep dives: the abstraction must respect each deployment world</h3>
+              <p>
+                The three supported targets are not cosmetic variants. They have different controllers, failure modes,
+                security boundaries, and operator muscle memory. The deployment abstraction works only if it lets common
+                EdgeCommons concepts stay common while giving each target enough native expression to be production
+                credible.
+              </p>
+              <h4>HOST / supervisord</h4>
+              <p>
+                HOST deployment is process-oriented. The running unit is a gateway or container that starts a local
+                broker and a set of component processes. The renderer should emit supervisord program groups with stable
+                priorities, start and stop behavior, restart policy, logging, and wait gates. It should generate the
+                exact EdgeCommons command line for each component, including <code>--platform HOST</code>,
+                <code>--transport MQTT</code>, FILE config paths, messaging files, and thing identity. It also needs a
+                host bundle contract: directories to create, files to stage, checksums to verify, supervisor validation
+                commands, and health checks to run after reload.
+              </p>
+              <p>
+                The open design question for HOST is apply semantics. EdgeCommons can generate a portable bundle, but
+                production organizations may already use Ansible, SSH, MDM, golden images, or a site operations process.
+                Deployment Studio should support generate-only first, then a narrow apply adapter that stages files,
+                validates supervisor config, reloads ordered programs, and records evidence without becoming a
+                general-purpose remote execution platform.
+              </p>
+              <p>
+                Delivery evidence on HOST is settled by accepting what the target is. HOST fleets are development
+                and small-deployment territory, and HOST has no control plane — so there is no automated source of
+                "the bundle arrived" evidence, and the Studio does not invent one. Convergence views <b>degrade
+                honestly</b> for control-plane-less targets: the delivery verdict is <em>unverified</em>, stated as
+                such, never inferred and never rendered as healthy. A small inspection utility that examines a HOST
+                deployment in place &mdash; staged files, checksums, supervisor state &mdash; and emits delivery
+                evidence for developers or small sites is a plausible later component, built on demand, not a
+                requirement of the model.
+              </p>
+              <h4>Kubernetes</h4>
+              <p>
+                Kubernetes deployment is API-object-oriented. The renderer should preserve the current EdgeCommons
+                Kubernetes contract: ConfigMap source, whole-directory mounts, Downward API identity, health endpoints,
+                Prometheus metrics, optional RBAC, optional ServiceMonitor, and StatefulSet/PVC when durable state is
+                required. The model should not let a user casually produce a <code>subPath</code> ConfigMap mount that
+                breaks hot-reload behavior, nor should it grant RBAC by default when the workload does not need API
+                access.
+              </p>
+              <p>
+                Kubernetes also has a mature deployment ecosystem. Some environments will use direct <code>kubectl</code>
+                or Helm from CI. Others will use Argo CD or Flux and expect Git to be the reconciliation boundary.
+                Deployment Studio should require the environment to choose one ownership mode. Direct apply and GitOps
+                handoff should not run silently at the same time, because that makes drift ambiguous and can cause
+                controller fights.
+              </p>
+              <h4>Greengrass</h4>
+              <p>
+                Greengrass deployment is nucleus-managed. The renderer must emit recipes with concrete component
+                versions, artifacts, lifecycle, dependencies, component configuration, accessControl, and runWith
+                settings. It must also produce deployment JSON with target ARNs and configurationUpdate merge/reset
+                operations. Greengrass security cannot be reduced to recipe syntax; the design has to account for IAM,
+                TokenExchangeService, IPC authorization, artifact buckets, and the difference between local lab
+                deployment and cloud deployment.
+              </p>
+              <p>
+                Those target ARNs are <b>thing ARNs, never thing group ARNs</b>. Every member of a thing group shares one
+                deployment document, and IIoT edge devices each carry a unique configuration, so a group cannot express
+                per-device intent. A definition's <code>nodes</code> therefore map one-to-one onto Greengrass
+                deployments: N nodes means N deployments, one apply record per node in the plan, and failure that is
+                partial per node rather than a single group verdict. This costs more API calls and buys back exactly the
+                staged, selectable rollout the product surface already assumes — and it removes union semantics, where a
+                device inheriting two groups would receive the merge of both.
+              </p>
+              <p>
+                Greengrass is also the target where release locking matters most. A cloud deployment should consume
+                concrete component versions and artifact URIs, not a moving source directory. Deployment Studio should
+                block apply when versions are not locked, when wildcard IPC permissions are unexplained, or when lab
+                regression evidence is required but missing.
+              </p>
+            </section>
+
+            <section id="iac" class="chapter">
+              <h3>8. Infrastructure as Code: Deployment Studio should be an IaC author and consumer</h3>
+              <p>
+                Infrastructure as Code belongs in the center of this design because real deployments at scale are not
+                just component config. A complete solution may need Kubernetes namespaces, service accounts, storage
+                classes, network policies, image registry permissions, AWS IoT things, Greengrass components,
+                S3 artifact buckets, IAM policies, IoT policies, secrets, KMS keys, observability resources, and CI/CD
+                identities. Some of those resources are best generated directly by EdgeCommons renderers. Others should
+                be delegated to established IaC tools such as Terraform, AWS CDK, Pulumi, Helm, Kustomize, or GitOps
+                controllers.
+              </p>
+              <p>
+                The key design choice is to separate deployment intent from infrastructure ownership. Deployment Studio
+                should be able to render IaC modules or inputs, import external IaC outputs, and show their relationship
+                to the edge solution. It should not assume it owns an organization's VPC, cluster, registry, or identity
+                foundation unless the user explicitly chooses that mode.
+              </p>
+              <div class="iac-lab" aria-label="Interactive infrastructure as code integration lab">
+                <div class="iac-choices" role="tablist" aria-label="IaC strategy selector">
+                  <button class="iac-choice active" data-iac="terraform" role="tab" aria-selected="true">Terraform</button>
+                  <button class="iac-choice" data-iac="cdk" role="tab" aria-selected="false">AWS CDK</button>
+                  <button class="iac-choice" data-iac="gitops" role="tab" aria-selected="false">Helm/Kustomize + GitOps</button>
+                  <button class="iac-choice" data-iac="greengrass" role="tab" aria-selected="false">Greengrass</button>
+                  <button class="iac-choice" data-iac="host" role="tab" aria-selected="false">Host Fleet</button>
+                </div>
+                <div class="iac-panel" id="iacPanel" aria-live="polite"></div>
+              </div>
+              <h4>How IaC marries with the UI</h4>
+              <p>
+                The UI should present infrastructure dependencies as first-class cards on the release plan. A Kubernetes
+                target might show that a namespace and PVC class already exist, a ServiceAccount will be generated, and
+                an ExternalSecret is expected from another system. A Greengrass target might show that each node's thing
+                is provisioned, the artifact bucket is managed by Terraform, and the recipe is generated by the current
+                release. A HOST target might show that OS package installation is outside the platform while
+                supervisord config and local directories are generated by EdgeCommons.
+              </p>
+              <p>
+                In generate-only mode, the UI creates a pull request containing definition changes, rendered artifacts,
+                IaC module inputs, and a plan summary. In apply mode, the UI still writes to Git first, but it may also
+                trigger an approved runner that performs Terraform plan/apply, CDK synth/deploy, Argo CD sync,
+                Greengrass deployment creation, or host orchestration. The UI should display the external system's plan
+                and status, not replace that system's audit log.
+              </p>
+              <table class="book-table">
+                <thead>
+                  <tr>
+                    <th>IaC pattern</th>
+                    <th>Deployment Studio responsibility</th>
+                    <th>External responsibility</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Terraform module</td>
+                    <td>Generate module inputs, consume outputs, show plan impact.</td>
+                    <td>Own provider credentials, remote state, locking, and apply approval.</td>
+                  </tr>
+                  <tr>
+                    <td>AWS CDK construct</td>
+                    <td>Emit construct configuration or a generated app for Greengrass/AWS resources.</td>
+                    <td>Run synth/deploy through CloudFormation and organization guardrails.</td>
+                  </tr>
+                  <tr>
+                    <td>Helm/Kustomize GitOps</td>
+                    <td>Generate values, overlays, release snapshots, and application annotations.</td>
+                    <td>Continuously reconcile Kubernetes cluster state and report drift.</td>
+                  </tr>
+                  <tr>
+                    <td>Greengrass deployment</td>
+                    <td>Generate recipe, GDK config, deployment JSON, policies, and configuration updates.</td>
+                    <td>AWS IoT Greengrass service applies deployment and nucleus reports device status.</td>
+                  </tr>
+                  <tr>
+                    <td>Host fleet orchestration</td>
+                    <td>Generate supervisord files, config packs, install manifests, and checksums.</td>
+                    <td>Existing SSH, MDM, Ansible, or image pipeline distributes and restarts services.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section id="devsecops" class="chapter">
+              <h3>9. DevSecOps integration: generation is useful, controlled deployment is different</h3>
+              <p>
+                Deployment Studio can begin as an artifact generator, but the architecture should leave room for
+                controlled deployment execution. The difference is governance. A generator needs deterministic rendering,
+                validation, and review. A deployer needs identity, authorization, audit trails, secrets discipline,
+                policy enforcement, environment protection, concurrency control, rollback strategy, and live drift
+                detection.
+              </p>
+              <p>
+                The safest architecture is Git-first. Even when the platform eventually effects deployments, the UI
+                should produce a branch, a semantic diff, a rendered plan, and a validation bundle. The actual apply can
+                be performed by a signed runner, GitHub Actions environment, Terraform Cloud/HCP run, Argo CD sync,
+                Greengrass API call, or host orchestrator. Deployment Studio then becomes the connective tissue: it
+                knows EdgeCommons semantics, it prepares native artifacts, it records evidence, and it correlates live
+                status back to the definition.
+              </p>
+              <div class="gate-explorer" aria-label="DevSecOps gate explorer">
+                <div class="gate-list" id="gateList"></div>
+                <div class="gate-detail" id="gateDetail" aria-live="polite"></div>
+              </div>
+              <h4>Policy and evidence model</h4>
+              <p>
+                Rendered plans should be policy inputs. OPA/Rego-style policy is a good fit because the plan can be
+                structured JSON: target platform, resources, permissions, images, secret refs, command lines, network
+                exposure, Greengrass accessControl, Kubernetes securityContext, and host process users. Policies can
+                produce blocking decisions, warnings, required approvers, and remediation hints.
+              </p>
+              <p>
+                Supply-chain evidence should travel with releases. For container and component artifacts this includes
+                image digests, SBOM references, vulnerability scan results, signatures, provenance attestations, and the
+                exact builder identity. For generated deployment artifacts this includes the source commit, renderer
+                version, renderer inputs, output hashes, policy decisions, and apply target identity. Release evidence is
+                what lets an operator answer: what did we intend, what did we generate, who approved it, what applied it,
+                and what actually ran?
+              </p>
+              <div class="devsecops-flow">
+                <span>Commit</span>
+                <span>Validate</span>
+                <span>Render</span>
+                <span>Policy</span>
+                <span>Sign</span>
+                <span>Approve</span>
+                <span>Apply</span>
+                <span>Observe</span>
+              </div>
+            </section>
+
+            <section id="chapter-ui-depth" class="chapter">
+              <h3>10. Product surface: detailed UI flows, screens, and interaction model</h3>
+              <p>
+                The UI cannot be a prettier YAML editor, and it cannot be a small set of cards that merely restate
+                requirements. It has to be a working mental model for a difficult operational job: understand what is
+                running, propose a desired-state change, keep hierarchical config explainable, preview target-specific
+                artifacts, pass governance gates, and then watch the release converge.
+              </p>
+              <p>
+                The product should feel like a deployment control room. It needs a stable site tree, a release/draft
+                context, a task workspace, and an inspector that explains why the system thinks something is safe or
+                risky. The operator should always know four things: where they are in the fleet, which desired-state
+                draft they are editing, which platform targets will be affected, and what evidence is still missing.
+              </p>
+              <nav class="chapter-subnav" aria-label="Product surface subsections">
+                <a href="#ui-flow">Flow</a>
+                <a href="#ui-anatomy">Anatomy</a>
+                <a href="#ui-journeys">Journeys</a>
+                <a href="#ui-mock">Mock screens</a>
+                <a href="#ui-contracts">Contracts</a>
+                <a href="#ui-hierarchy-flow">Hierarchy authoring</a>
+              </nav>
+
+              <div id="ui-flow" class="ui-flow-map" aria-label="Deployment Studio primary flow">
+                <div>
+                  <span>1</span>
+                  <b>Find the site</b>
+                  <p>Start from fleet health and release status, not from files.</p>
+                </div>
+                <div>
+                  <span>2</span>
+                  <b>Open a draft</b>
+                  <p>Create a Git branch and lock the editing context.</p>
+                </div>
+                <div>
+                  <span>3</span>
+                  <b>Edit intent</b>
+                  <p>Use component, topology, and hierarchy-aware forms.</p>
+                </div>
+                <div>
+                  <span>4</span>
+                  <b>Preview output</b>
+                  <p>Review the selected target render, generated artifacts, consequences, and missing evidence.</p>
+                </div>
+                <div>
+                  <span>5</span>
+                  <b>Clear gates</b>
+                  <p>Resolve validation, policy, supply-chain, and smoke evidence.</p>
+                </div>
+                <div>
+                  <span>6</span>
+                  <b>Promote and observe</b>
+                  <p>Release from a lock, then track live convergence and drift.</p>
+                </div>
+              </div>
+
+              <h4 id="ui-anatomy">Global navigation and screen anatomy</h4>
+              <p>
+                Every screen should keep the same frame so the user does not get lost in platform detail. The left rail
+                is asset-oriented global navigation, not a disguised wizard: Workspace, Fleet, Dataflows, Components,
+                Config, Releases, and Operations are independently reachable areas. Ordered flows such as first-run
+                setup, release approval, and rollback live inside the page that owns the work. The top bar is the current
+                draft/release context. The center workspace is the task-specific surface. The right inspector is the
+                explanation layer: selected object, affected target, policy findings, lineage ownership, and next
+                actions. Generated files and raw JSON live in drawers, not as the default screen.
+              </p>
+              <div class="ui-anatomy-grid">
+                <article>
+                  <b>Global nav</b>
+                  <p>Workspace, Fleet, Dataflows, Components, Config, Releases, and Operations as independent asset areas.</p>
+                </article>
+                <article>
+                  <b>Draft context</b>
+                  <p>Branch, author, dirty fields, rendered hash, validation state, apply mode, and environment protection.</p>
+                </article>
+                <article>
+                  <b>Task workspace</b>
+                  <p>Purpose-built screen for inventory, topology, config lineage, component editing, render review, or release.</p>
+                </article>
+                <article>
+                  <b>Inspector</b>
+                  <p>Why this value exists, what changed, which selected target is affected, and which evidence is missing.</p>
+                </article>
+              </div>
+
+              <h4 id="ui-journeys">Primary user journeys</h4>
+              <p>
+                The UI should be optimized around jobs a platform or site operator actually repeats. These journeys
+                are intentionally narrower than "edit deployment YAML" because each one has a different cognitive
+                burden, a different risk profile, and a different correct default. The product can still store
+                everything in Git, but the UI should lead with intent, consequences, and evidence.
+              </p>
+              <div class="ui-journey-grid">
+                <article>
+                  <b>Create a deployment draft</b>
+                  <p>
+                    Entry is the current release lock for a site, line, or set of nodes. The UI creates a Git branch,
+                    freezes the base release, and shows dirty fields separately from rendered artifact changes.
+                  </p>
+                </article>
+                <article>
+                  <b>Start with an empty system</b>
+                  <p>
+                    First run is a guided setup path: create or connect storage, define hierarchy levels and first
+                    instances, set the enterprise target standard, assign and configure components for selected edge
+                    nodes, and produce a lab render before any live deployment is possible.
+                  </p>
+                </article>
+                <article>
+                  <b>Add or replace a component</b>
+                  <p>
+                    The user selects a component from the registry, chooses runtime capability needs, maps instances,
+                    then sees standard-target compatibility and exception impact before any artifact is generated.
+                  </p>
+                </article>
+                <article>
+                  <b>Change hierarchical config</b>
+                  <p>
+                    The user edits the lowest appropriate scope, sees the winning layer and overridden ancestors, and
+                    cannot accidentally hide an enterprise or site policy behind a device-local patch.
+                  </p>
+                </article>
+                <article>
+                  <b>Review render consequences</b>
+                  <p>
+                    The render review groups selected-target impact as restart, storage, network, identity, permission,
+                    config, and artifact changes. Raw generated files are always available, but they are not the first explanation.
+                  </p>
+                </article>
+                <article>
+                  <b>Investigate drift</b>
+                  <p>
+                    Drift is classified as definition, artifact, applied target, or runtime evidence drift. That
+                    distinction keeps a GitOps sync delay from looking like a broken component.
+                  </p>
+                </article>
+                <article>
+                  <b>Promote or apply</b>
+                  <p>
+                    Promotion writes a release lock and evidence bundle. Apply, when enabled, is a separate protected
+                    lane with credentials, approvals, audit append, target dispatch, and rollback visibility.
+                  </p>
+                </article>
+              </div>
+
+              <div id="ui-mock" class="mock-launch" aria-label="Deployment Studio mock application links">
+                <div class="mock-launch-copy">
+                  <span>Separate static mock application</span>
+                  <h4>Open the mock as an app, not as a book widget.</h4>
+                  <p>
+                    The interactive mock now lives in its own local static pages. Each page has app navigation,
+                    controls, forms, tables, inspectors, and target-specific artifacts. The book describes the design;
+                    the linked mock pages show the proposed product surface.
+                  </p>
+                  <a class="mock-primary-link" href="mock-app/index.html">Launch workspace setup mock</a>
+                </div>
+                <div class="mock-link-grid">
+                  <a href="mock-app/index.html"><b>Workspace setup</b><span>Empty workspace wizard, ordered hierarchy levels, instance graph, target standard, component assignments.</span></a>
+                  <a href="mock-app/fleet.html"><b>Fleet</b><span>Site tree, target standard, exceptions, runtime evidence, open drafts.</span></a>
+                  <a href="mock-app/definition-map.html"><b>Dataflows</b><span>Component instances, dataflows, config bindings, runtime capabilities.</span></a>
+                  <a href="mock-app/hierarchy-config.html"><b>Config layers</b><span>Scope selector, winning values, blocked overrides, raw/effective preview.</span></a>
+                  <a href="mock-app/component-editor.html"><b>Components</b><span>Instance fields, commands, secret refs, selected-target impact.</span></a>
+                  <a href="mock-app/render-review.html"><b>Render review</b><span>Selected-target artifacts, consequences, and evidence.</span></a>
+                  <a href="mock-app/release-gate.html"><b>Releases</b><span>Evidence gates, approvals, apply mode, audit preview, rollback.</span></a>
+                  <a href="mock-app/plan-drift.html"><b>Drift</b><span>Definition, artifact, target apply, and runtime drift classification.</span></a>
+                </div>
+              </div>
+
+              <h4>Key screen behavior</h4>
+              <p>
+                The overview screen anchors the operator in site state. The dataflow designer explains the desired
+                edge solution as component instances, message flows, and config bindings rather than files. The config layers screen selects a hierarchy scope, shows the ordered ancestry strip, winning
+                values, overridden values, and the effective config hash. The component editor focuses on one component
+                instance and shows capability needs, command verbs, resource claims, and selected-target render impact.
+                The render review explains exactly what the selected target will receive. The drift screen separates
+                definition drift, rendered artifact drift, target apply drift, and runtime drift. The release screen shows evidence and
+                keeps apply controls visually subordinate to approval and audit state.
+              </p>
+
+              <h4 id="ui-contracts">Screen contracts and failure states</h4>
+              <p>
+                A useful design document needs to say what each screen owns, what it must never hide, and how it
+                behaves when the model is incomplete. The following contracts are the first product boundary for
+                implementation: they decide which data must exist in the deployment model, which evidence must be
+                stored, and which interactions can be progressively enhanced later.
+              </p>
+              <table class="book-table">
+                <thead>
+                  <tr>
+                    <th>Screen</th>
+                    <th>User intent</th>
+                    <th>Main controls</th>
+                    <th>Complexity-reduction rendering</th>
+                    <th>Failure state</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Workspace setup</td>
+                    <td>Create the first deployment definition when there is no fleet yet.</td>
+                    <td>Stepper, import options, repo connector, ordered level builder, instance graph, target-standard chooser, component assignment and setup fields.</td>
+                    <td>One step visible at a time: storage, hierarchy levels and instances, target standard, component assignments and configuration, then render.</td>
+                    <td>No blank dashboard; missing prerequisites are next steps, not errors.</td>
+                  </tr>
+                  <tr>
+                    <td>Fleet overview</td>
+                    <td>Find the business asset that needs attention: enterprise, site, building, area, line, edge node, or component.</td>
+                    <td>Business hierarchy tree, environment filter, release selector, warning links, draft list.</td>
+                    <td>Selected-asset detail first; technical deployment bindings and exceptions only appear inside that asset's detail.</td>
+                    <td>Unknown runtime evidence is shown as missing evidence, not healthy or failed.</td>
+                  </tr>
+                  <tr>
+                    <td>Dataflows</td>
+                    <td>Define component instances, dataflows, message contracts, and config bindings for an edge node.</td>
+                    <td>Component picker, dataflow editor, message-class selector, config-binding chooser, runtime capability list.</td>
+                    <td>Graph edge explanations with producer, consumer, transport pattern, topic, durability, config lineage, and selected-standard binding.</td>
+                    <td>Unsupported transport pattern, missing config binding, or missing runtime capability is pinned to the offending dataflow.</td>
+                  </tr>
+                  <tr>
+                    <td>Config layers</td>
+                    <td>Select a hierarchy scope and edit the owned config layer for a component instance.</td>
+                    <td>Scope tree, lineage strip, schema form, value path search, winning value inspector, raw drawer.</td>
+                    <td>Scope selection and value ownership before raw JSON.</td>
+                    <td>Invalid layer edit rejects save and keeps last-good effective config visible.</td>
+                  </tr>
+                  <tr>
+                    <td>Component editor</td>
+                    <td>Edit one component instance without losing target consequences.</td>
+                    <td>Instance form, command editor, secret reference chooser, runtime capability requirements.</td>
+                    <td>Field-level impact badges for restart, storage, permission, network, and config hash.</td>
+                    <td>Secret values are blocked; only provider references can be stored.</td>
+                  </tr>
+                  <tr>
+                    <td>Render review</td>
+                    <td>Review selected-target renderer output before promotion.</td>
+                    <td>Artifact table, consequence grouping, target file preview, evidence status, hash pin.</td>
+                    <td>Selected target output first, with raw files available after consequence review.</td>
+                    <td>Missing or unparsable selected-target artifacts block release.</td>
+                  </tr>
+                  <tr>
+                    <td>Drift</td>
+                    <td>Decide whether to generate, hand off, apply, watch, or roll back.</td>
+                    <td>Plan actions, Greengrass deployment state, smoke evidence, runtime health.</td>
+                    <td>Drift classified by definition, rendered artifact, target apply, and runtime evidence.</td>
+                    <td>Apply credentials missing keeps plan readable but disables dispatch.</td>
+                  </tr>
+                  <tr>
+                    <td>Releases</td>
+                    <td>Promote a release with evidence and governance.</td>
+                    <td>Gate list, approval lane, evidence bundle, apply mode, audit preview, rollback lock.</td>
+                    <td>Gate state is tied to concrete files, policies, target evidence, and approvers.</td>
+                    <td>Warnings require explicit owner action; blockers disable promotion.</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4 id="ui-hierarchy-flow">Hierarchical config authoring flow</h4>
+              <p>
+                The hierarchy editor is the most important mock because it is where the model can either become clear
+                or become another hidden configuration system. It should be built around value explanation. A user
+                starts with an effective value, expands to see the lineage that produced it, chooses the correct layer
+                to edit, and only then changes the raw fragment. This matches the platform direction in the
+                hierarchical config design: ConfigComponent resolves ordered ancestors, clients merge one effective
+                config snapshot, and validation happens against the effective runtime document.
+              </p>
+              <ol class="roadmap-list">
+                <li>
+                  Search by runtime path, common label, component field, or artifact consequence. For example,
+                  searching "heartbeat" finds `/heartbeat/intervalSecs`, the current winner, and the selected target
+                  artifacts affected by changing it.
+                </li>
+                <li>
+                  Show the lineage as enterprise, site, building, zone, line, device, and component. The UI should not
+                  assume this exact list is universal; it renders whatever ordered parent chain the deployment
+                  definition resolves.
+                </li>
+                <li>
+                  Mark each value as inherited, overridden, blocked, or locally owned. A blocked value explains the
+                  policy rule and the layer that attempted the illegal change.
+                </li>
+                <li>
+                  Let the user edit only the layers they own. Enterprise policy, site identity, and device binding can
+                  be visible without being editable in a production draft.
+                </li>
+                <li>
+                  Re-render effective config and target artifacts after every saved edit, then show validation and
+                  drift as evidence attached to the draft.
+                </li>
+              </ol>
+
+              <h4>Complexity-reduction patterns</h4>
+              <div class="complexity-grid">
+                <article>
+                  <b>Lineage strip</b>
+                  <p>Config values are explained through enterprise -> site -> line -> device -> component ownership, with the winning layer highlighted.</p>
+                </article>
+                <article>
+                  <b>Target standard and exceptions</b>
+                  <p>Most enterprises choose one deployment target family as the standard. The UI shows shared intent and standard output first, then makes HOST, Kubernetes, or Greengrass exceptions explicit and governed.</p>
+                </article>
+                <article>
+                  <b>Risk ledger</b>
+                  <p>Every warning is tied to a field, artifact, policy rule, evidence item, and required action.</p>
+                </article>
+                <article>
+                  <b>Progressive raw output</b>
+                  <p>Generated YAML, INI, recipes, policy input JSON, and ReleaseLock files open on demand from the same selected object.</p>
+                </article>
+                <article>
+                  <b>Diff by consequence</b>
+                  <p>Diffs are grouped as restart, storage, network, identity, permission, config, artifact, and apply-order impact.</p>
+                </article>
+                <article>
+                  <b>Protected action lane</b>
+                  <p>Generate, plan, apply, and deploy are separate modes with explicit credentials, approvals, audit, and rollback visibility.</p>
+                </article>
+              </div>
+            </section>
+
+            <section id="chapter-operations" class="chapter">
+              <h3>11. Operations: drift, rollback, and live convergence</h3>
+              <p>
+                Once Deployment Studio can generate a release, it must also help operators understand whether that
+                release converged. Edge Console already points in this direction with health, fleet state, command
+                gateways, and configuration review seams. Deployment Studio should connect those signals to the release
+                model. A component is not merely "running"; it is running a specific artifact digest, a specific config
+                hash, under a specific release tag, on a specific target platform.
+              </p>
+              <p>
+                Drift detection differs by target because delivery evidence is a <b>per-target capability</b>, not a
+                given. In Kubernetes, GitOps controllers and the Kubernetes API compare desired and live objects. In
+                Greengrass, the cloud deployment status per thing is the source of truth. HOST/supervisord has no
+                control plane and therefore no automated delivery evidence: its delivery verdict is
+                <em>unverified</em>, shown as exactly that &mdash; a distinct state, not "none" and not a pass. Each
+                drift signal is computed only where the target class supplies evidence, and every verdict names its
+                evidence source. An optional HOST inspection utility that emits delivery evidence is demand-gated,
+                not part of the model.
+              </p>
+              <div class="ops-grid">
+                <div>
+                  <b>Rollback</b>
+                  <p>Rollback means selecting a previous release manifest and using the target renderer or external deployer to reapply its artifacts, not guessing from current files.</p>
+                </div>
+                <div>
+                  <b>Hotfix</b>
+                  <p>Hotfixes still create a branch and evidence bundle. Emergency apply can bypass normal timing, but not audit, identity, or artifact hashing.</p>
+                </div>
+                <div>
+                  <b>Drift</b>
+                  <p>Drift is shown as definition drift, artifact drift, apply drift, and runtime drift so operators can distinguish intent, generated files, target state, and process health.</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="chapter-runtime" class="chapter">
+              <h3>12. Runtime and hosting: where Deployment Studio itself runs</h3>
+              <p>
+                Every other chapter describes what the Studio produces. This one describes what the Studio <em>is</em>:
+                a service, with a process, a host, and dependencies. Leaving that unstated is not a neutral omission —
+                it is the silence that lets a cloud creep in through the back door, one managed service at a time. The
+                project began as a Greengrass-specific tool, and the constraint now is explicit: cloud execution is
+                acceptable, dependence on a <em>particular</em> cloud is not, and the whole system must run on a laptop
+                for development without incurring cloud cost.
+              </p>
+
+              <h4>The lock-in lever is state, not compute</h4>
+              <p>
+                It is tempting to answer "where does it run" with a compute choice, but compute is the easy thing to
+                move. What binds a control plane to a vendor is what it <em>depends on</em>: a managed database, a
+                queue, a function runtime, a hosted identity service. A Studio that needs a managed Postgres is locked
+                in no matter how portable its code is, and "run it locally" degrades into "run a database locally too".
+              </p>
+              <p>
+                Chapter 5 already made the decision that dissolves this problem; it simply did not draw the consequence.
+                <b>Git is the database.</b> Definitions, layers, releases, evidence, and approvals all live in a
+                repository. That becomes a hard rule here: the Studio's only durable state is the Git repo, and every
+                other piece of state it holds is a derived cache in an embedded SQLite file that can be deleted and
+                rebuilt from Git at any time. There is no third datastore. Two consequences follow, and both are
+                features rather than compromises: a single replica is the <em>correct</em> deployment (the Git host
+                already performs concurrency control, which is also the answer to concurrent drafts), and local
+                development means pointing the binary at a folder.
+              </p>
+
+              <h4>Five ports, each with a zero-cost local adapter</h4>
+              <p>
+                The Studio is a hexagonal core with exactly five ports. The rule that keeps it honest, and that belongs
+                in code review rather than in prose: <b>no cloud SDK may be linked above the port boundary.</b> The
+                Greengrass adapter may depend on the AWS SDK; nothing else in the system may. This is what prevents the
+                tool's Greengrass ancestry from quietly reasserting itself as an AWS product.
+              </p>
+              <table class="book-table">
+                <thead>
+                  <tr>
+                    <th>Port</th>
+                    <th>Responsibility</th>
+                    <th>Local adapter (no cost)</th>
+                    <th>Production adapters</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>Git</b></td>
+                    <td>Source of truth: definitions, layers, releases, evidence, approvals.</td>
+                    <td>Local clone, or Gitea in compose.</td>
+                    <td>GitHub, GitLab, Bitbucket, Gitea.</td>
+                  </tr>
+                  <tr>
+                    <td><b>Identity</b></td>
+                    <td>Who authored, who approved, who may edit which layer.</td>
+                    <td>Static dev users, or Dex/Keycloak.</td>
+                    <td>Any OIDC provider (Entra, Okta, Keycloak, Cognito).</td>
+                  </tr>
+                  <tr>
+                    <td><b>Blob</b></td>
+                    <td>Component artifacts, evidence bundles, release render snapshots.</td>
+                    <td>Filesystem, or MinIO.</td>
+                    <td>Any S3-<em>compatible</em> API: S3, R2, GCS, MinIO, Ceph.</td>
+                  </tr>
+                  <tr>
+                    <td><b>Runner</b></td>
+                    <td>Executes an apply. Holds the target credentials; the Studio never does.</td>
+                    <td>Local subprocess or container.</td>
+                    <td>GitHub Actions, GitLab CI, Jenkins, self-hosted runner.</td>
+                  </tr>
+                  <tr>
+                    <td><b>Targets</b></td>
+                    <td>The three control planes the renderers speak to.</td>
+                    <td>kind, <code>greengrass-cli</code> local deployment, supervisord in containers.</td>
+                    <td>kube-apiserver, <code>greengrassv2</code> API, HOST apply adapter.</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p>
+                The Git port deserves a specific note, because it is the one that usually forces a cloud dependency in
+                designs of this shape. Running <b>Gitea</b> in the local compose stack means the entire governance
+                story the design leans on — pull requests, protected branches, CODEOWNERS over the <code>layers/</code>
+                tree, approval before merge — is exercised offline, on a laptop, with no GitHub account and no network.
+                The governance model is therefore testable at zero cost, not merely asserted.
+              </p>
+
+              <h4>One artifact: a static binary that is also a container</h4>
+              <p>
+                The Studio ships as a single self-contained binary with the UI embedded in it, and as an OCI image
+                wrapping that binary. A container is the only deployment unit with no cloud-specific API surface: the
+                same image runs on ECS, Cloud Run, Azure Container Apps, Fly, a customer's on-prem Kubernetes, a Docker
+                host, or a NUC on a plant floor. The rejected alternatives are rejected on exactly this ground —
+                functions-as-a-service force per-cloud packaging and event models, managed workflow engines force a
+                per-cloud orchestration dialect, and managed databases force a per-cloud data dependency. Alongside the
+                image, the Studio should ship a Helm chart, a docker-compose file, and a supervisord conf, the last of
+                which means it is deployed by its own HOST renderer.
+              </p>
+              <p>
+                One honest cost to record: no EdgeCommons component publishes a container image today. Where a
+                Dockerfile exists at all it is built for CI and side-loaded into a test cluster, never released, and
+                <code>edge-console</code> ships no image. The <em>pattern</em> for containerizing a Rust EdgeCommons
+                component is proven, but the Studio would be the first to publish a released image. That is a real,
+                small piece of new work — release plumbing, not an existing capability to consume.
+              </p>
+
+              <h4>The stack, and why it is not a new one</h4>
+              <p>
+                The Studio is an <code>axum</code> service in Rust that serves an embedded React + Carbon single-page
+                app, with a shared TypeScript protocol package defining the wire contract between them. This is not a
+                novel choice; it is the third instance of a shape the org has already proven twice. <b>edge-console is
+                exactly this</b> — a Rust <code>gateway</code> crate, a React/Carbon <code>ui</code>, and a shared
+                <code>protocol</code> package, built on the <code>edgecommons</code> Rust library. (Its original
+                TypeScript server was removed; any document still describing edge-console as a Node service, including
+                its own citations in this folder's review, is stale.) <code>config-component</code> is likewise Rust.
+              </p>
+              <p>
+                Choosing Rust here is what turns the design's most fragile assertion into a structural guarantee.
+                Determinism is load-bearing for every hash, lock, and evidence claim in this document, and the surest
+                way to lose it is to reimplement the config merge. The Studio does not reimplement it: it computes
+                effective config by calling <code>core/libs/rust</code>'s <code>config/layered.rs</code> — <em>the same
+                code path the runtime executes</em> — which the shared <code>hierarchical-config-test-vectors/</code>
+                already bind to the other three languages. Likewise, <code>config-component</code>'s
+                <code>CatalogSource</code> seam and catalog hashing are Rust, so a <code>GitCatalogSource</code> lands
+                in the same language as the code it extends. Policy is Rego, compiled to WASM and evaluated in-process
+                (or via a Rust Rego engine), which keeps OPA as the policy language while requiring no OPA server, no
+                sidecar, and no hosted policy service — and it works offline.
+              </p>
+              <p>
+                This does not trigger the four-language parity rule. The Studio is a tool, not the core library, and
+                <code>config-component</code> being Rust-only is the precedent. Parity is triggered only if evidence
+                fields migrate into the core wire contract, which chapter 11's control-plane-derived evidence stance is
+                specifically designed to avoid.
+              </p>
+
+              <h4>The CLI is the product; the server is a shell around it</h4>
+              <p>
+                <code>edgecommons deployment validate | render | plan | diff | release</code> must perform the entire
+                model-to-artifact job <b>with no server and no network</b>. The server adds only branch and draft
+                orchestration, the UI, evidence correlation, and access control. This single rule pays for most of the
+                constraints in this chapter at once: the first two implementation slices ship with no hosting decision
+                paid for at all, local development is free by construction, air-gapped and intermittently-connected
+                sites work without a special mode (a CLI and a Git bundle on removable media is a complete workflow),
+                and CI is just the same binary invoked in a job.
+              </p>
+              <p>
+                <b>This resolves the CLI's language, and the answer is to rewrite it in Rust.</b> The reasoning is not
+                aesthetic. The deployment kernel must be Rust for the reuse and determinism reasons above, so the
+                binary exists either way; keeping the Python CLI and shelling out to that binary would therefore
+                require users to install <em>both</em> a Python runtime and the binary, and would leave a trampoline
+                between them to maintain. The rewrite is also unusually cheap and unusually low-risk right now: the CLI
+                is roughly 1,300 lines of command code whose only dependencies are <code>jsonschema</code> and
+                <code>GitPython</code>; it has <em>no</em> <code>boto3</code> dependency, because its AWS and
+                Greengrass work is already shelled out to <code>gdk</code> and <code>greengrass-cli</code>; and its
+                templating is not Jinja but literal token substitution over files copied from
+                <code>core/templates/</code>. Copy files, substitute tokens, validate JSON, shell out — each has a
+                boring Rust equivalent. Decisively, <b>it is not published</b>: installation is
+                <code>pipx install .</code> from a checkout, so there is no PyPI package and no installed user base to
+                break. This will never be cheaper than it is now.
+              </p>
+              <p>
+                The payoff extends past this project. Today, scaffolding a <em>Java</em> or <em>TypeScript</em>
+                component requires a Python runtime — a real adoption tax on the front door of a deliberately polyglot
+                ecosystem. A single static binary removes it. Two properties must survive the port: templates are
+                currently bundled into the package so scaffolding works offline, and the interactive/conditional
+                prompt logic is covered by tests that should be ported as behavior rather than redesigned. The existing
+                pytest suite is the oracle for the rewrite, and the acceptance gate is the org's standing one —
+                scaffold, build, and run all four language templates across the testable deployment options — not
+                "the Rust tests pass".
+              </p>
+
+              <h4>Live evidence, without inventing an aggregation tier</h4>
+              <p>
+                Hosting and evidence are one decision, not two, because the fleet and drift screens are exactly what a
+                hosting choice makes possible or impossible. The resolution has two halves. First, the Studio's
+                <b>default mode is Git-only</b>: desired state, renders, releases, and drift measured against Git. No
+                live plane, no aggregation tier, fully offline; the fleet views degrade to desired state plus
+                last-known evidence, and say so, rather than presenting evidence they cannot obtain. Second, live
+                evidence — when an environment wants it — arrives through a <b>snapshot port</b> rather than a new
+                service tier: each site's edge-console, which is already on the bus and already maintains a fleet
+                model, exports a periodic signed site-state snapshot, which the Studio ingests via a file drop, an
+                S3-compatible bucket, or MQTT. These are three adapters, not three architectures. This composes with
+                edge-console's deliberately site-scoped design instead of contradicting it, requires no cross-site
+                cloud service, and requires no change to the core wire contract.
+              </p>
+
+              <h4>The explicit no-list</h4>
+              <p>
+                Stated as constraints, because "it started as a Greengrass tool" is precisely how each of these
+                re-enters a design without anyone deciding to admit it.
+              </p>
+              <ul class="rule-list">
+                <li>No Lambda, Step Functions, or EventBridge as the pipeline spine — plain CI jobs operating on the normalized plan JSON.</li>
+                <li>No DynamoDB, RDS, or managed cache — Git plus an embedded SQLite derived cache.</li>
+                <li>No provider-specific identity — OIDC only.</li>
+                <li>No "S3 the service" in the core — the S3-<em>compatible API</em>, behind the blob port.</li>
+                <li>No AWS types in the domain model. <code>apiVersion: edgecommons.io/v1alpha1</code> must never grow a top-level <code>thingArn</code>; Greengrass concepts live in the Greengrass adapter alone.</li>
+                <li>The Studio must never require being <em>inside</em> the cluster it deploys to.</li>
+                <li>No vendor CD product as the reconciliation boundary. Argo CD and Flux are acceptable: CNCF, self-hostable, and already assumed by chapter 7.</li>
+                <li>No multi-tenant hosted SaaS, which would force the identity, audit, and tenancy work that is already the blocking gap elsewhere, and would contradict PN-2.</li>
+              </ul>
+            </section>
+
+            <section id="chapter-roadmap" class="chapter">
+              <h3>13. Implementation roadmap: extend the existing system in layers</h3>
+              <p>
+                The design lands in slices that keep the current runtime and tests stable. The sequencing follows from
+                chapter 12: because the CLI is the product and the server is a shell around it, the first two slices
+                require <b>no hosting decision to be paid for</b> — they have no service, no identity model, and no
+                cloud footprint of any kind. The hosting decision is nonetheless <em>made</em> up front, in chapter 12,
+                rather than deferred; deferring it is what would otherwise leave the fleet, drift, and observe screens
+                as permanent mocks.
+              </p>
+              <p>
+                Slice 1 builds <b>one renderer, not three</b>. The HOST renderer comes first because it can be checked
+                against an oracle that costs nothing to obtain: any existing multi-device HOST site that a human has
+                already hand-maintained — its supervisord process groups, its per-component config, its ConfigComponent
+                catalog — is a set of reviewed, working files. The acceptance test is regenerating those exact files
+                from a definition and comparing them byte for byte. That exercises the whole model — multi-device site,
+                hierarchy, config lineage, per-component config — on shipped substrate with no cloud control plane at
+                all. HOST is also where the marginal value is highest, since Kubernetes and Greengrass already have
+                native deployment mechanisms and HOST has none.
+              </p>
+              <ol class="roadmap-list">
+                <li><b>Kernel and CLI:</b> the deployment model, the Rust kernel crate, and the HOST renderer, emitting native artifacts plus the normalized plan. New code, no migration risk, no server. Acceptance: regenerate an existing hand-maintained site and diff against the files a human wrote.</li>
+                <li><b>Evidence:</b> artifact hashes, validation bundles, and release manifests tied to Git commits, produced in CI. Still no service.</li>
+                <li><b>Greengrass renderer and CLI port:</b> recipes, GDK config, deployment JSON, and the release-lock governance showcase against a real Greengrass device. Port the six existing CLI commands onto the Rust binary and retire the Python CLI, with the existing test suite as the oracle.</li>
+                <li><b>Storage and Kubernetes:</b> Git-backed definition repositories, the Kubernetes renderer, and either rendering catalogs into the existing file/ConfigMap sources from CI or a ConfigComponent <code>GitCatalogSource</code> that reads pinned refs safely.</li>
+                <li><b>UI:</b> the Studio service from chapter 12 — <code>axum</code> plus the embedded Carbon SPA — beginning as a read-only pair of screens (config layers and render review) over Git, with identity delegated to the Git host.</li>
+                <li><b>Execution and convergence:</b> connect CI/CD, Terraform/CDK/Pulumi, Argo CD or Flux, Greengrass APIs, and host orchestrators behind explicit protected modes, then close the loop with drift, rollback, and the edge-console snapshot feed.</li>
+              </ol>
+              <p>
+                Two things stay out of the first product cut entirely: the prescriptive dataflow and capability model,
+                which depends on runtime surfaces that do not exist, and artifact import, which is reverse-compilation
+                and is research-grade. A <em>descriptive</em> dataflow graph derived from existing configs is tractable
+                and remains useful.
+              </p>
+            </section>
+          </article>
+        </div>
+      </section>
+
+      <section id="baseline" class="band">
+        <div class="content section-grid">
+          <div class="section-heading">
+            <p class="eyebrow">Current implementation baseline</p>
+            <h2>The design starts from what EdgeCommons already does.</h2>
+            <p>
+              The existing runtime contract is not the problem to solve around. It is the thing the deployment layer must
+              target precisely.
+            </p>
+          </div>
+          <div class="baseline-panel">
+            <div class="control-row" role="tablist" aria-label="Runtime platform selector">
+              <button class="segmented active" data-platform="HOST" role="tab" aria-selected="true">HOST</button>
+              <button class="segmented" data-platform="KUBERNETES" role="tab" aria-selected="false">KUBERNETES</button>
+              <button class="segmented" data-platform="GREENGRASS" role="tab" aria-selected="false">GREENGRASS</button>
+            </div>
+            <div class="platform-card" id="platformCard" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="model" class="band model-band">
+        <div class="content">
+          <div class="section-heading narrow">
+            <p class="eyebrow">Proposed abstraction</p>
+            <h2>A deployment definition is intent. Rendered artifacts are an output.</h2>
+            <p>
+              The model separates stable solution semantics from the mechanics of each deployment target. Click any node
+              to see what belongs in the source model and what should be rendered.
+            </p>
+          </div>
+          <div class="model-layout">
+            <div class="model-graph" id="modelGraph" aria-label="Deployment model graph"></div>
+            <aside class="model-detail" id="modelDetail" aria-live="polite"></aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="storage" class="band">
+        <div class="content section-grid reverse">
+          <div class="section-heading">
+            <p class="eyebrow">Git-backed storage</p>
+            <h2>Versioning should review intent and prove render determinism.</h2>
+            <p>
+              The repository is the audit system: branches model proposed changes, commits hold reviewable definitions,
+              tags mark promotions, and evidence files prove what was validated.
+            </p>
+          </div>
+          <div class="timeline-panel">
+            <div class="storage-topology">
+              <div>
+                <b>Source of truth</b>
+                <pre>deployment/
+  sites/dallas/deployment.yaml
+  layers/enterprise/acme.json
+  layers/sites/dallas.json
+  layers/lines/filling-line-7.json
+  layers/components/telemetry-processor.json
+  targets/kubernetes/prod.yaml
+  releases/2026-07-08/manifest.json</pre>
+              </div>
+              <div>
+                <b>Runtime boundary</b>
+                <p>
+                  Runtime libraries still consume one effective config. Deployment authoring stores raw intent,
+                  layer references, artifact policies, and evidence outside the runtime config schema.
+                </p>
+              </div>
+            </div>
+            <div class="timeline" id="timeline" aria-label="Version timeline"></div>
+            <div class="diff-view">
+              <div>
+                <span class="code-label">definition diff</span>
+                <pre id="definitionDiff"></pre>
+              </div>
+              <div>
+                <span class="code-label">rendered impact</span>
+                <pre id="renderedDiff"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="renderers" class="band renderer-band">
+        <div class="content">
+          <div class="section-heading narrow">
+            <p class="eyebrow">Artifact generation</p>
+            <h2>Three renderers, one semantic source.</h2>
+            <p>
+              Each renderer preserves the existing runtime contract while emitting the platform-native files operators
+              expect to inspect, diff, and deploy.
+            </p>
+          </div>
+          <div class="renderer-shell">
+            <div class="renderer-tabs" role="tablist" aria-label="Artifact renderer tabs">
+              <button class="renderer-tab active" data-renderer="HOST" role="tab" aria-selected="true">HOST / supervisord</button>
+              <button class="renderer-tab" data-renderer="KUBERNETES" role="tab" aria-selected="false">KUBERNETES</button>
+              <button class="renderer-tab" data-renderer="GREENGRASS" role="tab" aria-selected="false">GREENGRASS</button>
+            </div>
+            <div class="renderer-body" id="rendererBody" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="validation" class="band">
+        <div class="content section-grid">
+          <div class="section-heading">
+            <p class="eyebrow">Validation model</p>
+            <h2>A deployment is not releasable until both the definition and the rendered artifacts pass.</h2>
+            <p>
+              This is intentionally layered. Early checks catch shape and policy errors. Later checks prove that the
+              exact rendered output works in the target runtime.
+            </p>
+          </div>
+          <div class="validation-panel">
+            <div class="validation-ladder" id="validationLadder"></div>
+            <div class="validation-detail" id="validationDetail" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ui" class="band ui-band">
+        <div class="content">
+          <div class="section-heading narrow">
+            <p class="eyebrow">Application design</p>
+            <h2>The UI should feel like an operational compiler shell, not a YAML editor.</h2>
+            <p>
+              Deployment Studio is not a wizard bolted onto the side of the edge console. It is an asset-oriented
+              authoring shell: users open a workspace, choose a scope in the hierarchy, edit dataflows, component
+              assignments, and config layers, then render and gate a release for the enterprise's selected target family.
+            </p>
+          </div>
+          <div class="workflow-layout">
+            <div class="workflow-list" id="workflowList" aria-label="Deployment Studio surfaces"></div>
+            <div class="wireframe" aria-label="Deployment Studio shell treatment">
+              <div class="wire-nav">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="wire-content" id="wireContent"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="runtime" class="band runtime-band">
+        <div class="content">
+          <div class="section-heading narrow">
+            <p class="eyebrow">Runtime and hosting</p>
+            <h2>One artifact. Three tiers. Only the port bindings change.</h2>
+            <p>
+              Deployment Studio is a single static binary — an <code>axum</code> service with the Carbon UI embedded —
+              whose only durable state is the Git repository. Cloud execution is supported; dependence on a particular
+              cloud is not. The same image that a customer installs into their cluster is the one that runs on a laptop
+              with no cloud account at all.
+            </p>
+          </div>
+          <div class="renderer-shell">
+            <div class="renderer-tabs" role="tablist" aria-label="Hosting tier tabs">
+              <button class="renderer-tab active" data-runtime="laptop" role="tab" aria-selected="true">Tier 0 · Laptop</button>
+              <button class="renderer-tab" data-runtime="team" role="tab" aria-selected="false">Tier 1 · Team</button>
+              <button class="renderer-tab" data-runtime="enterprise" role="tab" aria-selected="false">Tier 2 · Customer</button>
+            </div>
+            <div class="renderer-body runtime-body" id="runtimePanel" aria-live="polite"></div>
+          </div>
+          <div class="no-list" aria-label="Portability constraints">
+            <b>No cloud SDK above the port boundary.</b>
+            <p>
+              No FaaS or managed workflow engine as the pipeline spine. No managed database — Git is the database and
+              SQLite is a rebuildable cache. No provider-specific identity; OIDC only. The S3-compatible API, never
+              "S3 the service". No AWS types in the domain model: the Greengrass adapter may link the AWS SDK, and
+              nothing else may.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="decisions" class="band decisions-band">
+        <div class="content">
+          <div class="section-heading narrow">
+            <p class="eyebrow">Decision surface</p>
+            <h2>What is now settled, and what is still open.</h2>
+          </div>
+          <div class="decision-grid">
+            <article class="decision-settled">
+              <span class="decision-tag">settled — ch. 12</span>
+              <b>Where the Studio runs</b>
+              <p>A single static <code>axum</code> binary with an embedded Carbon UI, shipped as one OCI image, on any container host or a laptop. Git is the only durable state; SQLite is a rebuildable cache. Five ports, each with a zero-cost local adapter.</p>
+            </article>
+            <article class="decision-settled">
+              <span class="decision-tag">settled — ch. 12</span>
+              <b>Studio vs Edge Console hosting</b>
+              <p>Standalone for v1, rather than hosted inside Edge Console. They share the UI stack, the brand tokens, and the evidence formats — not a process. Two fleet trees exist temporarily, and that is acceptable while one is explicitly desired-state and the other observed-state.</p>
+            </article>
+            <article class="decision-settled">
+              <span class="decision-tag">settled — ch. 12</span>
+              <b>CLI language</b>
+              <p>Rewrite the CLI in Rust and make it the single binary. The kernel must be Rust regardless, so shelling out from Python would force users to install both. It is ~1,300 lines, has no <code>boto3</code> dependency, and is not published — so there is no user base to break.</p>
+            </article>
+            <article class="decision-settled">
+              <span class="decision-tag">settled — ch. 12</span>
+              <b>Live evidence</b>
+              <p>Git-only is the default mode; no aggregation tier is built. Where live evidence is wanted, each site's Edge Console exports a signed site-state snapshot through the snapshot port. Control-plane-derived first — no core wire change.</p>
+            </article>
+            <article>
+              <b>Generated artifacts in Git</b>
+              <p>Commit render snapshots only at release boundaries, or keep them ephemeral and store hashes plus evidence. Leaning: commit at release boundaries, since GitOps handoff requires it anyway.</p>
+            </article>
+            <article>
+              <b>Secret handling</b>
+              <p>Store references and policies, never secret values. Render ExternalSecret, mounted files, or Greengrass config refs.</p>
+            </article>
+            <article>
+              <b>Override boundaries</b>
+              <p>Allow platform-specific overrides only where the semantic model cannot express a platform requirement.</p>
+            </article>
+            <article>
+              <b>Promotion gates</b>
+              <p>Require evidence bundles for schema, semantic, renderer, and target smoke checks before a definition can be tagged. Open: whose infrastructure runs "target smoke", since not every environment has a spare device or cluster to smoke against — the gate must degrade rather than block.</p>
+            </article>
+            <article>
+              <b>ReleaseLock shape &mdash; decided: two-stream</b>
+              <p>Config releases and artifact releases are independently versioned and independently reconciled, each with its own drift signal and rollback target. The ReleaseLock is a correlation and evidence envelope over both, not an atomic apply unit: it records what was in effect together without forcing the two to move together. A config change therefore ships without reshipping the artifact, and the reverse. Fusing them was rejected as the Greengrass coupling RM-002 explicitly refuses.</p>
+            </article>
+            <article>
+              <b>Greengrass target granularity &mdash; decided: per-thing only</b>
+              <p>Thing groups are not used. IIoT edge devices each carry a unique configuration, and the members of a thing group necessarily share one deployment document, so a group cannot express per-device config. A definition's nodes map one-to-one onto Greengrass deployments, the union-semantics problem disappears, and per-node partial failure is native &mdash; which is what the staged rollout wanted anyway.</p>
+            </article>
+            <article>
+              <b>Stream separation &mdash; decided: a model invariant, not a transport one</b>
+              <p>Greengrass does not technically fuse config and binary: a deployment can change config against an unchanged component version, or the binary while retaining config. It is the tooling and UI that combine them. So the model, release streams, evidence, drift, and rollback keep the two strictly distinct, while the Greengrass adapter may coalesce them into a single deployment where that suits the command; the ReleaseLock's correlation envelope keeps a coalesced apply auditable against both streams.</p>
+            </article>
+            <article>
+              <b>HOST delivery evidence &mdash; decided: degrade honestly, no receipt machinery</b>
+              <p>Delivery evidence is a per-target capability. Kubernetes and Greengrass have control planes that report it; HOST does not, and HOST is development and small-deployment territory &mdash; so the Studio does not mandate receipts or agents there. Convergence views show HOST delivery as unverified, stated as such, never inferred. An inspection utility that examines a HOST deployment and emits delivery evidence is a possible later component, built on demand.</p>
+            </article>
+            <article>
+              <b>Config delivery &mdash; decided: per provider, ConfigComponent preferred but not required</b>
+              <p>Customers may keep the native Greengrass config source or any supported provider, so the deployment system depends on no single component. The config stream is one model with N delivery adapters: the effective config is computed once by the shared layered-config code, and the component's declared config source selects how it reaches the device &mdash; a catalog push, a config-only deployment, a ConfigMap, a staged checksummed file, unit environment, or a shadow update. This is also why restart impact is a first-class field of the plan: a pure config update does not reliably restart a component &mdash; the reason EdgeCommons has dynamic config &mdash; and whether hot reload applies is a property of the config source, not the platform. File and ConfigMap changes are watched; an env change is not.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="sources" class="band source-band">
+        <div class="content">
+          <div class="section-heading narrow">
+            <p class="eyebrow">Grounding references</p>
+            <h2>Implementation and platform sources used for this design.</h2>
+          </div>
+          <div class="source-grid">
+            <a href="../../core/docs/platform/DESIGN-core.md">core/docs/platform/DESIGN-core.md</a>
+            <a href="../../core/schema/edgecommons-config-schema.json">core/schema/edgecommons-config-schema.json</a>
+            <a href="../../core/cli/edgecommons_cli/commands/create_component.py">core CLI create-component</a>
+            <a href="../../core/cli/edgecommons_cli/commands/deploy.py">core CLI deploy</a>
+            <a href="../../core/test-infra/k8s/README.md">core/test-infra/k8s README</a>
+            <a href="../../core/docs/HIERARCHICAL_CONFIG_IMPLEMENTATION_SPEC.md">core hierarchical config implementation spec</a>
+            <a href="../../core/docs/HIERARCHICAL_CONFIG.md">core hierarchical config contract</a>
+            <a href="../../core/docs/platform/hierarchical-config-design/index.html">core hierarchical config design</a>
+            <a href="../../config-component/src/source.rs">config-component catalog source seam</a>
+            <a href="../../telemetry-processor/recipe.yaml">telemetry-processor recipe.yaml</a>
+            <a href="../../edge-console/docs/design/DESIGN.md">edge-console design</a>
+            <a href="../../edge-console/gateway/src/http.rs">edge-console Rust gateway (axum)</a>
+            <a href="../../edge-console/gateway/src/model.rs">edge-console FleetModel</a>
+            <a href="../../core/libs/rust/src/config/layered.rs">core Rust layered-config merge</a>
+            <a href="../../core/cli/edgecommons_cli/commands/create_component.py">core CLI create-component (to be ported)</a>
+            <a href="../../core/cli/README.md">core CLI install and distribution</a>
+            <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Kubernetes Deployments</a>
+            <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">Kubernetes ConfigMaps</a>
+            <a href="https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/">Kubernetes Kustomize</a>
+            <a href="https://supervisord.org/configuration.html">supervisord configuration</a>
+            <a href="https://docs.aws.amazon.com/greengrass/v2/developerguide/create-deployments.html">Greengrass deployments</a>
+            <a href="https://docs.aws.amazon.com/greengrass/v2/developerguide/component-recipe-reference.html">Greengrass recipe reference</a>
+            <a href="https://developer.hashicorp.com/terraform/intro">Terraform workflow</a>
+            <a href="https://docs.aws.amazon.com/cdk/v2/guide/home.html">AWS CDK</a>
+            <a href="https://argo-cd.readthedocs.io/en/stable/">Argo CD GitOps</a>
+            <a href="https://www.openpolicyagent.org/docs">Open Policy Agent</a>
+            <a href="https://docs.sigstore.dev/cosign/">Sigstore Cosign</a>
+            <a href="https://slsa.dev/spec/v1.2/">SLSA v1.2</a>
+            <a href="https://cyclonedx.org/capabilities/sbom/">CycloneDX SBOM</a>
+            <a href="https://docs.github.com/en/actions/reference/security/secure-use">GitHub Actions secure use</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

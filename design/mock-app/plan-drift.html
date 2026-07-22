@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - Plan and Drift</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Drift</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Search drift source, target object, evidence, plan action"></div>
+      <div class="top-actions"><span class="pill">standard: Greengrass</span><span class="pill">1 warning</span><span class="pill">0 blockers</span></div>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a href="fleet.html">Fleet</a>
+        <a href="definition-map.html">Dataflows</a>
+        <a href="component-editor.html">Components</a>
+        <a href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a class="active" href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Plan review</span>
+            <h1>Separate definition, rendered artifact, target apply, and runtime drift.</h1>
+            <p>This screen avoids false diagnosis for the selected Greengrass target. A draft change, a regenerated artifact, a pending Greengrass deployment, and a component health failure are different problems with different owners.</p>
+          </div>
+          <div class="actions"><button class="button">Watch targets</button><a class="button primary" href="release-gate.html">Open release gate</a></div>
+        </header>
+
+        <section class="workbench two-col">
+          <section class="stack">
+            <div class="drift-board">
+              <div class="drift-item"><span class="dot warn"></span><div><b>Definition drift</b><p class="muted">Draft branch changes component graph and component config leaf.</p></div><span class="state warn">draft</span></div>
+              <div class="drift-item"><span class="dot warn"></span><div><b>Rendered artifact drift</b><p class="muted">Greengrass recipe was regenerated after the last promoted release lock.</p></div><span class="state warn">review</span></div>
+              <div class="drift-item"><span class="dot"></span><div><b>Target apply drift</b><p class="muted">Greengrass reports the expected release lock on both per-node deployments.</p></div><span class="state pass">none</span></div>
+              <div class="drift-item"><span class="dot"></span><div><b>Runtime drift</b><p class="muted">EdgeConsole keepalive and effective config hash match release.</p></div><span class="state pass">none</span></div>
+            </div>
+
+            <div class="timeline">
+              <div class="card"><span class="eyebrow">1 render</span><b>Generate bundle</b><p class="muted">source -> artifacts -> plan.json</p></div>
+              <div class="card"><span class="eyebrow">2 validate</span><b>Run gates</b><p class="muted">schema, policy, lint, smoke</p></div>
+              <div class="card"><span class="eyebrow">3 promote</span><b>Write release lock</b><p class="muted">tag and evidence bundle</p></div>
+              <div class="card"><span class="eyebrow">4 apply</span><b>Deploy target</b><p class="muted">Greengrass deployment API</p></div>
+              <div class="card"><span class="eyebrow">5 observe</span><b>Converge</b><p class="muted">target state and runtime health</p></div>
+            </div>
+
+            <div class="table-card">
+              <h2>Plan actions</h2>
+              <table class="data-table">
+                <thead><tr><th>Action</th><th>Owner</th><th>Mode</th><th>Evidence</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr class="row active" data-row-detail="Render preview writes deterministic artifacts and plan.json."><td>Render preview</td><td>platform</td><td>local</td><td>render hash</td><td><span class="state pass">done</span></td></tr>
+                  <tr class="row" data-row-detail="Greengrass deployment is the selected target apply path and must succeed before promotion."><td>Greengrass deploy</td><td>edge ops</td><td>target apply</td><td>deployment SUCCEEDED</td><td><span class="state pass">done</span></td></tr>
+                  <tr class="row" data-row-detail="Device smoke confirms the rendered recipe works on one representative target thing."><td>Device smoke</td><td>edge ops</td><td>target verify</td><td>component RUNNING + health</td><td><span class="state warn">pending</span></td></tr>
+                  <tr class="row" data-row-detail="Runtime observation waits for keepalive and effective config hash from the edge console."><td>Observe runtime</td><td>site ops</td><td>watch</td><td>keepalive + config hash</td><td><span class="state">scheduled</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <h2>Drift inspector</h2>
+            <dl>
+              <dt>Selected</dt><dd data-selected-detail>Render preview writes deterministic artifacts and plan.json.</dd>
+              <dt>Mode</dt><dd>generate-only</dd>
+              <dt>Rollback lock</dt><dd>deploy-prod-2026-07-02</dd>
+              <dt>Apply credentials</dt><dd><span class="state warn">not loaded</span></dd>
+            </dl>
+            <hr>
+            <pre>plan:
+  mode: generate-only
+  warnings:
+    - greengrass.access-control-scope
+  blockers: []
+  rollbackLock: deploy-prod-2026-07-02</pre>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

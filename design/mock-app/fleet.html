@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - Fleet</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Fleet overview</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Search sites, lines, nodes, components, releases"></div>
+      <div class="top-actions"><span class="pill">prod</span><span class="pill">standard: Greengrass</span><span class="pill">deploy-prod-2026-07-08</span></div>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a class="active" href="fleet.html">Fleet</a>
+        <a href="definition-map.html">Dataflows</a>
+        <a href="component-editor.html">Components</a>
+        <a href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Existing system</span>
+            <h1>Navigate the business fleet first; inspect deployment bindings only after an asset is selected.</h1>
+            <p>This page is the operator's starting screen once a system exists. The left tree is the hierarchy users recognize: enterprise, site, building, area, line, edge node, and component. Greengrass thing targets, validation namespaces, and host bundles are technical bindings shown in the selected asset detail.</p>
+          </div>
+          <div class="actions"><a class="button" href="plan-drift.html">Review drift</a><a class="button primary" href="definition-map.html">Open draft</a></div>
+        </header>
+
+        <section class="workbench">
+          <aside class="rail">
+            <h2>Fleet tree</h2>
+            <div class="fleet-tree" role="tree" aria-label="Business hierarchy">
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="1" data-depth="0" data-fleet-select="enterprise"><small>Enterprise</small><b>Acme Manufacturing</b><span>2 sites, 18 lines</span></button>
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="2" data-depth="1" data-fleet-select="site-dallas"><small>Site</small><b>Dallas</b><span>production campus</span></button>
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="3" data-depth="2" data-fleet-select="building-north"><small>Building</small><b>North packaging hall</b><span>packaging operations</span></button>
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="4" data-depth="3" data-fleet-select="area-bottling"><small>Area</small><b>Bottling area</b><span>2 active lines</span></button>
+              <button class="tree-node fleet-node active" type="button" role="treeitem" aria-level="5" aria-selected="true" data-depth="4" data-fleet-select="line-filling-7"><small>Line</small><b>Filling line 7</b><span>2 gateways, 5 components</span></button>
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="6" data-depth="5" data-fleet-select="node-gw-fill-01"><small>Edge node</small><b>Filler gateway 01</b><span>running, 1 warning</span></button>
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="6" data-depth="5" data-fleet-select="node-gw-fill-02"><small>Edge node</small><b>Filler gateway 02</b><span>running</span></button>
+              <button class="tree-node fleet-node" type="button" role="treeitem" aria-level="7" data-depth="6" data-fleet-select="component-telemetry"><small>Component</small><b>Telemetry processing</b><span>telemetry-processor</span></button>
+            </div>
+          </aside>
+
+          <section class="stack">
+            <div class="fleet-detail-panel" data-fleet-panel="enterprise">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Enterprise</span><h2>Acme Manufacturing</h2><p class="muted">Corporate manufacturing fleet. Standards are inherited by sites unless a governed exception is approved.</p></div>
+                <span class="state pass">healthy</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Sites</span><b>2</b><span>Dallas, Austin</span></div>
+                <div class="metric"><span>Lines</span><b>18</b><span>production lines</span></div>
+                <div class="metric"><span>Edge nodes</span><b>42</b><span>reporting status</span></div>
+                <div class="metric"><span>Target standard</span><b>GG</b><span>Greengrass production standard</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Child business assets</h2>
+                <table class="data-table">
+                  <thead><tr><th>Site</th><th>Role</th><th>Lines</th><th>Runtime state</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>Dallas</b></td><td>primary production campus</td><td>11</td><td><span class="state warn">1 warning</span></td><td>review Dallas</td></tr>
+                    <tr><td><b>Austin</b></td><td>secondary production campus</td><td>7</td><td><span class="state pass">healthy</span></td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="panel">
+                <h2>Enterprise deployment standard</h2>
+                <div class="binding-list">
+                  <div><b>Production edge deployments</b><span>Greengrass is the normal runtime target family for all production sites.</span></div>
+                  <div><b>Exceptions</b><span>Kubernetes and HOST are allowed only through platform-owner approval for lab validation or migration windows.</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="fleet-detail-panel" data-fleet-panel="site-dallas">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Site</span><h2>Dallas</h2><p class="muted">Production campus under Acme Manufacturing. Child assets are buildings, areas, lines, and edge nodes.</p></div>
+                <span class="state warn">1 warning</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Buildings</span><b>3</b><span>production campus</span></div>
+                <div class="metric"><span>Lines</span><b>11</b><span>active</span></div>
+                <div class="metric"><span>Edge nodes</span><b>26</b><span>25 fresh</span></div>
+                <div class="metric"><span>Open drafts</span><b>2</b><span>site and line scopes</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Business children</h2>
+                <table class="data-table">
+                  <thead><tr><th>Asset</th><th>Level</th><th>Lines</th><th>Status</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>North packaging hall</b></td><td>building</td><td>4</td><td><span class="state warn">inherits warning</span></td><td>review lines</td></tr>
+                    <tr><td><b>South receiving hall</b></td><td>building</td><td>2</td><td><span class="state pass">healthy</span></td><td>none</td></tr>
+                    <tr><td><b>Cold storage annex</b></td><td>building</td><td>1</td><td><span class="state pass">healthy</span></td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="grid-2">
+                <div class="panel">
+                  <h2>Deployment binding for Dallas</h2>
+                  <div class="binding-list">
+                    <div><b>Dallas production edge fleet</b><span>Technical binding: one Greengrass deployment per AWS IoT thing, 26 things.</span></div>
+                    <div><b>Quality validation environment</b><span>Approved exception: Kubernetes namespace <code>dallas-quality-validation</code>.</span></div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <h2>Open drafts</h2>
+                  <table class="data-table">
+                    <tbody>
+                      <tr><td><b>deploy/site-broker-certs</b></td><td>site owner review</td><td><a href="release-gate.html">open</a></td></tr>
+                      <tr><td><b>deploy/heartbeat-tuning</b></td><td>line owner review</td><td><a href="hierarchy-config.html">open</a></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="fleet-detail-panel" data-fleet-panel="building-north">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Building</span><h2>North packaging hall</h2><p class="muted">Building-level view for packaging operations inside the Dallas site.</p></div>
+                <span class="state warn">inherits warning</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Areas</span><b>2</b><span>bottling, casing</span></div>
+                <div class="metric"><span>Lines</span><b>4</b><span>active</span></div>
+                <div class="metric"><span>Edge nodes</span><b>8</b><span>all reporting</span></div>
+                <div class="metric"><span>Drafts</span><b>1</b><span>line scope</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Areas in this building</h2>
+                <table class="data-table">
+                  <thead><tr><th>Area</th><th>Business purpose</th><th>Lines</th><th>Status</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>Bottling area</b></td><td>fill and cap operations</td><td>2</td><td><span class="state warn">1 warning</span></td><td>review Filling line 7</td></tr>
+                    <tr><td><b>Casing area</b></td><td>pack and label operations</td><td>2</td><td><span class="state pass">healthy</span></td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="panel">
+                <h2>Inherited deployment context</h2>
+                <p class="muted">This building inherits the Dallas production edge fleet binding. Building-level config controls storage defaults and observability tags, not the target family.</p>
+              </div>
+            </div>
+
+            <div class="fleet-detail-panel" data-fleet-panel="area-bottling">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Area</span><h2>Bottling area</h2><p class="muted">Business area containing lines that fill, cap, and inspect bottles.</p></div>
+                <span class="state warn">1 warning</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Lines</span><b>2</b><span>Filling 7 and 8</span></div>
+                <div class="metric"><span>Edge nodes</span><b>5</b><span>all reporting</span></div>
+                <div class="metric"><span>Components</span><b>12</b><span>11 healthy</span></div>
+                <div class="metric"><span>Warning</span><b>ACL</b><span>line 7 only</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Lines in this area</h2>
+                <table class="data-table">
+                  <thead><tr><th>Line</th><th>Purpose</th><th>Edge nodes</th><th>Status</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>Filling line 7</b></td><td>high-speed bottle filling</td><td>2</td><td><span class="state warn">1 warning</span></td><td>review warning</td></tr>
+                    <tr><td><b>Filling line 8</b></td><td>standard bottle filling</td><td>3</td><td><span class="state pass">healthy</span></td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="panel">
+                <h2>Area deployment context</h2>
+                <p class="muted">The area does not introduce a separate target. It inherits the Dallas Greengrass production binding and contributes topic prefixes and ownership metadata to child lines.</p>
+              </div>
+            </div>
+
+            <div class="fleet-detail-panel active" data-fleet-panel="line-filling-7">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Line</span><h2>Filling line 7</h2><p class="muted">High-speed filling line in the Dallas bottling area. This is the selected business asset; all detail below is scoped to this line.</p></div>
+                <span class="state warn">1 warning</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Edge nodes</span><b>2</b><span>both reporting</span></div>
+                <div class="metric"><span>Components</span><b>5</b><span>all keepalive fresh</span></div>
+                <div class="metric"><span>Current release</span><b>07-08</b><span>deploy-prod-2026-07-08</span></div>
+                <div class="metric"><span>Runtime warning</span><b>1</b><span>ACL scope review</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Business children</h2>
+                <table class="data-table">
+                  <thead><tr><th>Edge node</th><th>Role on line</th><th>Components</th><th>Health</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr class="row active" data-detail-target="#lineSelectionDetail" data-row-detail="Filler gateway 01 runs the line's adapters and telemetry processor. The only warning is attached to its telemetry processor access policy."><td><b>Filler gateway 01</b><br><span class="muted">stable key: gw-fill-01</span></td><td>line control cabinet gateway</td><td>4</td><td><span class="state warn">1 warning</span></td><td>review component</td></tr>
+                    <tr class="row" data-detail-target="#lineSelectionDetail" data-row-detail="Filler gateway 02 reports healthy keepalive and has no open drift for the selected release."><td><b>Filler gateway 02</b><br><span class="muted">stable key: gw-fill-02</span></td><td>inspection gateway</td><td>1</td><td><span class="state pass">healthy</span></td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="grid-2">
+                <div class="panel">
+                  <h2>Deployment binding for this line</h2>
+                  <div class="binding-list">
+                    <div><b>Dallas production edge fleet</b><span>Selected target family: Greengrass. Technical binding: one deployment per AWS IoT thing, 2 things on this line.</span></div>
+                    <div><b>Quality lab validation environment</b><span>Approved exception for smoke tests. Technical binding: Kubernetes namespace <code>dallas-quality-validation</code>.</span></div>
+                    <div><b>Legacy gateway migration lane</b><span>Approved exception for rollback evidence. Technical artifact: HOST bundle <code>gateway-17</code>.</span></div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <h2>Runtime evidence for this line</h2>
+                  <table class="data-table">
+                    <tbody>
+                      <tr><td>02:12:44</td><td>telemetry-processor keepalive</td><td><span class="state pass">fresh</span></td></tr>
+                      <tr><td>02:12:36</td><td>local broker ping</td><td><span class="state pass">pass</span></td></tr>
+                      <tr><td>02:11:59</td><td>configuration hash</td><td><span class="state pass">7a4dd1</span></td></tr>
+                      <tr><td>02:11:20</td><td>Greengrass ACL review</td><td><span class="state warn">warning</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="panel">
+                <h2>Open drafts for this line</h2>
+                <table class="data-table">
+                  <tbody>
+                    <tr><td><b>deploy/add-file-replicator</b></td><td>Greengrass ACL warning; quality lab smoke missing</td><td><a href="release-gate.html">open</a></td></tr>
+                    <tr><td><b>deploy/heartbeat-tuning</b></td><td>line owner review</td><td><a href="hierarchy-config.html">open</a></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="fleet-detail-panel" data-fleet-panel="node-gw-fill-01">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Edge node</span><h2>Filler gateway 01</h2><p class="muted">Physical gateway in the Filling line 7 control cabinet. Stable runtime key: <code>gw-fill-01</code>.</p></div>
+                <span class="state warn">1 warning</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Components</span><b>4</b><span>all running</span></div>
+                <div class="metric"><span>Release</span><b>07-08</b><span>matches line</span></div>
+                <div class="metric"><span>Config hash</span><b>7a4dd1</b><span>matches render</span></div>
+                <div class="metric"><span>Warning</span><b>ACL</b><span>telemetry processor</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Components on this edge node</h2>
+                <table class="data-table">
+                  <thead><tr><th>Component</th><th>Purpose</th><th>Health</th><th>Release impact</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>OPC UA intake</b><br><span class="muted">opcua-adapter</span></td><td>machine signal input</td><td><span class="state pass">fresh</span></td><td>none</td><td>none</td></tr>
+                    <tr><td><b>Modbus intake</b><br><span class="muted">modbus-adapter</span></td><td>utility signal input</td><td><span class="state pass">fresh</span></td><td>none</td><td>none</td></tr>
+                    <tr><td><b>Telemetry processing</b><br><span class="muted">telemetry-processor</span></td><td>filter, aggregate, publish</td><td><span class="state warn">policy warning</span></td><td>recipe ACL review</td><td>resolve warning</td></tr>
+                    <tr><td><b>UNS publishing</b><br><span class="muted">uns-bridge</span></td><td>northbound publication</td><td><span class="state pass">fresh</span></td><td>none</td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="grid-2">
+                <div class="panel"><h2>Deployment binding</h2><p class="muted">This node inherits the Filling line 7 Greengrass binding. The technical target is this node's own thing ARN &mdash; <code>gw-fill-01</code> &mdash; and it receives its own deployment document.</p></div>
+                <div class="panel"><h2>Last runtime evidence</h2><p class="muted">Component keepalive, config hash, broker ping, and release lock all match the selected release except the telemetry access-control warning.</p></div>
+              </div>
+            </div>
+
+            <div class="fleet-detail-panel" data-fleet-panel="node-gw-fill-02">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Edge node</span><h2>Filler gateway 02</h2><p class="muted">Inspection gateway for Filling line 7. Stable runtime key: <code>gw-fill-02</code>.</p></div>
+                <span class="state pass">healthy</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Components</span><b>1</b><span>running</span></div>
+                <div class="metric"><span>Release</span><b>07-08</b><span>matches line</span></div>
+                <div class="metric"><span>Config hash</span><b>7a4dd1</b><span>matches render</span></div>
+                <div class="metric"><span>Warnings</span><b>0</b><span>none</span></div>
+              </div>
+              <div class="table-card">
+                <h2>Components on this edge node</h2>
+                <table class="data-table">
+                  <thead><tr><th>Component</th><th>Purpose</th><th>Health</th><th>Release impact</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td><b>Inspection telemetry</b><br><span class="muted">telemetry-processor</span></td><td>inspection quality metrics</td><td><span class="state pass">fresh</span></td><td>none</td><td>none</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="panel"><h2>Deployment binding</h2><p class="muted">This node inherits the Filling line 7 Greengrass binding and has no active exceptions.</p></div>
+            </div>
+
+            <div class="fleet-detail-panel" data-fleet-panel="component-telemetry">
+              <div class="asset-heading">
+                <div><span class="eyebrow">Component</span><h2>Telemetry processing</h2><p class="muted">Business-facing component instance on Filler gateway 01. Runtime component id: <code>telemetry-processor</code>.</p></div>
+                <span class="state warn">policy warning</span>
+              </div>
+              <div class="metrics">
+                <div class="metric"><span>Status</span><b>RUN</b><span>keepalive fresh</span></div>
+                <div class="metric"><span>Version</span><b>1.4.2</b><span>release locked</span></div>
+                <div class="metric"><span>Config hash</span><b>7a4dd1</b><span>matches render</span></div>
+                <div class="metric"><span>Warning</span><b>ACL</b><span>subscribe scope</span></div>
+              </div>
+              <div class="grid-2">
+                <div class="panel">
+                  <h2>Component role</h2>
+                  <p class="muted">Consumes machine signals from the line adapters, filters and aggregates them, and publishes processed events to downstream components.</p>
+                </div>
+                <div class="panel">
+                  <h2>Selected-target impact</h2>
+                  <p class="muted">Greengrass recipe accessControl is broader than the derived topic map. The warning belongs to this component instance and is resolved from the release gate.</p>
+                </div>
+              </div>
+              <div class="table-card">
+                <h2>Runtime evidence</h2>
+                <table class="data-table">
+                  <tbody>
+                    <tr><td>Keepalive</td><td>02:12:44</td><td><span class="state pass">fresh</span></td></tr>
+                    <tr><td>Input flow</td><td>southbound signal updates</td><td><span class="state pass">active</span></td></tr>
+                    <tr><td>Config</td><td>effective hash 7a4dd1</td><td><span class="state pass">matches</span></td></tr>
+                    <tr><td>Access policy</td><td>subscribe scope broader than derived map</td><td><span class="state warn">warning</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <div class="fleet-inspector-panel" data-fleet-inspector="enterprise">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Acme Manufacturing</dd>
+                <dt>Level</dt><dd>Enterprise</dd>
+                <dt>Target standard</dt><dd>Greengrass</dd>
+                <dt>Release posture</dt><dd>protected production</dd>
+                <dt>Meaning</dt><dd>Top-level business owner for deployment standards and inherited policy.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="hierarchy-config.html">Review standards</a><a class="button" href="release-gate.html">Release policy</a></div>
+            </div>
+            <div class="fleet-inspector-panel" data-fleet-inspector="site-dallas">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Dallas</dd>
+                <dt>Level</dt><dd>Site</dd>
+                <dt>Parent</dt><dd>Acme Manufacturing</dd>
+                <dt>Target standard</dt><dd>Greengrass</dd>
+                <dt>Meaning</dt><dd>Site-level asset that owns production rollout groups, credentials, and local operating windows.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="hierarchy-config.html">Explain site config</a><a class="button" href="plan-drift.html">Review site drift</a></div>
+            </div>
+            <div class="fleet-inspector-panel" data-fleet-inspector="building-north">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>North packaging hall</dd>
+                <dt>Level</dt><dd>Building</dd>
+                <dt>Parent</dt><dd>Dallas</dd>
+                <dt>Target standard</dt><dd>Inherited Greengrass</dd>
+                <dt>Meaning</dt><dd>Operational building scope for inherited labels, storage defaults, and child line ownership.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="hierarchy-config.html">Explain building config</a><a class="button" href="definition-map.html">View area flows</a></div>
+            </div>
+            <div class="fleet-inspector-panel" data-fleet-inspector="area-bottling">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Bottling area</dd>
+                <dt>Level</dt><dd>Area</dd>
+                <dt>Parent</dt><dd>North packaging hall</dd>
+                <dt>Target standard</dt><dd>Inherited Greengrass</dd>
+                <dt>Meaning</dt><dd>Business area that groups filling lines and supplies topic and ownership context.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="definition-map.html">View dataflows</a><a class="button" href="hierarchy-config.html">Explain area config</a></div>
+            </div>
+            <div class="fleet-inspector-panel active" data-fleet-inspector="line-filling-7">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Filling line 7</dd>
+                <dt>Level</dt><dd>Line</dd>
+                <dt>Parent</dt><dd>Dallas > North packaging hall > Bottling area</dd>
+                <dt>Target standard</dt><dd>Greengrass</dd>
+                <dt>Release lock</dt><dd>deploy-prod-2026-07-08</dd>
+                <dt>Selected child</dt><dd id="lineSelectionDetail">Filler gateway 01 runs the line's adapters and telemetry processor. The only warning is attached to its telemetry processor access policy.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack">
+                <a class="button" href="hierarchy-config.html">Explain line config</a>
+                <a class="button" href="render-review.html">Review line render</a>
+                <a class="button warning" href="release-gate.html">Resolve warning</a>
+              </div>
+            </div>
+            <div class="fleet-inspector-panel" data-fleet-inspector="node-gw-fill-01">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Filler gateway 01</dd>
+                <dt>Level</dt><dd>Edge node</dd>
+                <dt>Parent</dt><dd>Filling line 7</dd>
+                <dt>Stable key</dt><dd>gw-fill-01</dd>
+                <dt>Meaning</dt><dd>Physical gateway where the line's adapter and processing components run.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="component-editor.html">Edit components</a><a class="button" href="plan-drift.html">Review node drift</a><a class="button warning" href="release-gate.html">Resolve warning</a></div>
+            </div>
+            <div class="fleet-inspector-panel" data-fleet-inspector="node-gw-fill-02">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Filler gateway 02</dd>
+                <dt>Level</dt><dd>Edge node</dd>
+                <dt>Parent</dt><dd>Filling line 7</dd>
+                <dt>Stable key</dt><dd>gw-fill-02</dd>
+                <dt>Meaning</dt><dd>Physical gateway for inspection telemetry on the selected line.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="component-editor.html">Edit component</a><a class="button" href="plan-drift.html">Review node drift</a></div>
+            </div>
+            <div class="fleet-inspector-panel" data-fleet-inspector="component-telemetry">
+              <h2>Selection</h2>
+              <dl>
+                <dt>Object</dt><dd>Telemetry processing</dd>
+                <dt>Level</dt><dd>Component instance</dd>
+                <dt>Parent</dt><dd>Filler gateway 01</dd>
+                <dt>Runtime id</dt><dd>telemetry-processor</dd>
+                <dt>Meaning</dt><dd>Runtime workload that processes line signal updates and publishes normalized telemetry.</dd>
+              </dl>
+              <hr>
+              <h2>Quick actions</h2>
+              <div class="stack"><a class="button" href="component-editor.html">Edit component</a><a class="button" href="hierarchy-config.html">Explain config</a><a class="button warning" href="release-gate.html">Resolve warning</a></div>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

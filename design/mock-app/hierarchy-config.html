@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - Config Layers</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Config layers</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Search config path, value, selected scope, component instance"></div>
+      <div class="top-actions"><span class="pill">effective hash sha256:7a4dd1</span><span class="pill">scope: line/filling-line-7</span><span class="pill">1 blocked override</span></div>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a href="fleet.html">Fleet</a>
+        <a href="definition-map.html">Dataflows</a>
+        <a href="component-editor.html">Components</a>
+        <a class="active" href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Hierarchical config layers</span>
+            <h1>Edit config for the selected hierarchy scope and component instance.</h1>
+            <p>This screen does not define the hierarchy structure. It selects a scope in the already-defined hierarchy, explains the effective values at that scope, and edits the config layer that the current user owns.</p>
+          </div>
+          <div class="actions"><button class="button">Compare layer</button><button class="button primary">Save config edit</button></div>
+        </header>
+
+        <section class="workbench" data-scope-root>
+          <aside class="rail">
+            <h2>Hierarchy scope</h2>
+            <div class="tree">
+              <button class="tree-node scope-node" type="button" data-depth="0" data-scope-select data-scope-label="enterprise/acme" data-scope-owner="platform owner" data-scope-mode="locked" data-scope-detail="Enterprise defaults apply to every site and are visible here, but this draft cannot edit them."><b>Acme Manufacturing</b><span>enterprise defaults</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="1" data-scope-select data-scope-label="site/dallas" data-scope-owner="site owner" data-scope-mode="partly editable" data-scope-detail="Site-level identity, broker intent, and storage defaults feed every Dallas edge node."><b>Dallas</b><span>site layer</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="2" data-scope-select data-scope-label="building/north" data-scope-owner="site owner" data-scope-mode="inherited" data-scope-detail="Building-level settings currently inherit from Dallas with no local raw layer."><b>North building</b><span>inherits</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="3" data-scope-select data-scope-label="area/bottling" data-scope-owner="line owner" data-scope-mode="editable" data-scope-detail="Area-level topic prefix and safety policy are editable by the line owner."><b>Bottling area</b><span>area layer</span></button>
+              <button class="tree-node scope-node active" type="button" data-depth="4" data-scope-select data-scope-label="line/filling-line-7" data-scope-owner="line owner" data-scope-mode="editable" data-scope-detail="Line-level heartbeat and processing defaults are the current edit target."><b>Filling line 7</b><span>current edit scope</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="5" data-scope-select data-scope-label="device/gw-fill-01" data-scope-owner="edge owner" data-scope-mode="guarded" data-scope-detail="Device-level values bind the physical gateway and cannot override locked site identity."><b>gw-fill-01</b><span>device layer</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="6" data-scope-select data-scope-label="component/telemetry-processor:archive" data-scope-owner="component owner" data-scope-mode="editable" data-scope-detail="Component-instance values tune the telemetry processor archive instance after inherited scope values are merged."><b>telemetry archive</b><span>component instance</span></button>
+            </div>
+          </aside>
+
+          <section class="stack">
+            <div class="panel">
+              <h2>Selected config scope</h2>
+              <div class="impact-grid">
+                <div class="impact"><span class="eyebrow">scope</span><b data-scope-title>line/filling-line-7</b><p class="muted" data-scope-detail-readout>Line-level heartbeat and processing defaults are the current edit target.</p></div>
+                <div class="impact"><span class="eyebrow">editable object</span><b>config layer</b><p class="muted">The hierarchy tree is context. The saved change is a scoped config fragment.</p></div>
+                <div class="impact"><span class="eyebrow">owner</span><b data-scope-owner>line owner</b><p class="muted">Ownership controls which layer fields can be changed in this draft.</p></div>
+                <div class="impact"><span class="eyebrow">mode</span><b data-scope-mode>editable</b><p class="muted">Locked scopes can explain values but cannot accept writes.</p></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h2>Resolved lineage for selected component</h2>
+              <div class="lineage">
+                <div class="card"><span class="eyebrow">enterprise</span><b>acme</b><p class="muted">policy defaults</p></div>
+                <div class="card"><span class="eyebrow">site</span><b>dallas</b><p class="muted">identity, broker</p></div>
+                <div class="card"><span class="eyebrow">building</span><b>north</b><p class="muted">inherits</p></div>
+                <div class="card"><span class="eyebrow">area</span><b>bottling</b><p class="muted">topic prefix</p></div>
+                <div class="card active"><span class="eyebrow">line</span><b>filling-line-7</b><p class="muted">current edit</p></div>
+                <div class="card"><span class="eyebrow">device</span><b>gw-fill-01</b><p class="muted">binding</p></div>
+                <div class="card"><span class="eyebrow">component</span><b>telemetry archive</b><p class="muted">instance leaf</p></div>
+              </div>
+            </div>
+
+            <div class="value-board">
+              <div class="table-card">
+                <h2>Effective values for selected scope</h2>
+                <table class="data-table">
+                  <thead><tr><th>Path</th><th>Effective value</th><th>Winning layer</th><th>Edit here?</th></tr></thead>
+                  <tbody>
+                    <tr class="row active" data-row-detail="/heartbeat/intervalSecs wins from line/filling-line-7; enterprise default was 30."><td>/heartbeat/intervalSecs</td><td>10</td><td>line/filling-line-7</td><td><span class="state pass">yes</span></td></tr>
+                    <tr class="row" data-row-detail="/identity/site wins from site/dallas and is locked to the selected target binding."><td>/identity/site</td><td>dallas</td><td>site/dallas</td><td><span class="state block">no</span></td></tr>
+                    <tr class="row" data-row-detail="/messaging/local/pattern is semantic intent; the selected standard binds it to Greengrass IPC policy."><td>/messaging/local/pattern</td><td>local pub/sub</td><td>site/dallas</td><td><span class="state warn">site only</span></td></tr>
+                    <tr class="row" data-row-detail="/streaming/buffer/maxDiskBytes wins from component/telemetry-processor:archive."><td>/streaming/buffer/maxDiskBytes</td><td>1073741824</td><td>component/telemetry-processor:archive</td><td><span class="state warn">component only</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="panel">
+                <h2>Edit value in selected layer</h2>
+                <div class="form-grid">
+                  <label>Selected scope<input data-scope-input value="line/filling-line-7"></label>
+                  <label>Component instance<select><option>telemetry-processor/archive</option><option>opcua-adapter/main</option><option>file-replicator/main</option></select></label>
+                  <label>Path<input value="/heartbeat/intervalSecs"></label>
+                  <label>Proposed value<input value="10"></label>
+                  <label>Review owner<select><option>line owner</option><option>platform owner</option></select></label>
+                  <label>Save behavior<select><option>write raw layer fragment</option><option>open approval request</option></select></label>
+                </div>
+                <p class="muted">Saving writes only the selected raw layer fragment. The effective config is recomputed and validated before render impact is shown.</p>
+              </div>
+            </div>
+
+            <div class="code-card">
+              <div class="code-tabs">
+                <button class="active" data-code="effective" data-code-target="#hierarchyCode">effective config</button>
+                <button data-code="layers" data-code-target="#hierarchyCode">selected raw layer</button>
+                <button data-code="greengrass" data-code-target="#hierarchyCode">standard binding</button>
+              </div>
+              <pre id="hierarchyCode" data-code-preview>{
+  "hierarchy": { "levels": ["enterprise", "site", "building", "area", "line", "device"] },
+  "identity": { "enterprise": "acme", "site": "dallas", "building": "north", "area": "bottling", "line": "filling-line-7" },
+  "heartbeat": { "intervalSecs": 10 },
+  "messaging": {
+    "local": { "host": "emqx.edge.svc", "port": 1883 }
+  },
+  "component": {
+    "token": "telemetry-processor",
+    "instances": [{ "id": "archive" }]
+  }
+}</pre>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <h2>Value explanation</h2>
+            <dl>
+              <dt>Editing</dt><dd>config layer value, not hierarchy topology</dd>
+              <dt>Selected scope</dt><dd data-scope-readout>line/filling-line-7</dd>
+              <dt>Selected value</dt><dd data-selected-detail>/heartbeat/intervalSecs wins from line/filling-line-7; enterprise default was 30.</dd>
+              <dt>Merge rule</dt><dd>objects deep merge, arrays replace</dd>
+              <dt>Validation</dt><dd><span class="state pass">schema pass</span></dd>
+              <dt>Standard output</dt><dd>effective config hash and Greengrass configurationUpdate</dd>
+            </dl>
+            <hr>
+            <h2>Layer controls</h2>
+            <ul class="checklist">
+              <li data-scope-mode>Editable</li>
+              <li>Enterprise defaults visible but locked</li>
+              <li class="block">Device identity override blocked</li>
+            </ul>
+            <hr>
+            <a class="button primary" href="render-review.html">Preview render impact</a>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deployment Studio Mock - Dataflow Designer</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Dataflow designer</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Find component, dataflow, message class, config binding"></div>
+      <div class="top-actions"><span class="pill">draft deploy/add-file-replicator</span><span class="pill">standard: Greengrass</span><span class="pill">dirty graph</span></div>
+    </header>
+    <div class="layout">
+      <nav class="nav" aria-label="Mock app pages">
+        <div class="nav-section">Workspace</div>
+        <a href="index.html">Workspace setup</a>
+        <div class="nav-section">Assets</div>
+        <a href="fleet.html">Fleet</a>
+        <a class="active" href="definition-map.html">Dataflows</a>
+        <a href="component-editor.html">Components</a>
+        <a href="hierarchy-config.html">Config</a>
+        <div class="nav-section">Delivery</div>
+        <a href="render-review.html">Render review</a>
+        <a href="release-gate.html">Releases</a>
+        <div class="nav-section">Operations</div>
+        <a href="plan-drift.html">Drift</a>
+        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+      </nav>
+      <main class="screen">
+        <header class="screen-header">
+          <div>
+            <span class="eyebrow">Edge solution graph</span>
+            <h1>Define component instances, dataflows, and config bindings for an edge node.</h1>
+            <p>This is the authoring surface for the desired running system. Nodes are component instances; edges are message/dataflow contracts; each edge carries transport pattern, topic, retry, durability, config bindings, and the Greengrass-standard binding produced by the selected enterprise target standard.</p>
+          </div>
+          <div class="actions"><button class="button">Add dataflow</button><a class="button primary" href="component-editor.html">Add component instance</a></div>
+        </header>
+
+        <section class="workbench two-col">
+          <section class="stack">
+            <div class="map">
+              <div class="node" style="left:4%;top:11%"><b>opcua-adapter</b><span>Java southbound</span></div>
+              <div class="node" style="left:4%;top:62%"><b>modbus-adapter</b><span>Python southbound</span></div>
+              <div class="node" style="left:38%;top:34%"><b>telemetry-processor</b><span>Rust processor</span></div>
+              <div class="node" style="left:70%;top:14%"><b>file-replicator</b><span>durable output</span></div>
+              <div class="node" style="left:70%;top:62%"><b>uns-bridge</b><span>northbound bridge</span></div>
+              <div class="edge" style="left:22%;top:24%;width:220px;transform:rotate(18deg)"></div>
+              <div class="edge" style="left:22%;top:70%;width:220px;transform:rotate(-20deg)"></div>
+              <div class="edge" style="left:57%;top:43%;width:190px;transform:rotate(-24deg)"></div>
+              <div class="edge" style="left:57%;top:49%;width:190px;transform:rotate(24deg)"></div>
+              <span class="edge-label" style="left:28%;top:24%">southbound.signal.update</span>
+              <span class="edge-label" style="left:60%;top:30%">durable stream</span>
+              <span class="edge-label" style="left:60%;top:60%">local pub/sub</span>
+            </div>
+
+            <div class="table-card">
+              <h2>Dataflows</h2>
+              <table class="data-table">
+                <thead><tr><th>Producer</th><th>Consumer</th><th>Message contract</th><th>Transport</th><th>Delivery</th></tr></thead>
+                <tbody>
+                  <tr class="row active" data-row-detail="OPC UA adapter publishes signal updates to telemetry-processor over local pub/sub."><td>opcua-adapter</td><td>telemetry-processor</td><td>southbound.signal.update</td><td>local pub/sub</td><td>at least once</td></tr>
+                  <tr class="row" data-row-detail="Modbus adapter publishes the same message class, so telemetry-processor sees one normalized signal contract."><td>modbus-adapter</td><td>telemetry-processor</td><td>southbound.signal.update</td><td>local pub/sub</td><td>at least once</td></tr>
+                  <tr class="row" data-row-detail="File replicator edge requires a durable buffer binding in the Greengrass standard render."><td>telemetry-processor</td><td>file-replicator</td><td>processed.batch</td><td>durable stream</td><td>persisted</td></tr>
+                  <tr class="row" data-row-detail="UNS bridge edge drives northbound topic policy and access control."><td>telemetry-processor</td><td>uns-bridge</td><td>uns.event</td><td>local pub/sub</td><td>best effort</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="grid-2">
+              <div class="table-card">
+                <h2>Component instances and config bindings</h2>
+                <table class="data-table">
+                  <thead><tr><th>Instance</th><th>Config layer</th><th>Runtime capabilities</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>opcua-adapter</td><td>line/filling-line-7 + component/opcua</td><td>southbound network, local pub/sub</td><td><span class="state pass">valid</span></td></tr>
+                    <tr><td>telemetry-processor</td><td>line/filling-line-7 + component/telemetry</td><td>local pub/sub, durable buffer, health</td><td><span class="state warn">storage impact</span></td></tr>
+                    <tr><td>file-replicator</td><td>device/gw-fill-01 + component/replicator</td><td>durable stream, file output</td><td><span class="state pass">valid</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="table-card">
+                <h2>Runtime capability requirements</h2>
+                <table class="data-table">
+                  <thead><tr><th>Capability</th><th>Claimed by</th><th>Why needed</th><th>Greengrass standard binding</th></tr></thead>
+                  <tbody>
+                    <tr><td>local pub/sub</td><td>southbound adapters, telemetry processor</td><td>deliver signal updates inside the edge node</td><td>Greengrass IPC topic policy and local broker setting</td></tr>
+                    <tr><td>durable buffer</td><td>telemetry processor, file replicator</td><td>persist processed batches across restarts</td><td>artifact path, recipe env, and storage quota</td></tr>
+                    <tr><td>health check</td><td>processor components</td><td>prove component readiness and release convergence</td><td>recipe lifecycle health command</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <aside class="inspector">
+            <h2>Selected dataflow</h2>
+            <dl>
+              <dt>Selection</dt><dd data-selected-detail>OPC UA adapter publishes signal updates to telemetry-processor over local pub/sub.</dd>
+              <dt>Producer</dt><dd>opcua-adapter</dd>
+              <dt>Consumer</dt><dd>telemetry-processor</dd>
+              <dt>Message contract</dt><dd>southbound.signal.update</dd>
+              <dt>Validation</dt><dd><span class="state pass">compatible</span></dd>
+              <dt>Standard binding</dt><dd>Greengrass IPC topic policy, recipe dependency, lifecycle wait</dd>
+            </dl>
+            <hr>
+            <h2>Edit dataflow</h2>
+            <label>Producer<select><option>opcua-adapter</option><option>modbus-adapter</option><option>telemetry-processor</option></select></label>
+            <label>Consumer<select><option>telemetry-processor</option><option>file-replicator</option><option>uns-bridge</option></select></label>
+            <label>Message class<select><option>southbound.signal.update</option><option>processed.batch</option><option>uns.event</option></select></label>
+            <label>Topic expression<input value="edge/{site}/{line}/signals/update"></label>
+            <label>Transport pattern<select><option>local pub/sub</option><option>durable stream</option><option>HTTP request/reply</option></select></label>
+            <label>Backpressure<select><option>bounded queue</option><option>drop oldest</option><option>block publisher</option></select></label>
+            <label>Retry policy<select><option>at least once</option><option>best effort</option></select></label>
+            <label>Config binding<select><option>line/filling-line-7 + component/telemetry</option><option>device/gw-fill-01 + component/telemetry</option></select></label>
+            <hr>
+            <a class="button primary" href="render-review.html">Preview standard output</a>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
