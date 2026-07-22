@@ -636,10 +636,18 @@ immediately.
    least-privilege ACLs remain its eventual justification. Deck ch. 10 contracts and the workflow strip
    updated; the mock screen catches up in the step-4 UI pass.
 
-5. **Device layers and blocked overrides: authoring-side or runtime contract.**
-   *Recommendation:* authoring-side only — Studio validation + Git ownership (CODEOWNERS over `layers/`), no
-   changes to the shipped catalog/merge contract, no wire cost. Revisit only if a runtime-enforced guarantee
-   acquires a concrete driver.
+5. **Device layers and blocked overrides: authoring-side or runtime contract.** — **RESOLVED 2026-07-22
+   (user, PLAN step 4 / UI ruling 5A).**
+   *Decision:* **authoring-side only.** Device-scope fragments and override policy are Studio validation +
+   Git ownership (CODEOWNERS over `layers/`); the UI says "rejected at save/review" and names the
+   enforcement locus. Mechanically, the compiler materializes an authored device fragment into that node's
+   rendered catalog leaves — per-node catalogs (proven by the step-3 kernel) make device-scope config
+   expressible with **zero runtime-contract change**.
+   *Explicitly revisitable, not foreclosed (user question, answered):* the authored artifacts are exactly
+   what a runtime-enforced contract would consume; choosing runtime enforcement later (the W4 wire work — a
+   device layer kind, client policy checks, four-language parity + interop) is **additive** on top of this,
+   with no re-authoring and no migration. Trigger: a concrete driver such as defending against out-of-band
+   catalog edits.
 
 6. **Config delivery of rendered content: render-into-existing-sources vs `GitCatalogSource`.**
    *Recommendation:* CI renders catalogs into file/ConfigMap first (the deck's second path); build

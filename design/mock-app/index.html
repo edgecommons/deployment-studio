@@ -27,31 +27,26 @@
     </header>
 
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
+      <nav class="nav" aria-label="Studio navigation">
         <div class="nav-section">Workspace</div>
-        <a class="active" href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a href="definition-map.html">Dataflows</a>
-        <a href="component-editor.html">Components</a>
-        <a href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a href="render-review.html">Render review</a>
-        <a href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a href="plan-drift.html">Drift</a>
+        <a class="active" href="index.html">Setup</a>
+        <div class="nav-section">Fleet</div>
+        <span class="nav-future">Appears after the first nodes exist</span>
+        <a href="fleet.html">Fleet (demo: existing system)</a>
+        <div class="nav-section">Global</div>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
 
       <main class="screen">
         <header class="screen-header">
           <div>
-            <span class="eyebrow">Empty-state path</span>
-            <h1>Start with no fleet, no repo, and no deployment definitions.</h1>
-            <p>The first-run UI gives the user a safe sequence: create storage, define hierarchy levels and first instances, set the enterprise target standard, assign a component to a device, and render a lab bundle before any live apply is possible.</p>
+            <span class="eyebrow">Day zero &mdash; or day two</span>
+            <h1>Create a workspace, or connect to one that already exists.</h1>
+            <p>Entry branches at the door. <b>Create</b> is three steps &mdash; storage, hierarchy and first nodes, target standard &mdash; then a milestone checklist that hands off to the owning screens; component assignment and rendering are not wizard steps. <b>Connect</b> is the day-two path: clone or attach, validate, open Fleet &mdash; no wizard. This page becomes Settings once the first render exists.</p>
           </div>
           <div class="actions">
-            <button class="button">Import artifacts</button>
+            <button class="button">Connect existing</button>
             <button class="button primary">Create workspace</button>
           </div>
         </header>
@@ -61,10 +56,9 @@
             <h2>Setup progress</h2>
             <div class="step-list">
               <button class="step wizard-step active" type="button" data-wizard-go="storage"><strong>1</strong><div><b>Create or connect storage</b><span>required</span></div></button>
-              <button class="step wizard-step" type="button" data-wizard-go="hierarchy"><strong>2</strong><div><b>Build hierarchy</b><span>levels + first instances</span></div></button>
+              <button class="step wizard-step" type="button" data-wizard-go="hierarchy"><strong>2</strong><div><b>Build hierarchy</b><span>levels + first nodes</span></div></button>
               <button class="step wizard-step" type="button" data-wizard-go="target"><strong>3</strong><div><b>Set target standard</b><span data-current-target>Greengrass standard</span></div></button>
-              <button class="step wizard-step" type="button" data-wizard-go="component"><strong>4</strong><div><b>Add components</b><span data-assigned-count>2 assigned</span></div></button>
-              <button class="step wizard-step" type="button" data-wizard-go="render"><strong>5</strong><div><b>Render lab bundle</b><span>not promoted</span></div></button>
+              <button class="step wizard-step" type="button" data-wizard-go="milestones"><strong>4</strong><div><b>Milestones</b><span>handoffs, not steps</span></div></button>
             </div>
           </aside>
 
@@ -78,13 +72,10 @@
                 </button>
                 <button class="card selectable">
                   <b>Connect existing repo</b>
-                  <p class="muted">Use an existing private repo and validate that required folders and branch rules exist.</p>
-                </button>
-                <button class="card selectable">
-                  <b>Import generated artifacts</b>
-                  <p class="muted">Map an existing supervisord, Kubernetes, or Greengrass deployment back into the model.</p>
+                  <p class="muted">The day-two path: clone or attach an existing workspace, validate folders and branch rules, then open Fleet directly &mdash; steps 2-4 never appear.</p>
                 </button>
               </div>
+              <p class="muted">Importing generated artifacts back into the model (reverse compilation) is out of scope by decision &mdash; it is not an entry path.</p>
             </div>
 
             <div class="panel hierarchy-builder wizard-panel" data-wizard-panel="hierarchy" data-hierarchy-builder>
@@ -225,101 +216,15 @@
               </div>
             </div>
 
-            <div class="table-card wizard-panel" data-wizard-panel="component">
-              <h2>4. Add components to the selected edge</h2>
-              <p class="muted">Choose the hierarchy instance where components will run, then check the component templates to assign to that edge. Each checked row creates or updates a component instance for the selected deployment scope.</p>
-              <div class="assignment-layout">
-                <div class="panel soft-panel">
-                  <h3 class="subhead">Deployment scope</h3>
-                  <div class="assignment-tree" data-instance-root>
-                    <button class="tree-node scope-node" type="button" data-depth="0" data-instance-select data-instance-label="enterprise/acme" data-instance-detail="Enterprise root selected. Usually used only for defaults, not direct component deployment."><b>Acme Manufacturing</b><span>enterprise</span></button>
-                    <button class="tree-node scope-node" type="button" data-depth="1" data-instance-select data-instance-label="site/dallas" data-instance-detail="Site selected. Components assigned here would run on every included edge node if a rollout rule allows it."><b>Dallas</b><span>site</span></button>
-                    <button class="tree-node scope-node" type="button" data-depth="2" data-instance-select data-instance-label="line/filling-line-7" data-instance-detail="Line selected. Use this to deploy a component to all nodes in the line or to narrow to a specific edge node."><b>Filling line 7</b><span>line</span></button>
-                    <button class="tree-node scope-node active" type="button" data-depth="3" data-instance-select data-instance-label="edge-node/gw-fill-01" data-instance-detail="Edge node gw-fill-01 selected. Checked component instances will run on this device."><b>gw-fill-01</b><span>edge node</span></button>
-                    <button class="tree-node scope-node" type="button" data-depth="3" data-instance-select data-instance-label="edge-node/gw-fill-02" data-instance-detail="Edge node gw-fill-02 selected. Choose this for a second device-specific component instance."><b>gw-fill-02</b><span>edge node</span></button>
-                  </div>
-                </div>
-                <div class="panel soft-panel">
-                  <h3 class="subhead">Assignment summary</h3>
-                  <dl class="mini-dl">
-                    <dt>Selected scope</dt><dd data-selected-instance>edge-node/gw-fill-01</dd>
-                    <dt>Assignment mode</dt><dd>single edge node</dd>
-                    <dt>Target binding</dt><dd>Greengrass thing gw-fill-01</dd>
-                    <dt>Components</dt><dd data-assigned-count>2 assigned</dd>
-                  </dl>
-                  <p class="muted" data-selected-instance-detail>Edge node gw-fill-01 selected. Checked components will run on this device.</p>
-                </div>
-              </div>
-              <div class="component-assignment-grid">
-                <div class="table-card">
-                  <h3 class="subhead">Component catalog</h3>
-                  <table class="data-table" data-component-catalog>
-                    <thead>
-                      <tr><th>Added</th><th>Component</th><th>Runtime</th><th>Requires</th><th>Status</th></tr>
-                    </thead>
-                    <tbody>
-                      <tr class="row active" data-component-option data-row-detail="telemetry-processor is assigned to gw-fill-01 and configured for local pub/sub, durable buffer, and health."
-                        data-component-name="telemetry-processor" data-component-instance="archive" data-component-layer="edge-node/gw-fill-01 + component/telemetry-processor/archive" data-component-input="southbound.signal.update" data-component-storage="1073741824" data-component-health="/readyz">
-                        <td><label class="check-cell"><input type="checkbox" checked data-component-added><span>added</span></label></td>
-                        <td><b>telemetry-processor</b></td><td>Rust</td><td>local pub/sub, durable buffer</td><td><span class="state pass" data-component-status>assigned</span></td>
-                      </tr>
-                      <tr class="row" data-component-option data-row-detail="opcua-adapter is assigned to gw-fill-01 and needs endpoint configuration before render."
-                        data-component-name="opcua-adapter" data-component-instance="main" data-component-layer="edge-node/gw-fill-01 + component/opcua-adapter/main" data-component-input="opc.tcp://plc-17:4840" data-component-storage="n/a" data-component-health="/health">
-                        <td><label class="check-cell"><input type="checkbox" checked data-component-added><span>added</span></label></td>
-                        <td><b>opcua-adapter</b></td><td>Java</td><td>southbound network, local pub/sub</td><td><span class="state warn" data-component-status>needs config</span></td>
-                      </tr>
-                      <tr class="row" data-component-option data-row-detail="modbus-adapter is available but not assigned to gw-fill-01."
-                        data-component-name="modbus-adapter" data-component-instance="main" data-component-layer="edge-node/gw-fill-01 + component/modbus-adapter/main" data-component-input="tcp://10.30.7.42:502" data-component-storage="n/a" data-component-health="/health">
-                        <td><label class="check-cell"><input type="checkbox" data-component-added><span>add</span></label></td>
-                        <td><b>modbus-adapter</b></td><td>Python</td><td>device endpoint, local pub/sub</td><td><span class="state" data-component-status>available</span></td>
-                      </tr>
-                      <tr class="row" data-component-option data-row-detail="file-replicator is available but should usually be added after telemetry output is configured."
-                        data-component-name="file-replicator" data-component-instance="main" data-component-layer="edge-node/gw-fill-01 + component/file-replicator/main" data-component-input="processed.batch" data-component-storage="2147483648" data-component-health="/readyz">
-                        <td><label class="check-cell"><input type="checkbox" data-component-added><span>add</span></label></td>
-                        <td><b>file-replicator</b></td><td>Rust</td><td>durable buffer, file output</td><td><span class="state" data-component-status>available</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div class="panel soft-panel component-config">
-                  <h3 class="subhead">Configure selected component</h3>
-                  <dl class="mini-dl">
-                    <dt>Component</dt><dd data-config-component>telemetry-processor</dd>
-                    <dt>Runs on</dt><dd data-selected-instance>edge-node/gw-fill-01</dd>
-                  </dl>
-                  <div class="form-grid">
-                    <label>Instance id<input data-config-instance value="archive"></label>
-                    <label>Config layer<input data-config-layer value="edge-node/gw-fill-01 + component/telemetry-processor/archive"></label>
-                    <label>Input or endpoint<input data-config-input value="southbound.signal.update"></label>
-                    <label>Buffer bytes<input data-config-storage value="1073741824"></label>
-                    <label>Health path<input data-config-health value="/readyz"></label>
-                    <label>Save behavior<select><option>write component layer</option><option>open component editor after setup</option></select></label>
-                  </div>
-                  <p class="muted">This inline configuration captures the minimum required for the first render. The Components area provides the full editor for commands, secrets, policies, and advanced fields.</p>
-                  <a class="button" href="component-editor.html">Open full component editor</a>
-                </div>
-              </div>
-            </div>
-
-            <div class="code-card wizard-panel" data-wizard-panel="render">
-              <div class="code-tabs" role="tablist" aria-label="First render output">
-                <button class="active" data-code="greengrass" data-code-target="#setupPreview" data-standard-render-tab role="tab" aria-selected="true">Greengrass standard</button>
-                <button data-code="lock" data-code-target="#setupPreview" role="tab" aria-selected="false">Release lock</button>
-              </div>
-              <pre id="setupPreview">RecipeFormatVersion: "2020-01-25"
-ComponentName: "com.mbreissi.edgecommons.TelemetryProcessor"
-ComponentVersion: "1.4.2"
-Manifests:
-  - Platform:
-      os: linux
-    Artifacts:
-      - URI: "s3://acme-edge-artifacts/telemetry-processor/1.4.2/telemetry-processor"
-    Lifecycle:
-      Install:
-        Script: "chmod +x {artifacts:path}/telemetry-processor"
-      Run:
-        Script: "{artifacts:path}/telemetry-processor --platform GREENGRASS -c GG_CONFIG"</pre>
+            <div class="panel wizard-panel" data-wizard-panel="milestones">
+              <h2>4. Milestones - the wizard stops here and hands off</h2>
+              <p class="muted">Component assignment and rendering happen in the screens that own them, scoped to the node you pick; their empty states do the teaching. Once the first render exists, this page becomes Settings.</p>
+              <ul class="milestones">
+                <li><span class="state pass">done</span><div><b>Storage, hierarchy, target standard</b> - steps 1-3 above; the workspace repo exists with branch protection on.</div></li>
+                <li><span class="state warn">next</span><div><b>Assign first components</b> - open <a href="component-editor.html">Components</a> scoped to <code>gw-fill-01</code>; pick from the registry, configure the leaf.</div></li>
+                <li><span class="state">then</span><div><b>Render the lab bundle</b> - open <a href="render-review.html">Render review</a> for the node's slice of the plan.</div></li>
+                <li><span class="state">then</span><div><b>Write the first release lock</b> - open <a href="release-gate.html">Releases</a>; approvals are pull-request reviews on the workspace repo.</div></li>
+              </ul>
             </div>
 
             <div class="wizard-actions">

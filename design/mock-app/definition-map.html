@@ -3,41 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Deployment Studio Mock - Dataflow Designer</title>
+  <title>Deployment Studio Mock - Topology</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Dataflow designer</b></div></div>
-      <div class="global-search"><input aria-label="Search" placeholder="Find component, dataflow, message class, config binding"></div>
-      <div class="top-actions"><span class="pill">draft deploy/add-file-replicator</span><span class="pill">standard: Greengrass</span><span class="pill">dirty graph</span></div>
+      <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Topology</b></div></div>
+      <div class="global-search"><input aria-label="Search" placeholder="Find component, flow, message class, config binding"></div>
+      <div class="top-actions"><span class="pill">draft deploy/add-file-replicator</span><span class="pill">standard: Greengrass</span><span class="pill">derived, read-only</span></div>
     </header>
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
-        <div class="nav-section">Workspace</div>
-        <a href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a class="active" href="definition-map.html">Dataflows</a>
-        <a href="component-editor.html">Components</a>
-        <a href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a href="render-review.html">Render review</a>
+      <nav class="nav" aria-label="Studio navigation">
+        <div class="nav-section">Fleet</div>
+        <div class="fleet-mini" aria-label="Selection spine">
+          <a data-depth="0" href="fleet.html"><small>Enterprise</small><b>Acme Manufacturing</b></a>
+          <a data-depth="1" href="fleet.html"><small>Site</small><b>Dallas</b></a>
+          <a data-depth="2" href="fleet.html"><small>Building</small><b>North packaging hall</b></a>
+          <a data-depth="3" href="fleet.html"><small>Area</small><b>Bottling area</b></a>
+          <a data-depth="4" href="fleet.html"><small>Line</small><b>Filling line 7</b></a>
+          <a data-depth="5" class="active" href="fleet.html"><small>Edge node</small><b>gw-fill-01</b></a>
+        </div>
+        <div class="nav-section">Global</div>
         <a href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a href="plan-drift.html">Drift</a>
+        <a href="plan-drift.html">Operations</a>
+        <span class="nav-future">Registry &mdash; future</span>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
       <main class="screen">
+        <div class="contextbar">
+          <div class="crumbs">Acme Manufacturing / Dallas / North packaging hall / Bottling area / Filling line 7 / <b>gw-fill-01</b></div>
+          <div class="tabstrip" role="tablist">
+            <a href="fleet.html">Overview</a>
+            <a href="component-editor.html">Components</a>
+            <a href="hierarchy-config.html">Config</a>
+            <a href="definition-map.html" class="active">Topology</a>
+            <a href="render-review.html">Render</a>
+            <span class="tab-future">History</span>
+          </div>
+        </div>
         <header class="screen-header">
           <div>
-            <span class="eyebrow">Edge solution graph</span>
-            <h1>Define component instances, dataflows, and config bindings for an edge node.</h1>
-            <p>This is the authoring surface for the desired running system. Nodes are component instances; edges are message/dataflow contracts; each edge carries transport pattern, topic, retry, durability, config bindings, and the Greengrass-standard binding produced by the selected enterprise target standard.</p>
+            <span class="eyebrow">Derived topology</span>
+            <h1>How signals move through gw-fill-01's configured components &mdash; read-only, derived.</h1>
+            <p>Nothing here is authored. Nodes are the component instances deployed on the selection; edges are derived from their effective configs &mdash; adapter publish classes, processor routes, replicator inputs, bridge subscriptions. The screen explains and verifies; every edge deep-links to the config scope that owns each end. The prescriptive dataflow editor is extracted to FUTURE-dataflows.md, gated on contract metadata that does not exist yet.</p>
           </div>
-          <div class="actions"><button class="button">Add dataflow</button><a class="button primary" href="component-editor.html">Add component instance</a></div>
+          <div class="actions"><a class="button" href="hierarchy-config.html">Open config</a><a class="button primary" href="component-editor.html">Open components</a></div>
         </header>
 
         <section class="workbench two-col">
@@ -108,15 +121,13 @@
               <dt>Standard binding</dt><dd>Greengrass IPC topic policy, recipe dependency, lifecycle wait</dd>
             </dl>
             <hr>
-            <h2>Edit dataflow</h2>
-            <label>Producer<select><option>opcua-adapter</option><option>modbus-adapter</option><option>telemetry-processor</option></select></label>
-            <label>Consumer<select><option>telemetry-processor</option><option>file-replicator</option><option>uns-bridge</option></select></label>
-            <label>Message class<select><option>southbound.signal.update</option><option>processed.batch</option><option>uns.event</option></select></label>
-            <label>Topic expression<input value="edge/{site}/{line}/signals/update"></label>
-            <label>Transport pattern<select><option>local pub/sub</option><option>durable stream</option><option>HTTP request/reply</option></select></label>
-            <label>Backpressure<select><option>bounded queue</option><option>drop oldest</option><option>block publisher</option></select></label>
-            <label>Retry policy<select><option>at least once</option><option>best effort</option></select></label>
-            <label>Config binding<select><option>line/filling-line-7 + component/telemetry</option><option>device/gw-fill-01 + component/telemetry</option></select></label>
+            <h2>Where each end is configured</h2>
+            <dl>
+              <dt>Producer side</dt><dd>opcua-adapter leaf &mdash; subscription match publishes <code>southbound.signal.update</code>. <a href="hierarchy-config.html">Open owning scope</a></dd>
+              <dt>Consumer side</dt><dd>telemetry-processor leaf &mdash; <code>routes[0].inputClass</code>. <a href="hierarchy-config.html">Open owning scope</a></dd>
+              <dt>Mismatch findings</dt><dd><span class="state pass">none on this edge</span> &mdash; a dangling consumer or class mismatch would pin here with a link to the offending scope.</dd>
+            </dl>
+            <p class="muted">Writes happen in Config and Components, where ownership already works. This view only explains and verifies.</p>
             <hr>
             <a class="button primary" href="render-review.html">Preview standard output</a>
           </aside>

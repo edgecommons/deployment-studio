@@ -15,22 +15,35 @@
       <div class="top-actions"><span class="pill">target: Greengrass</span><span class="pill">render hash sha256:2fc1e9</span><span class="pill">generate-only</span></div>
     </header>
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
-        <div class="nav-section">Workspace</div>
-        <a href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a href="definition-map.html">Dataflows</a>
-        <a href="component-editor.html">Components</a>
-        <a href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a class="active" href="render-review.html">Render review</a>
+      <nav class="nav" aria-label="Studio navigation">
+        <div class="nav-section">Fleet</div>
+        <div class="fleet-mini" aria-label="Selection spine">
+          <a data-depth="0" href="fleet.html"><small>Enterprise</small><b>Acme Manufacturing</b></a>
+          <a data-depth="1" href="fleet.html"><small>Site</small><b>Dallas</b></a>
+          <a data-depth="2" href="fleet.html"><small>Building</small><b>North packaging hall</b></a>
+          <a data-depth="3" href="fleet.html"><small>Area</small><b>Bottling area</b></a>
+          <a data-depth="4" href="fleet.html"><small>Line</small><b>Filling line 7</b></a>
+          <a data-depth="5" class="active" href="fleet.html"><small>Edge node</small><b>gw-fill-01</b></a>
+        </div>
+        <div class="nav-section">Global</div>
         <a href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a href="plan-drift.html">Drift</a>
+        <a href="plan-drift.html">Operations</a>
+        <span class="nav-future">Registry &mdash; future</span>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
       <main class="screen">
+        <div class="contextbar">
+          <div class="crumbs">Acme Manufacturing / Dallas / North packaging hall / Bottling area / Filling line 7 / <b>gw-fill-01</b></div>
+          <div class="tabstrip" role="tablist">
+            <a href="fleet.html">Overview</a>
+            <a href="component-editor.html">Components</a>
+            <a href="hierarchy-config.html">Config</a>
+            <a href="definition-map.html">Topology</a>
+            <a href="render-review.html" class="active">Render</a>
+            <span class="tab-future">History</span>
+          </div>
+        </div>
         <header class="screen-header">
           <div>
             <span class="eyebrow">Selected target output</span>

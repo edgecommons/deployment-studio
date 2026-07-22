@@ -72,13 +72,27 @@ a `bottling-company-test` change, proposed separately, not taken unilaterally.
 Next per deck ch. 13 (not started): evidence bundles in CI → Greengrass renderer + CLI port →
 storage/K8s → UI → execution/convergence.
 
-## Step 4 — UI decisions — **NOT STARTED (after Step 2)**
+## Step 4 — UI decisions — **DONE (2026-07-22)**
 
-The seven decisions in `design/REVIEW-UI.md` §5, deferred because several screens' fates follow from
-Step 2: context-spine IA (fleet tree as persistent selection spine), wizard scope (create/connect +
-milestone handoffs), Dataflows→Topology (read-only, derived, selection-scoped), node-anchored
-component editor (artifact-stream + config-leaf panels), instance-leaf resolution (facet, not scope),
-drift taxonomy stage × stream, approval seam (follows 2.1).
+All seven REVIEW-UI §5 decisions ruled (user: 1A 2A 3A 4A 5A 6A; #2/#6 fell out of step 2) and
+propagated to deck + registers + mock in one change:
+
+- **1A context-spine IA** — fleet tree as the persistent selection rail; Components/Config/Topology/
+  Render as selection-scoped tabs; Releases/Operations/Registry/Settings global; breadcrumb always.
+  Deck ch. 10 anatomy rewritten; every mock page carries the spine + contextbar.
+- **2A wizard** — Create/Connect entry, three steps, milestone handoffs; import-artifacts entry
+  removed (descoped); new `settings.html` is what the wizard becomes after day zero.
+- **3A component editor** — node-anchored (`telemetry-processor / archive on gw-fill-01`), separate
+  artifact-stream and config-leaf panels.
+- **4A instance facet** — the `…:archive` scope node is gone; instance is a facet within the leaf.
+- **5A device layers** — authoring-side (REVIEW #5 resolved): "gw-fill-01 fragment — authored node
+  override" compiled into the node's catalog; "rejected at save/review" language; **explicitly
+  revisitable** — runtime enforcement later is additive on the same authored artifacts.
+- **6A drift** — stage × stream matrix with per-node delivery and the per-target "unverified" state;
+  deck ch. 11 language updated; two-stream cards + PR-review approvals on the gate; evidence
+  provenance (mode badge, snapshot age/source) on runtime surfaces.
+
+Mock verified: all nine pages render with zero console errors; wizard walks 4 steps to milestones.
 
 ---
 

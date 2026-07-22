@@ -12,30 +12,43 @@
     <header class="topbar">
       <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Config layers</b></div></div>
       <div class="global-search"><input aria-label="Search" placeholder="Search config path, value, selected scope, component instance"></div>
-      <div class="top-actions"><span class="pill">effective hash sha256:7a4dd1</span><span class="pill">scope: line/filling-line-7</span><span class="pill">1 blocked override</span></div>
+      <div class="top-actions"><span class="pill">effective hash sha256:7a4dd1</span><span class="pill">scope: line/filling-line-7</span><span class="pill">1 override rejected in review</span></div>
     </header>
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
-        <div class="nav-section">Workspace</div>
-        <a href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a href="definition-map.html">Dataflows</a>
-        <a href="component-editor.html">Components</a>
-        <a class="active" href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a href="render-review.html">Render review</a>
+      <nav class="nav" aria-label="Studio navigation">
+        <div class="nav-section">Fleet</div>
+        <div class="fleet-mini" aria-label="Selection spine">
+          <a data-depth="0" href="fleet.html"><small>Enterprise</small><b>Acme Manufacturing</b></a>
+          <a data-depth="1" href="fleet.html"><small>Site</small><b>Dallas</b></a>
+          <a data-depth="2" href="fleet.html"><small>Building</small><b>North packaging hall</b></a>
+          <a data-depth="3" href="fleet.html"><small>Area</small><b>Bottling area</b></a>
+          <a data-depth="4" href="fleet.html"><small>Line</small><b>Filling line 7</b></a>
+          <a data-depth="5" class="active" href="fleet.html"><small>Edge node</small><b>gw-fill-01</b></a>
+        </div>
+        <div class="nav-section">Global</div>
         <a href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a href="plan-drift.html">Drift</a>
+        <a href="plan-drift.html">Operations</a>
+        <span class="nav-future">Registry &mdash; future</span>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
       <main class="screen">
+        <div class="contextbar">
+          <div class="crumbs">Acme Manufacturing / Dallas / North packaging hall / Bottling area / Filling line 7 / <b>gw-fill-01</b></div>
+          <div class="tabstrip" role="tablist">
+            <a href="fleet.html">Overview</a>
+            <a href="component-editor.html">Components</a>
+            <a href="hierarchy-config.html" class="active">Config</a>
+            <a href="definition-map.html">Topology</a>
+            <a href="render-review.html">Render</a>
+            <span class="tab-future">History</span>
+          </div>
+        </div>
         <header class="screen-header">
           <div>
             <span class="eyebrow">Hierarchical config layers</span>
-            <h1>Edit config for the selected hierarchy scope and component instance.</h1>
-            <p>This screen does not define the hierarchy structure. It selects a scope in the already-defined hierarchy, explains the effective values at that scope, and edits the config layer that the current user owns.</p>
+            <h1>Edit config for the selected hierarchy scope; explain any effective value.</h1>
+            <p>This screen does not define the hierarchy structure. It selects a scope in the already-defined hierarchy, explains the effective values at that scope, and edits the config layer that the current user owns. Override policy is authoring-side by decision: rejections happen at save/review (Studio validation plus CODEOWNERS), never as a claimed runtime guarantee.</p>
           </div>
           <div class="actions"><button class="button">Compare layer</button><button class="button primary">Save config edit</button></div>
         </header>
@@ -49,8 +62,8 @@
               <button class="tree-node scope-node" type="button" data-depth="2" data-scope-select data-scope-label="building/north" data-scope-owner="site owner" data-scope-mode="inherited" data-scope-detail="Building-level settings currently inherit from Dallas with no local raw layer."><b>North building</b><span>inherits</span></button>
               <button class="tree-node scope-node" type="button" data-depth="3" data-scope-select data-scope-label="area/bottling" data-scope-owner="line owner" data-scope-mode="editable" data-scope-detail="Area-level topic prefix and safety policy are editable by the line owner."><b>Bottling area</b><span>area layer</span></button>
               <button class="tree-node scope-node active" type="button" data-depth="4" data-scope-select data-scope-label="line/filling-line-7" data-scope-owner="line owner" data-scope-mode="editable" data-scope-detail="Line-level heartbeat and processing defaults are the current edit target."><b>Filling line 7</b><span>current edit scope</span></button>
-              <button class="tree-node scope-node" type="button" data-depth="5" data-scope-select data-scope-label="device/gw-fill-01" data-scope-owner="edge owner" data-scope-mode="guarded" data-scope-detail="Device-level values bind the physical gateway and cannot override locked site identity."><b>gw-fill-01</b><span>device layer</span></button>
-              <button class="tree-node scope-node" type="button" data-depth="6" data-scope-select data-scope-label="component/telemetry-processor:archive" data-scope-owner="component owner" data-scope-mode="editable" data-scope-detail="Component-instance values tune the telemetry processor archive instance after inherited scope values are merged."><b>telemetry archive</b><span>component instance</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="5" data-scope-select data-scope-label="node-fragment/gw-fill-01" data-scope-owner="edge owner" data-scope-mode="review-gated" data-scope-detail="Authored override file for this node, compiled into gw-fill-01's rendered catalog at render time. Authoring-side by decision: enforcement is Studio validation plus CODEOWNERS review, not a runtime layer."><b>gw-fill-01 fragment</b><span>authored node override</span></button>
+              <button class="tree-node scope-node" type="button" data-depth="6" data-scope-select data-scope-label="component/telemetry-processor" data-scope-owner="component owner" data-scope-mode="editable" data-scope-detail="The component leaf - the last layer of the lineage. Instances are facets within this leaf, not separate layers."><b>telemetry-processor</b><span>component leaf</span></button>
             </div>
           </aside>
 
@@ -73,21 +86,22 @@
                 <div class="card"><span class="eyebrow">building</span><b>north</b><p class="muted">inherits</p></div>
                 <div class="card"><span class="eyebrow">area</span><b>bottling</b><p class="muted">topic prefix</p></div>
                 <div class="card active"><span class="eyebrow">line</span><b>filling-line-7</b><p class="muted">current edit</p></div>
-                <div class="card"><span class="eyebrow">device</span><b>gw-fill-01</b><p class="muted">binding</p></div>
-                <div class="card"><span class="eyebrow">component</span><b>telemetry archive</b><p class="muted">instance leaf</p></div>
+                <div class="card"><span class="eyebrow">node</span><b>gw-fill-01</b><p class="muted">authored fragment</p></div>
+                <div class="card"><span class="eyebrow">component</span><b>telemetry-processor</b><p class="muted">leaf &middot; facet: archive</p></div>
               </div>
             </div>
 
             <div class="value-board">
               <div class="table-card">
                 <h2>Effective values for selected scope</h2>
+                <div class="facet-row"><span>Component:</span><span class="pill">telemetry-processor</span><span>Instance facet:</span><span class="pill">archive &#9662;</span><span class="muted">a path filter within the leaf, not a layer</span></div>
                 <table class="data-table">
                   <thead><tr><th>Path</th><th>Effective value</th><th>Winning layer</th><th>Edit here?</th></tr></thead>
                   <tbody>
                     <tr class="row active" data-row-detail="/heartbeat/intervalSecs wins from line/filling-line-7; enterprise default was 30."><td>/heartbeat/intervalSecs</td><td>10</td><td>line/filling-line-7</td><td><span class="state pass">yes</span></td></tr>
                     <tr class="row" data-row-detail="/identity/site wins from site/dallas and is locked to the selected target binding."><td>/identity/site</td><td>dallas</td><td>site/dallas</td><td><span class="state block">no</span></td></tr>
                     <tr class="row" data-row-detail="/messaging/local/pattern is semantic intent; the selected standard binds it to Greengrass IPC policy."><td>/messaging/local/pattern</td><td>local pub/sub</td><td>site/dallas</td><td><span class="state warn">site only</span></td></tr>
-                    <tr class="row" data-row-detail="/streaming/buffer/maxDiskBytes wins from component/telemetry-processor:archive."><td>/streaming/buffer/maxDiskBytes</td><td>1073741824</td><td>component/telemetry-processor:archive</td><td><span class="state warn">component only</span></td></tr>
+                    <tr class="row" data-row-detail="/streaming/buffer/maxDiskBytes wins from the telemetry-processor leaf, instance facet archive."><td>/streaming/buffer/maxDiskBytes</td><td>1073741824</td><td>component/telemetry-processor &middot; archive</td><td><span class="state warn">component only</span></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -102,7 +116,7 @@
                   <label>Review owner<select><option>line owner</option><option>platform owner</option></select></label>
                   <label>Save behavior<select><option>write raw layer fragment</option><option>open approval request</option></select></label>
                 </div>
-                <p class="muted">Saving writes only the selected raw layer fragment. The effective config is recomputed and validated before render impact is shown.</p>
+                <p class="muted">Saving writes only the selected raw layer fragment. The effective config is recomputed and validated before render impact is shown. <b>Blast radius:</b> a line/filling-line-7 write affects 5 components across 2 nodes &mdash; the winners/losers preview runs before save.</p>
               </div>
             </div>
 
@@ -142,7 +156,7 @@
             <ul class="checklist">
               <li data-scope-mode>Editable</li>
               <li>Enterprise defaults visible but locked</li>
-              <li class="block">Device identity override blocked</li>
+              <li class="block">Identity override rejected at review (CODEOWNERS: platform owners)</li>
             </ul>
             <hr>
             <a class="button primary" href="render-review.html">Preview render impact</a>

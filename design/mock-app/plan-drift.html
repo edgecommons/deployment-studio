@@ -12,41 +12,64 @@
     <header class="topbar">
       <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Drift</b></div></div>
       <div class="global-search"><input aria-label="Search" placeholder="Search drift source, target object, evidence, plan action"></div>
-      <div class="top-actions"><span class="pill">standard: Greengrass</span><span class="pill">1 warning</span><span class="pill">0 blockers</span></div>
+      <div class="top-actions"><span class="pill">standard: Greengrass</span><span class="pill">1 warning</span><span class="pill">0 blockers</span><span class="pill">evidence: dallas snapshot 02:15</span></div>
     </header>
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
-        <div class="nav-section">Workspace</div>
-        <a href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a href="definition-map.html">Dataflows</a>
-        <a href="component-editor.html">Components</a>
-        <a href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a href="render-review.html">Render review</a>
+      <nav class="nav" aria-label="Studio navigation">
+        <div class="nav-section">Fleet</div>
+        <div class="fleet-mini" aria-label="Selection spine">
+          <a data-depth="0" href="fleet.html"><small>Enterprise</small><b>Acme Manufacturing</b></a>
+          <a data-depth="1" href="fleet.html"><small>Site</small><b>Dallas</b></a>
+          <a data-depth="2" href="fleet.html"><small>Building</small><b>North packaging hall</b></a>
+          <a data-depth="3" href="fleet.html"><small>Area</small><b>Bottling area</b></a>
+          <a data-depth="4" class="active" href="fleet.html"><small>Line</small><b>Filling line 7</b></a>
+          <a data-depth="5" href="fleet.html"><small>Edge node</small><b>gw-fill-01</b></a>
+        </div>
+        <div class="nav-section">Global</div>
         <a href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a class="active" href="plan-drift.html">Drift</a>
+        <a class="active" href="plan-drift.html">Operations</a>
+        <span class="nav-future">Registry &mdash; future</span>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
       <main class="screen">
+        <div class="contextbar">
+          <div class="crumbs">Operations / Drift / <b>Filling line 7</b></div>
+        </div>
         <header class="screen-header">
           <div>
             <span class="eyebrow">Plan review</span>
-            <h1>Separate definition, rendered artifact, target apply, and runtime drift.</h1>
-            <p>This screen avoids false diagnosis for the selected Greengrass target. A draft change, a regenerated artifact, a pending Greengrass deployment, and a component health failure are different problems with different owners.</p>
+            <h1>Drift is a stage &times; stream matrix: definition, release, delivery, runtime &mdash; config and artifact separately.</h1>
+            <p>A draft change, a stale stream promotion, a node that has not received a delivery, and a component health failure are different problems with different owners. Delivery is per node and per stream, and every verdict names its evidence source; where a target class supplies none, the verdict is <em>unverified</em> &mdash; stated, never inferred.</p>
           </div>
           <div class="actions"><button class="button">Watch targets</button><a class="button primary" href="release-gate.html">Open release gate</a></div>
         </header>
 
         <section class="workbench two-col">
           <section class="stack">
-            <div class="drift-board">
-              <div class="drift-item"><span class="dot warn"></span><div><b>Definition drift</b><p class="muted">Draft branch changes component graph and component config leaf.</p></div><span class="state warn">draft</span></div>
-              <div class="drift-item"><span class="dot warn"></span><div><b>Rendered artifact drift</b><p class="muted">Greengrass recipe was regenerated after the last promoted release lock.</p></div><span class="state warn">review</span></div>
-              <div class="drift-item"><span class="dot"></span><div><b>Target apply drift</b><p class="muted">Greengrass reports the expected release lock on both per-node deployments.</p></div><span class="state pass">none</span></div>
-              <div class="drift-item"><span class="dot"></span><div><b>Runtime drift</b><p class="muted">EdgeConsole keepalive and effective config hash match release.</p></div><span class="state pass">none</span></div>
+            <div class="table-card matrix">
+              <h2>Drift &mdash; stage &times; stream</h2>
+              <table class="data-table">
+                <thead><tr><th>Stage</th><th>Config stream</th><th>Artifact stream</th></tr></thead>
+                <tbody>
+                  <tr><td><b>Definition</b><span class="cell-note">draft vs main</span></td><td colspan="2"><span class="state warn">draft</span> deploy/add-file-replicator changes the component set and a line layer</td></tr>
+                  <tr><td><b>Release</b><span class="cell-note">promoted vs definition</span></td><td><span class="state pass">current</span> dallas-line-7-v14</td><td><span class="state warn">review</span> recipe regenerated after the last lock</td></tr>
+                  <tr><td><b>Delivery</b><span class="cell-note">applied vs promoted, per node</span></td><td><span class="state pass">v14 on 2/2 nodes</span><span class="cell-note">catalog push receipts</span></td><td><span class="state pass">expected lock on 2/2 nodes</span><span class="cell-note">Greengrass deployment status</span></td></tr>
+                  <tr><td><b>Runtime</b><span class="cell-note">observed vs expected</span></td><td colspan="2"><span class="state pass">match</span> keepalive + effective config hash &mdash; dallas snapshot, 02:15</td></tr>
+                </tbody>
+              </table>
+              <p class="muted">Delivery evidence is a per-target capability: a HOST node would show <b>unverified</b> in this row &mdash; no control plane, stated as such, never rendered as a pass.</p>
+            </div>
+
+            <div class="table-card">
+              <h2>Delivery by node</h2>
+              <table class="data-table">
+                <thead><tr><th>Node</th><th>Config (catalog)</th><th>Artifact (deployment)</th></tr></thead>
+                <tbody>
+                  <tr><td><b>gw-fill-01</b></td><td><span class="state pass">v14</span></td><td><span class="state pass">SUCCEEDED</span></td></tr>
+                  <tr><td><b>gw-fill-02</b></td><td><span class="state pass">v14</span></td><td><span class="state pass">SUCCEEDED</span></td></tr>
+                </tbody>
+              </table>
             </div>
 
             <div class="timeline">

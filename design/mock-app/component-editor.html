@@ -12,49 +12,64 @@
     <header class="topbar">
       <div class="brand"><div class="mark">DS</div><div><span>Deployment Studio</span><b>Component editor</b></div></div>
       <div class="global-search"><input aria-label="Search" placeholder="Search component fields, commands, instances, secret refs"></div>
-      <div class="top-actions"><span class="pill">telemetry-processor</span><span class="pill">standard: Greengrass</span><span class="pill">schema valid</span></div>
+      <div class="top-actions"><span class="pill">node: gw-fill-01</span><span class="pill">telemetry-processor / archive</span><span class="pill">standard: Greengrass</span><span class="pill">schema valid</span></div>
     </header>
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
-        <div class="nav-section">Workspace</div>
-        <a href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a href="definition-map.html">Dataflows</a>
-        <a class="active" href="component-editor.html">Components</a>
-        <a href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a href="render-review.html">Render review</a>
+      <nav class="nav" aria-label="Studio navigation">
+        <div class="nav-section">Fleet</div>
+        <div class="fleet-mini" aria-label="Selection spine">
+          <a data-depth="0" href="fleet.html"><small>Enterprise</small><b>Acme Manufacturing</b></a>
+          <a data-depth="1" href="fleet.html"><small>Site</small><b>Dallas</b></a>
+          <a data-depth="2" href="fleet.html"><small>Building</small><b>North packaging hall</b></a>
+          <a data-depth="3" href="fleet.html"><small>Area</small><b>Bottling area</b></a>
+          <a data-depth="4" href="fleet.html"><small>Line</small><b>Filling line 7</b></a>
+          <a data-depth="5" class="active" href="fleet.html"><small>Edge node</small><b>gw-fill-01</b></a>
+        </div>
+        <div class="nav-section">Global</div>
         <a href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a href="plan-drift.html">Drift</a>
+        <a href="plan-drift.html">Operations</a>
+        <span class="nav-future">Registry &mdash; future</span>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
       <main class="screen">
+        <div class="contextbar">
+          <div class="crumbs">Acme Manufacturing / Dallas / North packaging hall / Bottling area / Filling line 7 / <b>gw-fill-01</b></div>
+          <div class="tabstrip" role="tablist">
+            <a href="fleet.html">Overview</a>
+            <a href="component-editor.html" class="active">Components</a>
+            <a href="hierarchy-config.html">Config</a>
+            <a href="definition-map.html">Topology</a>
+            <a href="render-review.html">Render</a>
+            <span class="tab-future">History</span>
+          </div>
+        </div>
         <header class="screen-header">
           <div>
-            <span class="eyebrow">Component instance</span>
-            <h1>Edit one component without losing selected-target consequences.</h1>
-            <p>The screen uses concrete fields, compatibility checks, command verbs, and Greengrass render impact. It does not compare other target families after the target standard has been selected.</p>
+            <span class="eyebrow">Component on node</span>
+            <h1>telemetry-processor / archive on gw-fill-01.</h1>
+            <p>Always anchored: node + component + config-instance. Two declared panels below match the two release streams &mdash; the artifact (what binary runs) and the config leaf (what it is told) version, promote, and roll back independently. Registry-level defaults for new assignments are a separate labeled surface, not this screen.</p>
           </div>
-          <div class="actions"><button class="button">Duplicate instance</button><a class="button primary" href="render-review.html">Preview render</a></div>
+          <div class="actions"><button class="button">Duplicate config-instance</button><a class="button primary" href="render-review.html">Preview render</a></div>
         </header>
 
-        <section class="workbench">
-          <aside class="rail">
-            <h2>Component list</h2>
-            <div class="tree">
-              <div class="tree-node"><b>opcua-adapter</b><span>Java, running</span></div>
-              <div class="tree-node"><b>modbus-adapter</b><span>Python, running</span></div>
-              <div class="tree-node active"><b>telemetry-processor</b><span>Rust, dirty config</span></div>
-              <div class="tree-node"><b>file-replicator</b><span>pending draft</span></div>
-              <div class="tree-node"><b>uns-bridge</b><span>northbound</span></div>
-            </div>
-          </aside>
-
+        <section class="workbench two-col">
           <section class="stack">
+            <div class="facet-row"><span>On this node:</span><span class="pill">opcua-adapter</span><span class="pill">modbus-adapter</span><span class="pill" style="outline:1px solid currentColor">telemetry-processor</span><span class="pill">uns-bridge</span><span class="pill">file-replicator (draft)</span></div>
+
             <div class="panel">
-              <h2>Instance fields</h2>
+              <h2>Artifact stream</h2>
+              <div class="form-grid">
+                <label>Version<input value="1.4.2"></label>
+                <label>Digest<input value="sha256:9c41aa"></label>
+                <label>Source<select><option>registry (pinned)</option><option>sibling build (dev)</option></select></label>
+                <label>Target compatibility<input value="Greengrass standard: ok" readonly></label>
+              </div>
+              <p class="muted">Releases and rolls back independently of the config leaf below (two-stream contract).</p>
+            </div>
+
+            <div class="panel">
+              <h2>Config leaf &mdash; instances[archive]</h2>
               <div class="form-grid">
                 <label>Instance id<input value="archive"></label>
                 <label>Input class<select><option>southbound.signal.update</option><option>processed.batch</option></select></label>

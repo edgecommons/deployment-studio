@@ -342,21 +342,32 @@ Dataflows/Components/Config/Render selection-scoped tabs.** This renegotiates th
 
 ## 5. Decisions this review adds (beyond REVIEW.md §6)
 
-1. **Wizard scope** — adopt U1's create/connect + milestones shape? Requires editing the deck's journey
-   card (`index.html:774-780`) and screen-contract row (`:870-876`) in the same change. *Recommended: yes.*
+1. **Wizard scope** — **DECIDED 2026-07-22 (user, 2A):** create/connect entry + three steps (storage,
+   hierarchy + first nodes, target standard) + milestone handoffs to the owning screens; day-two "join
+   workspace" entry; the nav item becomes Settings after day zero. Deck journey card + contract row updated
+   in the same change.
 2. **Dataflows fate** — **DECIDED 2026-07-22 (PLAN step 2.4 / REVIEW #4):** descriptive, derived, read-only
    Topology; prescriptive model extracted to `FUTURE-dataflows.md`. Deck contracts updated; the mock screen
    itself is redone in the step-4 UI pass.
-3. **Component editor identity** — node-anchored lens (U4) vs. global component list. *Recommended:
-   node-anchored; registry defaults as a separate labeled surface.*
-4. **Instance-level config leaf (new W4-class item)** — `component/…:archive` as a scope node exceeds the
-   shipped contract. *Recommended: instance is a path facet inside the component layer, not a layer.*
-5. **Drift taxonomy post two-stream** — adopt the stage × stream model (P1)? Affects deck ch. 11's four-way
-   language.
+3. **Component editor identity** — **DECIDED 2026-07-22 (user, 3A):** node-anchored — the editor always
+   opens as node + component + config-instance, breadcrumbed, with two declared panels (artifact stream,
+   config leaf). Registry-level defaults become a separate, explicitly labeled surface later.
+4. **Instance-level config leaf** — **DECIDED 2026-07-22 (user, 4A):** the scope tree ends at the component
+   leaf; the instance is a path facet *within* the leaf. No contract change (the kernel proves
+   leaf-per-component against Dallas).
+5. **Drift taxonomy post two-stream** — **DECIDED 2026-07-22 (user, 6A):** stage × stream — definition →
+   release (config | artifact) → delivery (config | artifact, per node, with the per-target "unverified"
+   state) → runtime. Deck ch. 11's four-way language updated.
 6. **Approval identity seam** — **DECIDED 2026-07-22 (PLAN step 2.1 / REVIEW #10):** Git-host PR reviews,
    rendered by the gate surface; no parallel approval store. The gate screen catches up in the step-4 UI pass.
-7. **Context-spine IA** — accept §4's restructure, which renegotiates the deck's "independently reachable
-   areas" anatomy? All per-screen proposals above assume it.
+7. **Context-spine IA** — **DECIDED 2026-07-22 (user, 1A):** the fleet tree is the persistent selection
+   spine; Components / Config / Topology / Render are tabs over the current selection; Releases,
+   Operations, Registry, and Settings are the only global areas; breadcrumb always visible. Renegotiates —
+   and replaces — the deck's "independently reachable areas" anatomy.
+
+**All seven decisions are now ruled** (2 and 6 fell out of PLAN step 2; the rest were ruled by the user on
+2026-07-22 as 1A/2A/3A/4A/6A, plus REVIEW #5 as 5A — authoring-side, explicitly revisitable). The mock was
+restructured to match in the same change (PLAN step 4).
 
 ---
 

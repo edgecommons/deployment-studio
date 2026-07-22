@@ -15,22 +15,27 @@
       <div class="top-actions"><span class="pill">standard: Greengrass</span><span class="pill">apply locked</span><span class="pill">2 approvals needed</span></div>
     </header>
     <div class="layout">
-      <nav class="nav" aria-label="Mock app pages">
-        <div class="nav-section">Workspace</div>
-        <a href="index.html">Workspace setup</a>
-        <div class="nav-section">Assets</div>
-        <a href="fleet.html">Fleet</a>
-        <a href="definition-map.html">Dataflows</a>
-        <a href="component-editor.html">Components</a>
-        <a href="hierarchy-config.html">Config</a>
-        <div class="nav-section">Delivery</div>
-        <a href="render-review.html">Render review</a>
+      <nav class="nav" aria-label="Studio navigation">
+        <div class="nav-section">Fleet</div>
+        <div class="fleet-mini" aria-label="Selection spine">
+          <a data-depth="0" href="fleet.html"><small>Enterprise</small><b>Acme Manufacturing</b></a>
+          <a data-depth="1" href="fleet.html"><small>Site</small><b>Dallas</b></a>
+          <a data-depth="2" href="fleet.html"><small>Building</small><b>North packaging hall</b></a>
+          <a data-depth="3" href="fleet.html"><small>Area</small><b>Bottling area</b></a>
+          <a data-depth="4" href="fleet.html"><small>Line</small><b>Filling line 7</b></a>
+          <a data-depth="5" href="fleet.html"><small>Edge node</small><b>gw-fill-01</b></a>
+        </div>
+        <div class="nav-section">Global</div>
         <a class="active" href="release-gate.html">Releases</a>
-        <div class="nav-section">Operations</div>
-        <a href="plan-drift.html">Drift</a>
+        <a href="plan-drift.html">Operations</a>
+        <span class="nav-future">Registry &mdash; future</span>
+        <a href="settings.html">Settings</a>
         <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
       </nav>
       <main class="screen">
+        <div class="contextbar">
+          <div class="crumbs">Releases / draft <b>deploy/add-file-replicator</b> / scope: Filling line 7</div>
+        </div>
         <header class="screen-header">
           <div>
             <span class="eyebrow">Protected promotion</span>
@@ -42,6 +47,16 @@
 
         <section class="workbench two-col">
           <section class="stack">
+            <div class="stream-cards">
+              <div class="stream-card"><span class="eyebrow">config stream</span><b>catalog dallas-line-7-v14 &rarr; v15</b>
+                <dl><dt>Change</dt><dd>file-replicator leaf added; heartbeat tuning</dd><dt>Rollback target</dt><dd>dallas-line-7-v14 (config alone)</dd><dt>Delivery</dt><dd>catalog push &mdash; hot reload</dd></dl>
+              </div>
+              <div class="stream-card"><span class="eyebrow">artifact stream</span><b>file-replicator 1.0.0 added</b>
+                <dl><dt>Change</dt><dd>new component; other artifact pins unchanged</dd><dt>Rollback target</dt><dd>deploy-prod-2026-07-02 set (artifact alone)</dd><dt>Delivery</dt><dd>per-thing deployment revision</dd></dl>
+              </div>
+            </div>
+            <p class="muted">The release lock correlates the two streams; it never fuses them. Either stream promotes and rolls back alone.</p>
+
             <div class="gate-list">
               <div class="gate"><span class="dot"></span><div><b>Source schema</b><p class="muted">Deployment definition and effective configs validate.</p></div><span class="state pass">pass</span></div>
               <div class="gate"><span class="dot warn"></span><div><b>Semantic policy</b><p class="muted">Greengrass subscription scope is broader than generated topic map.</p></div><span class="state warn">warn</span></div>
@@ -51,8 +66,12 @@
               <div class="gate"><span class="dot"></span><div><b>Runtime health</b><p class="muted">Previous release healthy; rollback lock ready.</p></div><span class="state pass">pass</span></div>
             </div>
 
+            <div class="panel">
+              <h2>Approvals &mdash; pull-request reviews on the release repo</h2>
+              <p class="muted">Roles map to CODEOWNERS and branch protection; this lane renders the review state of <b>PR #214</b> and links to it. There is no Studio-side approval store.</p>
+            </div>
             <div class="approval-list">
-              <div class="approval"><span class="dot warn"></span><div><b>Platform owner</b><p class="muted">Required for all production releases.</p></div><button class="button">request</button></div>
+              <div class="approval"><span class="dot warn"></span><div><b>Platform owner</b><p class="muted">Required review (CODEOWNERS: /definitions/). Requested on PR #214.</p></div><button class="button">request</button></div>
               <div class="approval"><span class="dot warn"></span><div><b>Security owner</b><p class="muted">Required because semantic policy has warning.</p></div><button class="button">request</button></div>
               <div class="approval"><span class="dot"></span><div><b>Component owner</b><p class="muted">Approved component schema and route changes.</p></div><span class="state pass">approved</span></div>
               <div class="approval"><span class="dot"></span><div><b>Edge operations</b><p class="muted">Per-node thing targets and rollback lock are scoped.</p></div><span class="state pass">scoped</span></div>
@@ -63,7 +82,7 @@
               <div class="grid-3" data-select-group>
                 <button class="card selectable active" data-mode="Generate-only: write artifacts, evidence, and release lock to Git. External systems deploy the Greengrass standard."><b>Generate-only</b><p class="muted">Default and safest mode.</p></button>
                 <button class="card selectable" data-mode="Delegated apply: use promoted ReleaseLock to call the Greengrass deployment API."><b>Delegated apply</b><p class="muted">Requires credentials and approvals.</p></button>
-                <button class="card selectable" data-mode="Emergency rollback: apply previous Greengrass release lock with incident approval."><b>Rollback</b><p class="muted">Uses deploy-prod-2026-07-02.</p></button>
+                <button class="card selectable" data-mode="Emergency rollback: per stream - config to dallas-line-7-v14, artifact to the deploy-prod-2026-07-02 set - with incident approval. Streams roll back independently."><b>Rollback</b><p class="muted">Per stream: cfg v14 / art 07-02.</p></button>
               </div>
             </div>
           </section>

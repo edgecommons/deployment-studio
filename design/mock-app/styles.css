@@ -1372,3 +1372,36 @@ pre {
     grid-template-columns: auto minmax(0, 1fr);
   }
 }
+
+/* ---- Context-spine shell (UI decision 1A, 2026-07-22) ---- */
+.fleet-mini { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; }
+.fleet-mini a { text-decoration: none; color: inherit; border-radius: 8px; padding: 5px 8px; display: block; }
+.fleet-mini a small { display: block; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.55; }
+.fleet-mini a b { font-size: 0.8rem; font-weight: 600; }
+.fleet-mini a:hover, .fleet-mini a:focus-visible { background: rgba(120, 140, 200, 0.14); }
+.fleet-mini a.active { background: rgba(120, 140, 200, 0.22); outline: 1px solid rgba(120, 140, 200, 0.35); }
+.fleet-mini a[data-depth="1"] { padding-left: 16px; }
+.fleet-mini a[data-depth="2"] { padding-left: 24px; }
+.fleet-mini a[data-depth="3"] { padding-left: 32px; }
+.fleet-mini a[data-depth="4"] { padding-left: 40px; }
+.fleet-mini a[data-depth="5"] { padding-left: 48px; }
+.nav .nav-future, .tab-future { opacity: 0.45; font-size: 0.78rem; padding: 6px 10px; display: inline-block; cursor: default; }
+.contextbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 2px 10px; margin-bottom: 14px; border-bottom: 1px solid rgba(128, 140, 170, 0.25); }
+.contextbar .crumbs { font-size: 0.78rem; opacity: 0.8; }
+.contextbar .crumbs b { opacity: 1; }
+.tabstrip { display: flex; gap: 2px; align-items: baseline; }
+.tabstrip a { text-decoration: none; color: inherit; font-size: 0.82rem; padding: 6px 10px; border-bottom: 2px solid transparent; opacity: 0.75; }
+.tabstrip a:hover, .tabstrip a:focus-visible { opacity: 1; }
+.tabstrip a.active { border-bottom-color: currentColor; opacity: 1; font-weight: 600; }
+.stream-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.stream-card { border: 1px solid rgba(128, 140, 170, 0.3); border-radius: 12px; padding: 12px 14px; }
+.stream-card .eyebrow { display: block; margin-bottom: 4px; }
+.stream-card dl { margin: 8px 0 0; font-size: 0.8rem; }
+.stream-card dt { opacity: 0.6; margin-top: 6px; }
+.matrix td, .matrix th { text-align: left; }
+.matrix .cell-note { display: block; font-size: 0.72rem; opacity: 0.65; }
+.milestones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.milestones li { display: flex; gap: 10px; align-items: baseline; }
+.milestones li .state { flex-shrink: 0; }
+.facet-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; margin: 0 0 10px; }
+.facet-row .pill { cursor: default; }

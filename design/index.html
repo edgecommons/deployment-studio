@@ -804,20 +804,25 @@ nodes:
                 </div>
               </div>
 
-              <h4 id="ui-anatomy">Global navigation and screen anatomy</h4>
+              <h4 id="ui-anatomy">Global navigation and screen anatomy — the context spine</h4>
               <p>
-                Every screen should keep the same frame so the user does not get lost in platform detail. The left rail
-                is asset-oriented global navigation, not a disguised wizard: Workspace, Fleet, Dataflows, Components,
-                Config, Releases, and Operations are independently reachable areas. Ordered flows such as first-run
-                setup, release approval, and rollback live inside the page that owns the work. The top bar is the current
-                draft/release context. The center workspace is the task-specific surface. The right inspector is the
-                explanation layer: selected object, affected target, policy findings, lineage ownership, and next
-                actions. Generated files and raw JSON live in drawers, not as the default screen.
+                Every screen keeps the same frame, and the frame is built around one rule: <b>the fleet tree is the
+                persistent selection spine, and the node-scoped surfaces are tabs over the current selection.</b>
+                The left rail is the fleet tree plus the only genuinely global areas — Releases, Operations, Registry,
+                and Settings. Components, Config, Topology, and Render are not independent destinations: they are
+                tabs that open <em>on</em> whatever the tree has selected, because each is meaningless without that
+                context — the same component on two nodes is two different instances with two different lineages.
+                A breadcrumb of the selection is always visible; the top bar carries the workspace, the active
+                draft/release context, and the evidence mode (Git-only, or snapshot with its age and source site).
+                Ordered flows such as first-run setup, release approval, and rollback live inside the page that owns
+                the work. The right inspector is the explanation layer: selected object, affected target, policy
+                findings, lineage ownership, and next actions. Generated files and raw JSON live in drawers, not as
+                the default screen.
               </p>
               <div class="ui-anatomy-grid">
                 <article>
-                  <b>Global nav</b>
-                  <p>Workspace, Fleet, Dataflows, Components, Config, Releases, and Operations as independent asset areas.</p>
+                  <b>Context spine</b>
+                  <p>The fleet tree as the persistent selection rail; Components, Config, Topology, and Render as selection-scoped tabs; Releases, Operations, Registry, and Settings as the only global areas.</p>
                 </article>
                 <article>
                   <b>Draft context</b>
@@ -849,11 +854,13 @@ nodes:
                   </p>
                 </article>
                 <article>
-                  <b>Start with an empty system</b>
+                  <b>Start with an empty system — or join one</b>
                   <p>
-                    First run is a guided setup path: create or connect storage, define hierarchy levels and first
-                    instances, set the enterprise target standard, assign and configure components for selected edge
-                    nodes, and produce a lab render before any live deployment is possible.
+                    Entry branches at the door: <b>Create</b> runs a three-step wizard — storage, hierarchy levels and
+                    first nodes, target standard — then becomes a milestone checklist that hands off to the owning
+                    screens (assign components in Components scoped to the chosen node; render in Render review).
+                    <b>Connect</b> is the day-two path: clone or attach an existing workspace, validate, open Fleet —
+                    no wizard. After day zero the workspace entry becomes Settings.
                   </p>
                 </article>
                 <article>
@@ -880,8 +887,10 @@ nodes:
                 <article>
                   <b>Investigate drift</b>
                   <p>
-                    Drift is classified as definition, artifact, applied target, or runtime evidence drift. That
-                    distinction keeps a GitOps sync delay from looking like a broken component.
+                    Drift is classified by stage and stream: definition, then release and delivery each split into
+                    config and artifact signals — delivery per node, with an explicit <em>unverified</em> state where
+                    the target class supplies no evidence — then runtime. That keeps a GitOps sync delay from looking
+                    like a broken component, and a config-only release from misreporting as artifact drift.
                   </p>
                 </article>
                 <article>
@@ -951,17 +960,17 @@ nodes:
                 <tbody>
                   <tr>
                     <td>Workspace setup</td>
-                    <td>Create the first deployment definition when there is no fleet yet.</td>
-                    <td>Stepper, import options, repo connector, ordered level builder, instance graph, target-standard chooser, component assignment and setup fields.</td>
-                    <td>One step visible at a time: storage, hierarchy levels and instances, target standard, component assignments and configuration, then render.</td>
-                    <td>No blank dashboard; missing prerequisites are next steps, not errors.</td>
+                    <td>Create the first deployment definition — or connect to an existing workspace — when this Studio has none.</td>
+                    <td>Create/Connect entry choice; three steps (storage, ordered levels + first nodes, target standard); then a milestone checklist whose items hand off to the owning screens. Becomes Settings after day zero.</td>
+                    <td>One step at a time; component assignment and rendering are handoffs, not wizard steps — the owning screens' empty states do the teaching.</td>
+                    <td>No blank dashboard; missing prerequisites are next steps, not errors. Connect validates the repo before opening Fleet.</td>
                   </tr>
                   <tr>
                     <td>Fleet overview</td>
-                    <td>Find the business asset that needs attention: enterprise, site, building, area, line, edge node, or component.</td>
-                    <td>Business hierarchy tree, environment filter, release selector, warning links, draft list.</td>
+                    <td>Find the business asset that needs attention; the tree doubles as the persistent context spine every scoped tab reads.</td>
+                    <td>Level-derived hierarchy tree (labels from hierarchy.levels, never hardcoded), environment filter, per-stream release chips, warning links, draft list.</td>
                     <td>Selected-asset detail first; technical deployment bindings and exceptions only appear inside that asset's detail.</td>
-                    <td>Unknown runtime evidence is shown as missing evidence, not healthy or failed.</td>
+                    <td>Unknown runtime evidence is shown as missing evidence, not healthy or failed; every observed value carries its source and age.</td>
                   </tr>
                   <tr>
                     <td>Topology (dataflows)</td>
@@ -972,17 +981,17 @@ nodes:
                   </tr>
                   <tr>
                     <td>Config layers</td>
-                    <td>Select a hierarchy scope and edit the owned config layer for a component instance.</td>
-                    <td>Scope tree, lineage strip, schema form, value path search, winning value inspector, raw drawer.</td>
-                    <td>Scope selection and value ownership before raw JSON.</td>
+                    <td>Select a hierarchy scope and edit the owned config layer; explain any effective value through its lineage.</td>
+                    <td>Scope tree ending at the component leaf (the instance is a facet within the leaf, never a scope node); lineage strip; schema form with blast-radius preview for scope-layer writes; value path search; winning-value inspector; raw drawer.</td>
+                    <td>Scope selection and value ownership before raw JSON; override policy reads "rejected at save/review" and names its enforcement locus (Studio validation + CODEOWNERS) — authoring-side, not a runtime guarantee.</td>
                     <td>Invalid layer edit rejects save and keeps last-good effective config visible.</td>
                   </tr>
                   <tr>
                     <td>Component editor</td>
-                    <td>Edit one component instance without losing target consequences.</td>
-                    <td>Instance form, command editor, secret reference chooser, runtime capability requirements.</td>
-                    <td>Field-level impact badges for restart, storage, permission, network, and config hash.</td>
-                    <td>Secret values are blocked; only provider references can be stored.</td>
+                    <td>Edit one component instance on one node — always anchored as node + component + config-instance, breadcrumbed.</td>
+                    <td>Two declared panels: the artifact stream (version, source, digest, compatibility) and the config leaf (schema form); command editor; secret reference chooser.</td>
+                    <td>Field-level impact badges for restart, storage, permission, network, and config hash; the two streams are visually separate because they release and roll back separately.</td>
+                    <td>Secret values are blocked; only provider references can be stored. Registry-level defaults are a separate labeled surface, never this screen's implicit second job.</td>
                   </tr>
                   <tr>
                     <td>Render review</td>
@@ -994,8 +1003,8 @@ nodes:
                   <tr>
                     <td>Drift</td>
                     <td>Decide whether to generate, hand off, apply, watch, or roll back.</td>
-                    <td>Plan actions, Greengrass deployment state, smoke evidence, runtime health.</td>
-                    <td>Drift classified by definition, rendered artifact, target apply, and runtime evidence.</td>
+                    <td>Stage × stream drift matrix, per-node delivery states, plan actions, smoke evidence, runtime verdicts with evidence source.</td>
+                    <td>Drift classified by stage × stream: definition → release (config | artifact) → delivery (config | artifact, per node, "unverified" where the target class has no evidence) → runtime.</td>
                     <td>Apply credentials missing keeps plan readable but disables dispatch.</td>
                   </tr>
                   <tr>
@@ -1029,8 +1038,11 @@ nodes:
                   definition resolves.
                 </li>
                 <li>
-                  Mark each value as inherited, overridden, blocked, or locally owned. A blocked value explains the
-                  policy rule and the layer that attempted the illegal change.
+                  Mark each value as inherited, overridden, policy-rejected, or locally owned. A rejected value
+                  explains the policy rule, its enforcement locus — Studio validation plus Git ownership
+                  (CODEOWNERS), authoring-side by decision — and where the rejected change was attempted. Device-scope
+                  fragments are authored files the compiler materializes into that node's rendered catalog; the
+                  runtime contract is untouched.
                 </li>
                 <li>
                   Let the user edit only the layers they own. Enterprise policy, site identity, and device binding can
@@ -1108,7 +1120,7 @@ nodes:
                 </div>
                 <div>
                   <b>Drift</b>
-                  <p>Drift is shown as definition drift, artifact drift, apply drift, and runtime drift so operators can distinguish intent, generated files, target state, and process health.</p>
+                  <p>Drift is a stage × stream matrix: definition, then release and delivery each split into config and artifact signals — delivery per node, with an explicit unverified state where the target class supplies no evidence — then runtime. Operators distinguish intent, each stream's promotion, each node's delivery, and process health without conflation.</p>
                 </div>
               </div>
             </section>
@@ -1587,6 +1599,14 @@ nodes:
             <article>
               <b>Stream separation &mdash; decided: a model invariant, not a transport one</b>
               <p>Greengrass does not technically fuse config and binary: a deployment can change config against an unchanged component version, or the binary while retaining config. It is the tooling and UI that combine them. So the model, release streams, evidence, drift, and rollback keep the two strictly distinct, while the Greengrass adapter may coalesce them into a single deployment where that suits the command; the ReleaseLock's correlation envelope keeps a coalesced apply auditable against both streams.</p>
+            </article>
+            <article>
+              <b>Product surface &mdash; decided: the context-spine IA</b>
+              <p>The fleet tree is the persistent selection spine; Components, Config, Topology, and Render are tabs over the current selection; Releases, Operations, Registry, and Settings are the only global areas; a breadcrumb is always visible. This replaces the earlier "independently reachable areas" anatomy. With it: the wizard becomes Create/Connect plus three steps and milestone handoffs (Settings after day zero); the component editor is node-anchored with separate artifact-stream and config-leaf panels; the config scope tree ends at the component leaf with the instance as a facet; and drift is a stage &times; stream matrix with per-node delivery states.</p>
+            </article>
+            <article>
+              <b>Device layers &mdash; decided: authoring-side, explicitly revisitable</b>
+              <p>Device-scope fragments and override policy are Studio validation plus Git ownership (CODEOWNERS); the UI says "rejected at save/review" and names the locus. The compiler materializes device fragments into that node's rendered catalog &mdash; per-node catalogs make device-scope config expressible with zero runtime change. Runtime enforcement later is additive on the same authored artifacts, gated on a concrete driver.</p>
             </article>
             <article>
               <b>Approvals &mdash; decided: Git-host PR reviews, no parallel system</b>
