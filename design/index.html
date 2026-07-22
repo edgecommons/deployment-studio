@@ -306,6 +306,29 @@
                 platform, phase, inputs, and review policy. This keeps the definition understandable and makes the UI
                 credible: the UI edits model fields, not blobs.
               </p>
+              <h4>Node identity is the load-bearing object</h4>
+              <p>
+                Per-thing Greengrass targeting, per-node HOST bundles, and placement onto named Kubernetes nodes all
+                hang off one identifier: the <b>node key</b> — a stable, human-assigned name
+                (<code>gw-fill-01</code>) that outlives the hardware behind it. The model treats the key and the
+                machine as different things. The key carries the hierarchy placement, the component assignments, the
+                config lineage, and the release history. The machine carries a platform identity bound to the key —
+                an AWS IoT thing on Greengrass, a labeled node on Kubernetes, an inventory hostname on HOST —
+                delivered through <code>bindings.json</code>, because provisioning that identity (creating the thing,
+                joining the cluster, imaging the box) is infrastructure's job, not the Studio's.
+              </p>
+              <p>
+                The split keeps the awkward lifecycles expressible without making them exotic. The default convention
+                is that the thing name (or node label, or hostname) <em>equals</em> the node key, because the
+                runtime's device-level identity — and therefore every UNS topic the node publishes — resolves from
+                the thing name. Replacing a failed gateway is then new hardware bound to the same key: same
+                placement, same components, same lineage, same topics; what changes is the provisioning material
+                (certificates, enrollment) recorded in the bindings, plus a redeploy. Renaming a node is the
+                expensive operation, not replacement — it is a definition edit whose plan must surface the
+                runtime-identity consequence: topics move and consumers re-subscribe. Decommissioning retires the
+                key; its release history remains in Git. Each of these flows needs a field in the schema and a
+                surface in the product; none may be improvised at apply time.
+              </p>
             </section>
 
             <section id="chapter-config" class="chapter">
@@ -525,6 +548,19 @@
                 handoff should not run silently at the same time, because that makes drift ambiguous and can cause
                 controller fights.
               </p>
+              <p>
+                This is why Kubernetes gets <b>one renderer and several delivery modes, not several renderers</b>. The
+                renderer is the semantic compiler — the part Argo CD and Flux cannot supply: the effective-config
+                ConfigMap with the whole-volume mount and kubelet <code>..data</code> reload semantics, Downward-API
+                identity, the health-probe conventions, placement onto named edge nodes, and the config-hash annotation
+                that makes a config change actually roll pods. Its output is plain deterministic manifests at a release
+                path. Delivery is an adapter over that output: <code>kubectl</code> from CI, or an Argo&nbsp;CD/Flux
+                handoff whose only tool-specific artifact is a small Application resource pointing at the release path.
+                One rendered truth, N delivery modes — the same shape the config stream already settled. Sequencing
+                follows demand rather than symmetry: HOST and Greengrass carry the differentiated value, and the
+                Kubernetes renderer lands when a concrete consumer exists — the first candidate being the org's own
+                hand-maintained Kubernetes test chart.
+              </p>
               <h4>Greengrass</h4>
               <p>
                 Greengrass deployment is nucleus-managed. The renderer must emit recipes with concrete component
@@ -564,9 +600,23 @@
               </p>
               <p>
                 The key design choice is to separate deployment intent from infrastructure ownership. Deployment Studio
-                should be able to render IaC modules or inputs, import external IaC outputs, and show their relationship
-                to the edge solution. It should not assume it owns an organization's VPC, cluster, registry, or identity
-                foundation unless the user explicitly chooses that mode.
+                does not own an organization's VPC, cluster, registry, or identity foundation — and it does not ship
+                integrations written in other tools' languages. <b>The entire IaC boundary is three versioned,
+                schema-validated files in the release path:</b>
+              </p>
+              <ul class="rule-list">
+                <li><code>requirements.json</code> — what this release needs from infrastructure: thing ARNs for the definition's node keys, artifact bucket, namespace, TES role, registry, network reachability assumptions.</li>
+                <li><code>bindings.json</code> — what infrastructure answered: the concrete ARNs, names, endpoints, and roles, keyed by node and environment. Renderers consume it, and a release cannot be applied while a required binding is missing.</li>
+                <li><code>plan.json</code> — the normalized render plan that policy engines evaluate.</li>
+              </ul>
+              <p>
+                Every tool integrates against those files, on the tool's side of the boundary: a Terraform module reads
+                <code>requirements.json</code> and writes <code>bindings.json</code>; a CDK or Pulumi user does the same
+                in twenty lines, because the contract is JSON in a repo path, not an SDK. EdgeCommons ships <b>one worked
+                Terraform example as documentation</b> — not a maintained module, not generated CDK constructs, not
+                typed HCL. The Studio never parses another tool's language and never links a cloud SDK above the port
+                boundary. The lab below shows how each ecosystem <em>consumes</em> the handshake; the snippets are
+                customer-side patterns, not EdgeCommons deliverables.
               </p>
               <div class="iac-lab" aria-label="Interactive infrastructure as code integration lab">
                 <div class="iac-choices" role="tablist" aria-label="IaC strategy selector">
@@ -605,12 +655,12 @@
                 <tbody>
                   <tr>
                     <td>Terraform module</td>
-                    <td>Generate module inputs, consume outputs, show plan impact.</td>
+                    <td>Publish <code>requirements.json</code>, consume <code>bindings.json</code>, show plan impact.</td>
                     <td>Own provider credentials, remote state, locking, and apply approval.</td>
                   </tr>
                   <tr>
                     <td>AWS CDK construct</td>
-                    <td>Emit construct configuration or a generated app for Greengrass/AWS resources.</td>
+                    <td>Publish the same <code>requirements.json</code>/<code>bindings.json</code> handshake; CDK consumption is customer-side.</td>
                     <td>Run synth/deploy through CloudFormation and organization guardrails.</td>
                   </tr>
                   <tr>
@@ -667,6 +717,16 @@
                 version, renderer inputs, output hashes, policy decisions, and apply target identity. Release evidence is
                 what lets an operator answer: what did we intend, what did we generate, who approved it, what applied it,
                 and what actually ran?
+              </p>
+              <p>
+                <b>Who approves, in v1, is not a Studio subsystem — it is the Git host.</b> Approvals are pull-request
+                reviews on the release repository: approver roles map to CODEOWNERS entries and branch-protection
+                rules, "required approvals" are required reviews, and the audit record is the merged PR itself. The
+                Studio's gate surface renders that state and links to the PR; it implements no parallel identity or
+                approval store. Policy output still names which reviews a change requires — CODEOWNERS paths and
+                protected branches enforce it. A Studio-native approval object becomes worth considering only if a
+                compliance regime cannot be expressed in Git-host review semantics, and that is a renegotiation, not
+                a default.
               </p>
               <div class="devsecops-flow">
                 <span>Commit</span>
@@ -832,7 +892,9 @@
                   <p>
                     The interactive mock now lives in its own local static pages. Each page has app navigation,
                     controls, forms, tables, inspectors, and target-specific artifacts. The book describes the design;
-                    the linked mock pages show the proposed product surface.
+                    the linked mock pages show the proposed product surface. The mock predates several settled
+                    decisions (see <code>REVIEW-UI.md</code>) — where the mock and this chapter's contracts disagree,
+                    the contracts win, and the screens catch up in the UI pass.
                   </p>
                   <a class="mock-primary-link" href="mock-app/index.html">Launch workspace setup mock</a>
                 </div>
@@ -850,8 +912,10 @@
 
               <h4>Key screen behavior</h4>
               <p>
-                The overview screen anchors the operator in site state. The dataflow designer explains the desired
-                edge solution as component instances, message flows, and config bindings rather than files. The config layers screen selects a hierarchy scope, shows the ordered ancestry strip, winning
+                The overview screen anchors the operator in site state. The topology view explains the edge solution
+                as component instances and message flows <em>derived from the configured components</em> rather than
+                files — it explains and verifies; authoring stays in the config and component surfaces (the
+                prescriptive dataflow model is extracted to <code>FUTURE-dataflows.md</code>). The config layers screen selects a hierarchy scope, shows the ordered ancestry strip, winning
                 values, overridden values, and the effective config hash. The component editor focuses on one component
                 instance and shows capability needs, command verbs, resource claims, and selected-target render impact.
                 The render review explains exactly what the selected target will receive. The drift screen separates
@@ -892,11 +956,11 @@
                     <td>Unknown runtime evidence is shown as missing evidence, not healthy or failed.</td>
                   </tr>
                   <tr>
-                    <td>Dataflows</td>
-                    <td>Define component instances, dataflows, message contracts, and config bindings for an edge node.</td>
-                    <td>Component picker, dataflow editor, message-class selector, config-binding chooser, runtime capability list.</td>
-                    <td>Graph edge explanations with producer, consumer, transport pattern, topic, durability, config lineage, and selected-standard binding.</td>
-                    <td>Unsupported transport pattern, missing config binding, or missing runtime capability is pinned to the offending dataflow.</td>
+                    <td>Topology (dataflows)</td>
+                    <td>Understand the derived dataflow topology of a selected node or line's configured components; verify it; jump to where each side is configured.</td>
+                    <td>Derived read-only graph, edge inspector, mismatch findings, deep links into the config and component surfaces. No authoring controls; the prescriptive editor is extracted to FUTURE-dataflows.md.</td>
+                    <td>Graph edge explanations with producer, consumer, class/topic, durability, and the config values each end derives from.</td>
+                    <td>A dangling consumer, class/topic mismatch, or missing capability binding is pinned to the offending edge and links to the owning config scope.</td>
                   </tr>
                   <tr>
                     <td>Config layers</td>
@@ -1003,10 +1067,17 @@
               <h3>11. Operations: drift, rollback, and live convergence</h3>
               <p>
                 Once Deployment Studio can generate a release, it must also help operators understand whether that
-                release converged. Edge Console already points in this direction with health, fleet state, command
-                gateways, and configuration review seams. Deployment Studio should connect those signals to the release
-                model. A component is not merely "running"; it is running a specific artifact digest, a specific config
-                hash, under a specific release tag, on a specific target platform.
+                release converged. The division of labor is a rule, not a preference: <b>the Studio holds intent and
+                adjudicates delivery from evidence; the Console observes live state and never learns intent.</b> The
+                Console cannot answer "has what I intended arrived?" — it holds no release lock, no render hashes, no
+                expected values. The Studio cannot answer "is it working right now?" — it holds no live connection.
+                So the Studio compares three records it can keep in Git — <em>intended</em> (the release lock),
+                <em>delivered</em> (apply records and control-plane status), and <em>reported</em> (the Console's
+                signed snapshot) — and renders verdicts. The practical test for any Studio surface: observed data
+                appears only paired with an intent comparison. A reported config hash next to the release's expected
+                hash belongs here; a bare keepalive timestamp is Console territory, and the Studio deep-links to it
+                rather than duplicating it. A component is not merely "running"; it is running a specific artifact
+                digest, a specific config hash, under a specific release tag, on a specific target platform.
               </p>
               <p>
                 Drift detection differs by target because delivery evidence is a <b>per-target capability</b>, not a
@@ -1216,7 +1287,9 @@
                 model, exports a periodic signed site-state snapshot, which the Studio ingests via a file drop, an
                 S3-compatible bucket, or MQTT. These are three adapters, not three architectures. This composes with
                 edge-console's deliberately site-scoped design instead of contradicting it, requires no cross-site
-                cloud service, and requires no change to the core wire contract.
+                cloud service, and requires no change to the core wire contract. The chapter 11 bright line holds
+                here too: snapshots make the Studio's <em>adjudication</em> richer — they never turn it into a live
+                console.
               </p>
 
               <h4>The explicit no-list</h4>
@@ -1260,7 +1333,7 @@
                 <li><b>Kernel and CLI:</b> the deployment model, the Rust kernel crate, and the HOST renderer, emitting native artifacts plus the normalized plan. New code, no migration risk, no server. Acceptance: regenerate an existing hand-maintained site and diff against the files a human wrote.</li>
                 <li><b>Evidence:</b> artifact hashes, validation bundles, and release manifests tied to Git commits, produced in CI. Still no service.</li>
                 <li><b>Greengrass renderer and CLI port:</b> recipes, GDK config, deployment JSON, and the release-lock governance showcase against a real Greengrass device. Port the six existing CLI commands onto the Rust binary and retire the Python CLI, with the existing test suite as the oracle.</li>
-                <li><b>Storage and Kubernetes:</b> Git-backed definition repositories, the Kubernetes renderer, and either rendering catalogs into the existing file/ConfigMap sources from CI or a ConfigComponent <code>GitCatalogSource</code> that reads pinned refs safely.</li>
+                <li><b>Storage and Kubernetes:</b> Git-backed definition repositories, and either rendering catalogs into the existing file/ConfigMap sources from CI or a ConfigComponent <code>GitCatalogSource</code> that reads pinned refs safely. The Kubernetes renderer in this slice is demand-gated: it lands when its first concrete consumer exists, the leading candidate being the org's own hand-maintained Kubernetes test chart.</li>
                 <li><b>UI:</b> the Studio service from chapter 12 — <code>axum</code> plus the embedded Carbon SPA — beginning as a read-only pair of screens (config layers and render review) over Git, with identity delegated to the Git host.</li>
                 <li><b>Execution and convergence:</b> connect CI/CD, Terraform/CDK/Pulumi, Argo CD or Flux, Greengrass APIs, and host orchestrators behind explicit protected modes, then close the loop with drift, rollback, and the edge-console snapshot feed.</li>
               </ol>
@@ -1477,7 +1550,7 @@
             <article class="decision-settled">
               <span class="decision-tag">settled — ch. 12</span>
               <b>Live evidence</b>
-              <p>Git-only is the default mode; no aggregation tier is built. Where live evidence is wanted, each site's Edge Console exports a signed site-state snapshot through the snapshot port. Control-plane-derived first — no core wire change.</p>
+              <p>Git-only is the default mode; no aggregation tier is built. Where live evidence is wanted, each site's Edge Console exports a signed site-state snapshot through the snapshot port. Control-plane-derived first — no core wire change. Bright line: the Studio holds intent and adjudicates delivery from evidence; the Console observes live state and never learns intent. Observed data appears in the Studio only paired with an intent comparison.</p>
             </article>
             <article>
               <b>Generated artifacts in Git</b>
@@ -1506,6 +1579,22 @@
             <article>
               <b>Stream separation &mdash; decided: a model invariant, not a transport one</b>
               <p>Greengrass does not technically fuse config and binary: a deployment can change config against an unchanged component version, or the binary while retaining config. It is the tooling and UI that combine them. So the model, release streams, evidence, drift, and rollback keep the two strictly distinct, while the Greengrass adapter may coalesce them into a single deployment where that suits the command; the ReleaseLock's correlation envelope keeps a coalesced apply auditable against both streams.</p>
+            </article>
+            <article>
+              <b>Approvals &mdash; decided: Git-host PR reviews, no parallel system</b>
+              <p>Approver roles map to CODEOWNERS and branch protection; required approvals are required reviews; the audit record is the merged PR. The Studio's gate surface renders that state and links to it. A Studio-native approval object is a renegotiation reserved for compliance regimes Git-host review semantics cannot express.</p>
+            </article>
+            <article>
+              <b>Kubernetes delivery &mdash; decided: one renderer, N delivery modes, demand-sequenced</b>
+              <p>The renderer is the semantic compiler &mdash; effective-config ConfigMap with reload semantics, Downward-API identity, probes, named-node placement, config-hash annotation &mdash; emitting plain deterministic manifests to a release path. kubectl-from-CI and Argo&nbsp;CD/Flux handoff are delivery adapters over that one output; the only tool-specific artifact is a small Application resource. Sequenced behind HOST and Greengrass until a concrete consumer exists; first candidate is the org's own Kubernetes test chart.</p>
+            </article>
+            <article>
+              <b>IaC boundary &mdash; decided: three files</b>
+              <p><code>requirements.json</code>, <code>bindings.json</code>, and <code>plan.json</code> in the release path are the whole contract; tools integrate on their side of it, and one worked Terraform example ships as documentation. No generated CDK or HCL deliverables, and no cloud SDK above the port boundary.</p>
+            </article>
+            <article>
+              <b>Dataflows &mdash; decided: derived and read-only in the product</b>
+              <p>The product renders a topology derived from the configured components, scoped to a selection, for explanation and verification, with deep links into the config surfaces that own the writes. The prescriptive contract/capability model is extracted to <code>FUTURE-dataflows.md</code>, gated on describe/registry metadata that does not exist yet; derived least-privilege ACLs are its eventual justification.</p>
             </article>
             <article>
               <b>HOST delivery evidence &mdash; decided: degrade honestly, no receipt machinery</b>

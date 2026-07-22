@@ -298,22 +298,22 @@ const workflowData = [
   },
   {
     group: "Assets",
-    title: "Dataflows",
+    title: "Topology (dataflows)",
     route: "mock-app/definition-map.html",
-    status: "semantic graph",
-    note: "This replaces the vague definition map with a graph for component instances, ports, topics, and config bindings.",
+    status: "derived, read-only",
+    note: "A read-only graph derived from the configured components of the selected node or line. It explains and verifies; authoring stays in the config and component surfaces. The prescriptive dataflow model is extracted to FUTURE-dataflows.md.",
     scope: "Line or device scope",
-    primary: "Draw what runs on the selected edge and how signals move through adapters, processors, bridges, and storage.",
+    primary: "See what runs on the selected edge and how signals move through adapters, processors, bridges, and storage - as the configs actually wire it.",
     secondary: [
       "Nodes are deployed component instances, not platform artifacts.",
-      "Edges are EdgeCommons message flows, UNS paths, command paths, and durable stream links.",
-      "Runtime requirements are expressed semantically and rendered for the selected target family later.",
-      "Selecting a node opens its ports, config bindings, secrets, health, and release impact."
+      "Edges are derived from the components' effective configs: adapter publish classes, processor routes, replicator inputs, bridge subscriptions.",
+      "Mismatch findings - dangling consumer, class/topic mismatch, missing capability - are pinned to the offending edge.",
+      "Selecting an edge explains where each end is configured and deep-links to that config scope."
     ],
     inspector: [
       "Selected component instance and assigned edge device.",
-      "Message classes, topics, and schema contracts.",
-      "Warnings for missing required config or incompatible target capabilities."
+      "Message classes, topics, and the config values each end derives from.",
+      "Warnings for missing required config or incompatible target capabilities, with links to the owning scope."
     ]
   },
   {
@@ -421,19 +421,19 @@ const workflowData = [
 const iacData = {
   terraform: {
     title: "Terraform module and output handshake",
-    body: "Use Terraform when the organization already manages shared AWS, Kubernetes, registry, network, and identity infrastructure through remote state and provider credentials. Deployment Studio should generate module inputs and consume outputs, not silently become the state owner.",
+    body: "Use Terraform when the organization already manages shared AWS, Kubernetes, registry, network, and identity infrastructure through remote state and provider credentials. The boundary is the three-file handshake: the module reads requirements.json and writes bindings.json; the Studio never parses HCL. The module shown is a customer-side pattern, not an EdgeCommons deliverable.",
     responsibilities: [
-      "Generate typed input variables from DeploymentDefinition and EnvironmentBinding.",
-      "Read outputs such as artifact bucket, the provisioned IoT thing ARNs, namespace, registry, and IAM role ARNs.",
+      "Publish requirements.json from the DeploymentDefinition and environment binding.",
+      "Consume bindings.json - artifact bucket, the provisioned IoT thing ARNs, namespace, registry, and IAM role ARNs.",
       "Attach Terraform plan summary to the release gate when apply mode is enabled."
     ],
     preview: `module "edgecommons_filling_line" {\n  source = "git::ssh://git@example.com/iac/edgecommons-edge-target.git"\n\n  site             = "dallas"\n  thing_arns       = var.greengrass_thing_arns  # one per node, no groups\n  namespace        = "edge-prod"\n  artifact_bucket  = aws_s3_bucket.greengrass_artifacts.bucket\n  release_lock_sha = "9dd4f4..."\n}\n\noutput "edgecommons_target_binding" {\n  value = {\n    namespace = "edge-prod"\n    artifact_bucket = aws_s3_bucket.greengrass_artifacts.bucket\n  }\n}`
   },
   cdk: {
     title: "AWS CDK construct for AWS-owned edge resources",
-    body: "Use CDK when the team wants a higher-level, language-native construct for AWS resources around Greengrass, IoT, IAM, S3, KMS, logs, and deployment automation. Deployment Studio can generate construct props or a small synthesized app.",
+    body: "Use CDK when the team wants a higher-level, language-native construct for AWS resources around Greengrass, IoT, IAM, S3, KMS, logs, and deployment automation. The contract is the same three-file handshake; the construct shown is a customer-side consumption pattern, not an EdgeCommons deliverable.",
     responsibilities: [
-      "Emit construct props for Greengrass component versions, artifact buckets, IoT policies, and deployment targets.",
+      "Publish the same requirements.json/bindings.json handshake; CDK consumption of it is customer-side code.",
       "Keep CloudFormation as the apply system and surface stack events back into release evidence.",
       "Use CDK for AWS resources, but still render EdgeCommons runtime config from the deployment source."
     ],

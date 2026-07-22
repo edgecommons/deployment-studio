@@ -628,11 +628,13 @@ immediately.
      plan**, computed per component from its config source, feeding the `diff`'s existing *restart*
      consequence group.
 
-4. **Dataflows: descriptive or prescriptive.**
-   *Recommendation:* descriptive v1 (a derived, read-only graph from existing configs, no invented contracts);
-   gate the prescriptive contract/capability model on RM-005/describe and registry metadata landing. The
-   prescriptive branch also unlocks derived least-privilege ACLs — that is its eventual justification, not a v1
-   deliverable.
+4. **Dataflows: descriptive or prescriptive.** — **RESOLVED 2026-07-22 (PLAN step 2.4).**
+   *Decision:* **descriptive and derived only, in the product.** The Topology view renders a read-only graph
+   derived from the configured components, scoped to a selection, for explanation and verification, with deep
+   links into the config surfaces that own the writes. The prescriptive contract/capability model is extracted
+   whole to `FUTURE-dataflows.md`, gated on describe/registry metadata that does not exist yet; derived
+   least-privilege ACLs remain its eventual justification. Deck ch. 10 contracts and the workflow strip
+   updated; the mock screen catches up in the step-4 UI pass.
 
 5. **Device layers and blocked overrides: authoring-side or runtime contract.**
    *Recommendation:* authoring-side only — Studio validation + Git ownership (CODEOWNERS over `layers/`), no
@@ -669,6 +671,47 @@ immediately.
    process and not code. Two fleet trees will exist temporarily, which is acceptable because one is explicitly
    desired-state and the other observed-state. Revisit convergence only after the console's identity/audit
    work lands.
+
+10. **Approvals.** — **RESOLVED 2026-07-22 (PLAN step 2.1).**
+    *Decision:* **Git-host PR reviews are the approval system; no parallel Studio subsystem in v1.** Approver
+    roles map to CODEOWNERS and branch protection, required approvals are required reviews, and the audit
+    record is the merged PR. The Studio's gate surface renders that state and links to it. A Studio-native
+    approval object is a renegotiation reserved for compliance regimes Git-host review semantics cannot
+    express. (Also settles REVIEW-UI §5 decision 6.) Deck ch. 9 + decision card updated.
+
+11. **Kubernetes delivery.** — **RESOLVED 2026-07-22 (PLAN step 2.2).**
+    *Decision:* **one renderer, N delivery modes, demand-sequenced.** The renderer is the semantic compiler —
+    effective-config ConfigMap with reload semantics, Downward-API identity, probes, named-node placement,
+    config-hash annotation — emitting plain deterministic manifests to a release path. kubectl-from-CI and
+    Argo CD/Flux handoff are delivery adapters over that one output (the only tool-specific artifact is a
+    small Application resource). Sequenced behind HOST and Greengrass until a concrete consumer exists; first
+    candidate is the org's own hand-maintained Kubernetes test chart. Deck ch. 7 + ch. 13 slice 4 + card
+    updated.
+
+12. **IaC boundary.** — **RESOLVED 2026-07-22 (PLAN step 2.3).**
+    *Decision:* **three files are the whole contract** — `requirements.json` (what a release needs from
+    infrastructure), `bindings.json` (what infrastructure answered, keyed by node and environment), and
+    `plan.json` (the normalized policy input) — versioned in the release path. Tools integrate on their side
+    of the boundary; EdgeCommons ships one worked Terraform example as documentation, no generated CDK/HCL
+    deliverables, no cloud SDK above the port boundary. Deck ch. 8 rewritten accordingly; the IaC lab's
+    snippets are explicitly customer-side patterns.
+
+13. **The Studio/Console bright line.** — **RESOLVED 2026-07-22 (PLAN step 2.5).**
+    *Decision:* **the Studio holds intent and adjudicates delivery from evidence; the Console observes live
+    state and never learns intent.** The Studio compares three Git-holdable records — intended (release lock),
+    delivered (apply records, control-plane status), reported (Console snapshot) — and renders verdicts.
+    Practical test: observed data appears in the Studio only paired with an intent comparison; bare live
+    telemetry is Console territory, deep-linked rather than duplicated. Deck ch. 11 lead + ch. 12 + Live
+    evidence card updated.
+
+14. **Node identity.** — **RESOLVED 2026-07-22 (PLAN step 2.6).**
+    *Decision:* the **node key** is a stable, human-assigned identifier that outlives hardware; the machine's
+    platform identity (thing / node label / hostname) binds to it via `bindings.json`, with provisioning owned
+    by infrastructure. Default convention: platform identity equals the node key, because the runtime's
+    device-level identity — and every UNS topic — resolves from the thing name. Replacement = same key, new
+    provisioning material; rename = definition edit with a surfaced runtime-identity consequence; decommission
+    retires the key and keeps its history. New ch. 3 section "Node identity is the load-bearing object"; the
+    step-1 definition schema carries the fields.
 
 ---
 

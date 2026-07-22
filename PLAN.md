@@ -39,19 +39,20 @@ per-node target arrays); two-stream separation (artifact pin vs config refs); pe
 Acceptance: if the language cannot express the Dallas site cleanly, the model is wrong — record the
 correction, do not force the fixture.
 
-## Step 2 — Deck subtractions — **IN PROGRESS (2026-07-22)**
+## Step 2 — Deck subtractions — **DONE (2026-07-22)**
 
-Each is a ruling already accepted by the user; propagate deck + reviews together.
+Each is a ruling accepted by the user; propagated deck + reviews together. Register entries:
+`design/REVIEW.md` §6 #10–#14 (and #4).
 
 | # | Edit | Status |
 |---|---|---|
-| 2.1 | **Governance → PR reviews.** Approval lanes are a rendering of Git-host PR review state (CODEOWNERS/branch protection); no parallel approval system in v1. Ch. 9/10/11 + decision card. | [ ] |
-| 2.2 | **K8s = one renderer + delivery modes.** The semantic compiler is Studio's (Argo has no EdgeCommons knowledge); kubectl-from-CI and Argo/Flux handoff are *delivery adapters* over one rendered output (the only Argo artifact is an Application CR). Sequenced on demand — first consumer: replacing the hand-maintained k8s test chart. Ch. 7/13 + card. | [ ] |
-| 2.3 | **Ch. 8 → three-file IaC handshake.** `requirements.json` / `bindings.json` / `plan.json` in the release path are the only IaC contract; one worked Terraform example ships as documentation, not product. No generated CDK/HCL deliverables. | [ ] |
-| 2.4 | **Extract prescriptive dataflows** to `design/FUTURE-dataflows.md` (gated on RM-005/registry metadata); the product keeps only the derived, read-only topology. Resolves REVIEW decision #4. | [ ] |
-| 2.5 | **State the bright line** (ch. 11/12): *Studio holds intent and adjudicates delivery from evidence; Console observes live state and never learns intent.* Observed data appears in Studio only paired with an intent comparison. | [ ] |
-| 2.6 | **Node-identity section** (ch. 3): node key ↔ thing name ↔ device lifecycle (replacement, re-keying, decommission); provisioning owned by IaC, consumed via `bindings.json`. Per-thing made this the most load-bearing object. | [ ] |
-| 2.7 | ~~HOST delivery evidence: degrade honestly, no receipt machinery; inspection utility demand-gated.~~ | **DONE** (roadmap `26a197c`, carried into `design/`) |
+| 2.1 | **Governance → PR reviews.** Approval lanes are a rendering of Git-host PR review state (CODEOWNERS/branch protection); no parallel approval system in v1. Ch. 9 + decision card. | **DONE** (REVIEW #10) |
+| 2.2 | **K8s = one renderer + delivery modes.** The semantic compiler is Studio's (Argo has no EdgeCommons knowledge); kubectl-from-CI and Argo/Flux handoff are *delivery adapters* over one rendered output (the only Argo artifact is an Application CR). Demand-sequenced — first consumer: replacing the hand-maintained k8s test chart. Ch. 7 + ch. 13 slice 4 + card. | **DONE** (REVIEW #11) |
+| 2.3 | **Ch. 8 → three-file IaC handshake.** `requirements.json` / `bindings.json` / `plan.json` in the release path are the only IaC contract; one worked Terraform example ships as documentation, not product. No generated CDK/HCL deliverables. Lab snippets marked customer-side. | **DONE** (REVIEW #12) |
+| 2.4 | **Extract prescriptive dataflows** to `design/FUTURE-dataflows.md`; the product keeps only the derived, read-only Topology. Ch. 10 contracts + workflow strip updated; mock screen catches up in step 4. | **DONE** (REVIEW #4) |
+| 2.5 | **Bright line stated** (ch. 11/12 + Live-evidence card): *Studio holds intent and adjudicates delivery from evidence; Console observes live state and never learns intent.* Observed data appears in Studio only paired with an intent comparison. | **DONE** (REVIEW #13) |
+| 2.6 | **Node-identity section** (ch. 3): node key ↔ platform identity via `bindings.json`; default = names equal; replacement cheap, rename expensive, decommission keeps history. Schema fields land in step 1. | **DONE** (REVIEW #14) |
+| 2.7 | ~~HOST delivery evidence: degrade honestly, no receipt machinery; inspection utility demand-gated.~~ | **DONE** (roadmap `26a197c`, carried into `design/`; REVIEW #7 refinement) |
 
 ## Step 3 — Slice 1: kernel + HOST renderer — **NOT STARTED**
 
