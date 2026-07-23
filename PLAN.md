@@ -167,6 +167,21 @@ consequences landed with it:
 escape hatch and what makes the networked verb testable without a network. All four core gates green;
 coverage 90.75%.
 
+**Instance-config validation: SHIPPED (2026-07-23).** core PR #67 extends the guard to
+`component.instances[]`, which the first cut skipped. A survey of all seven component repos settled
+that `global` and an instance are **different shapes, not one shape with overrides** — no library
+merges them, components combine them by per-key fallback on a small `defaults` block, and both sides
+are `additionalProperties: false`, so a merged document would fail both. The guard therefore validates
+them separately: `component.global` against the schema root, each instance against **`#/$defs/instance`**.
+The fixed name is a convention every component already half-satisfies (its instance shape is a `$defs`
+subschema under a domain name — `device`/`route`/`camera`); four repos add a one-line `$ref` alias
+(companion PRs: opcua-adapter #10, modbus-adapter #5, telemetry-processor #13, camera-adapter #10;
+file-replicator and uns-bridge already comply). A pinned version that ships a schema but no
+`#/$defs/instance` is `EC5008` — a warning, same degradation discipline as the rest of the guard.
+Two side findings fixed in the same sweep: the stale `component.global` example in
+`core/docs/TELEMETRY_PROCESSOR.md`, and **edge-console's missing `config.schema.json`**, now authored
+from `ConsoleConfig::from_global` (edge-console PR #10, closes that repo's P0-3).
+
 Then per deck ch. 13: storage/K8s → UI → execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
