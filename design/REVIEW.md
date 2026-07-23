@@ -742,8 +742,9 @@ immediately.
     (`opcua-adapter` → `OpcUaAdapter`).
     *Consequence:* the renderer needs exactly one new fact — the Greengrass component name. Canonical
     home is the registry's `greengrassComponentName` (registry PR #7, harvested from each repo's own
-    recipe); `deployment lock` resolves it into the lock, and until then a definition may set
-    `artifact.greengrassName`. The renderer errors naming both sources rather than guessing.
+    recipe); `deployment lock` resolves it into the lock, and a definition may still override with
+    `artifact.greengrassName` (override first, lock second). The renderer errors naming both sources
+    rather than guessing.
     *This is a deviation from the deck*, which said the renderer emits "recipes, GDK config,
     deployment JSON"; the deck's ch. 7, roadmap slice, and decision surface are corrected in the same
     change, and DESIGN-cli gains §8.5.6. Revisit only if per-deployment recipe customization (site
