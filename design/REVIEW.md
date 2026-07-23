@@ -727,6 +727,29 @@ immediately.
     retires the key and keeps its history. New ch. 3 section "Node identity is the load-bearing object"; the
     step-1 definition schema carries the fields.
 
+15. **Recipe ownership on Greengrass.** — **RESOLVED 2026-07-23 (user).**
+    *Decision:* **the deployment renderer emits per-thing deployment documents and does not generate
+    recipes.** A recipe carries `ComponentDependencies`, `accessControl`, `Manifests`
+    (platform/artifact/lifecycle), and the component's *default* configuration — all component
+    packaging facts, all already hand-authored in every component repo beside a `gdk-config.json`,
+    and none of them deployment intent. Producing and publishing a recipe is release engineering
+    (`component package|release`, RM-013). Greengrass takes per-device configuration through
+    `configurationUpdate`, which overrides the recipe's `DefaultConfiguration`, so a deployment never
+    needs a bespoke recipe to carry site-specific config.
+    *Evidence:* surveyed all six component recipes — dependencies differ (`>=0.0.0` / `>=2.0.0` /
+    `>=2.0.0 <3.0.0`, and `uns-bridge` declares none), four of six need `mqttproxy` access, platform
+    is `linux` or `all`, lifecycle differs per language, and the component name is not derivable
+    (`opcua-adapter` → `OpcUaAdapter`).
+    *Consequence:* the renderer needs exactly one new fact — the Greengrass component name. Canonical
+    home is the registry's `greengrassComponentName` (registry PR #7, harvested from each repo's own
+    recipe); `deployment lock` resolves it into the lock, and until then a definition may set
+    `artifact.greengrassName`. The renderer errors naming both sources rather than guessing.
+    *This is a deviation from the deck*, which said the renderer emits "recipes, GDK config,
+    deployment JSON"; the deck's ch. 7, roadmap slice, and decision surface are corrected in the same
+    change, and DESIGN-cli gains §8.5.6. Revisit only if per-deployment recipe customization (site
+    access-policy narrowing) acquires a driver — the cheap path then is publishing each component's
+    existing recipe in its release descriptor and overlaying version/artifact/config.
+
 ---
 
 ## Open doc-sync item — CLOSED 2026-07-22

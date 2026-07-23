@@ -571,12 +571,27 @@ nodes:
               </p>
               <h4>Greengrass</h4>
               <p>
-                Greengrass deployment is nucleus-managed. The renderer must emit recipes with concrete component
-                versions, artifacts, lifecycle, dependencies, component configuration, accessControl, and runWith
-                settings. It must also produce deployment JSON with target ARNs and configurationUpdate merge/reset
-                operations. Greengrass security cannot be reduced to recipe syntax; the design has to account for IAM,
-                TokenExchangeService, IPC authorization, artifact buckets, and the difference between local lab
-                deployment and cloud deployment.
+                Greengrass deployment is nucleus-managed, and the work splits along a line the platform itself
+                draws. A <b>recipe</b> carries concrete component versions, artifacts, lifecycle, dependencies,
+                accessControl, runWith, and the component's <em>default</em> configuration &mdash; and a
+                <b>deployment</b> carries target ARNs plus <code>configurationUpdate</code> merge/reset operations
+                that override those defaults per device. Greengrass security cannot be reduced to recipe syntax
+                either way; the design has to account for IAM, TokenExchangeService, IPC authorization, artifact
+                buckets, and the difference between local lab deployment and cloud deployment.
+              </p>
+              <p>
+                <b>The deployment renderer produces the deployment documents, not the recipes.</b> Everything a
+                recipe carries is a component packaging fact &mdash; dependencies differ per component, access
+                policies differ, lifecycle differs by language, and the component name is not even derivable from
+                the token (<code>opcua-adapter</code> publishes as <code>OpcUaAdapter</code>) &mdash; and every
+                component repository already authors exactly that, correctly, beside its GDK config. Producing and
+                publishing it is release engineering, not a per-deployment concern. Because per-device
+                configuration rides <code>configurationUpdate</code>, a deployment never needs a bespoke recipe to
+                carry site-specific config. The renderer therefore needs one fact it cannot derive &mdash; the
+                Greengrass component name &mdash; which the registry now carries and the lock resolves. Revisit
+                only if deployments must customize the recipe itself; per-site access-policy narrowing is the
+                plausible driver, and the cheap path then is to publish each component's existing recipe in its
+                release descriptor and overlay version, artifact, and config onto it.
               </p>
               <p>
                 Those target ARNs are <b>thing ARNs, never thing group ARNs</b>. Every member of a thing group shares one
@@ -1352,7 +1367,7 @@ nodes:
               <ol class="roadmap-list">
                 <li><b>Kernel and CLI:</b> the deployment model, the Rust kernel crate, and the HOST renderer, emitting native artifacts plus the normalized plan. New code, no migration risk, no server. Acceptance: regenerate an existing hand-maintained site and diff against the files a human wrote.</li>
                 <li><b>Evidence:</b> artifact hashes, validation bundles, and release manifests tied to Git commits, produced in CI. Still no service.</li>
-                <li><b>Greengrass renderer and CLI port:</b> recipes, GDK config, deployment JSON, and the release-lock governance showcase against a real Greengrass device. Port the six existing CLI commands onto the Rust binary and retire the Python CLI, with the existing test suite as the oracle.</li>
+                <li><b>Greengrass renderer:</b> per-thing deployment documents &mdash; one per node, targeting a thing ARN, carrying pinned component versions and each component's effective config as a <code>configurationUpdate</code> merge &mdash; plus the release-lock governance showcase against a real Greengrass device. Recipes and GDK packaging stay with component release engineering, where every component already authors them. (The CLI port this slice once described is done: the kernel lives behind the <code>edgecommons deployment</code> verbs.)</li>
                 <li><b>Storage and Kubernetes:</b> Git-backed definition repositories, and either rendering catalogs into the existing file/ConfigMap sources from CI or a ConfigComponent <code>GitCatalogSource</code> that reads pinned refs safely. The Kubernetes renderer in this slice is demand-gated: it lands when its first concrete consumer exists, the leading candidate being the org's own hand-maintained Kubernetes test chart.</li>
                 <li><b>UI:</b> the Studio service from chapter 12 — <code>axum</code> plus the embedded Carbon SPA — beginning as a read-only pair of screens (config layers and render review) over Git, with identity delegated to the Git host.</li>
                 <li><b>Execution and convergence:</b> connect CI/CD, Terraform/CDK/Pulumi, Argo CD or Flux, Greengrass APIs, and host orchestrators behind explicit protected modes, then close the loop with drift, rollback, and the edge-console snapshot feed.</li>
@@ -1591,6 +1606,10 @@ nodes:
             <article>
               <b>ReleaseLock shape &mdash; decided: two-stream</b>
               <p>Config releases and artifact releases are independently versioned and independently reconciled, each with its own drift signal and rollback target. The ReleaseLock is a correlation and evidence envelope over both, not an atomic apply unit: it records what was in effect together without forcing the two to move together. A config change therefore ships without reshipping the artifact, and the reverse. Fusing them was rejected as the Greengrass coupling RM-002 explicitly refuses.</p>
+            </article>
+            <article>
+              <b>Recipes &mdash; decided: owned by component release, not the deployment renderer</b>
+              <p>A recipe carries dependencies, access policies, lifecycle, platform, and default configuration &mdash; component packaging facts every repository already authors beside its GDK config, and none of them deployment intent. The deployment renderer emits per-thing deployment documents and takes per-device configuration through <code>configurationUpdate</code>, which is the split Greengrass itself makes: the recipe holds defaults, the deployment overrides them. The one fact the renderer cannot derive is the Greengrass component name &mdash; <code>opcua-adapter</code> publishes as <code>OpcUaAdapter</code> &mdash; so the registry carries it and the lock resolves it, and the renderer names both sources in an error rather than guessing. This replaces the earlier framing in which the renderer emitted recipes.</p>
             </article>
             <article>
               <b>Greengrass target granularity &mdash; decided: per-thing only</b>

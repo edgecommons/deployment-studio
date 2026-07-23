@@ -129,6 +129,22 @@ vocabulary (`lock`, per-target render, stream-scoped release verbs), retire the 
 `ec-deploy` binary here, and add the Greengrass renderer in that home. Two parallel kernels is the
 drift disease — converge before building more into this one.
 
+**Greengrass renderer: SHIPPED (2026-07-23).** core PR #63 (merge `a4a59ca`) —
+`edgecommons deployment render --target GREENGRASS` emits **one deployment document per thing**
+(thing ARNs, never groups), each carrying every component assigned to that node at its pinned
+`componentVersion`, with GG_CONFIG components' effective config as a stringified `ComponentConfig`
+merge under `configurationUpdate`. The plan records artifact and config consequences per node with
+restart impact from the config source. Refusals are named, never silent: unpinned artifact, missing
+Greengrass name, CONFIG_COMPONENT (no Greengrass catalog-delivery path decided yet), missing
+`aws.region`/`aws.accountId`. Proven by `tests/fixtures/dallas-gg` + a byte-for-byte golden and
+per-thing invariant tests; all four core gates green (coverage 90.76%).
+
+**Recipes are owned by component release, not the renderer** (REVIEW #15, DESIGN-cli §8.5.6) — a
+deviation from the deck, propagated to ch. 7, the roadmap slice, and the decision surface. The one
+underivable fact, the Greengrass component name, now lives in the registry
+(`greengrassComponentName`, registry PR #7, harvested from each repo's recipe) and is authored as
+`artifact.greengrassName` until `deployment lock` resolves it.
+
 Then per deck ch. 13: storage/K8s → UI → execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
