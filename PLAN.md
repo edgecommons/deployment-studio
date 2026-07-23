@@ -91,6 +91,13 @@ bottling-company-test **PR #5** — the `config-drift-gate` workflow re-renders 
 push/PR and fails unless the site's configs are byte-identical (`ec-deploy oracle --strict`).
 `EDGECOMMONS_READ_TOKEN` set on both repos (org stopgap pattern — replace with a dedicated read PAT).
 
+**CI status: workflows in place, first runs BLOCKED on Actions billing** — both repos are private,
+and GitHub reports "recent account payments have failed or your spending limit needs to be
+increased" (public org repos are unaffected; no self-hosted runners are registered). Every step CI
+would run is proven green locally: cargo build/clippy -D warnings/tests (oracle 22/22), schema
+validation, `oracle --strict` exit 0, and the render-vs-committed-v1 diff clean. Once billing is
+fixed, re-run the failed runs (`gh run rerun`) — no workflow changes needed.
+
 Next per deck ch. 13: Greengrass renderer + CLI port (slice 3) →
 storage/K8s → UI → execution/convergence.
 
