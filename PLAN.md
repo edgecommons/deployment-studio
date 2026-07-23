@@ -69,17 +69,16 @@ substitution F-3). Remaining byte deltas beyond those are hand-formatting (inlin
 generated canonical output (also fixes F-10) and let the harness E2E prove behavioral equivalence —
 a `bottling-company-test` change, proposed separately, not taken unilaterally.
 
-**Harness adoption (byte-for-byte closure): PR OPEN.**
-`bottling-company-test` **PR #4** (`adopt/studio-rendered-configs`, drafted 2026-07-22) replaces the
-hand-maintained configs/confs with `ec-deploy render` output, deletes the packaging template +
-`render-packaging-catalog` machinery and the vestigial render scripts, and restores the F-10
-`tags.scenario` drift. Verified by a full stack swap on the dev machine: all 17 supervised programs
-RUNNING across the 3 devices, console healthy, the rendered packaging catalog served
-(`…-packaging-line-initial`, 4 layers), Modbus :5021 + Kepware OPC UA connected, parquet flowing,
-both bridges relaying; the original stack was restored afterward. Working copy: `../bct-adopt/`
-worktree (kept until merge). **After merge:** update `fixtures/dallas/oracle-map.json` (packaging
-catalog entry: template → rendered file) and tighten `kernel/tests/dallas_oracle.rs` to full
-byte-for-byte.
+**Harness adoption: MERGED — byte-for-byte CLOSED (2026-07-22).**
+`bottling-company-test` **PR #4** (`adopt/studio-rendered-configs`, merge commit `5d86363`) replaced
+the hand-maintained configs/confs with `ec-deploy render` output, deleted the packaging template +
+`render-packaging-catalog` machinery and the vestigial render scripts, and restored the F-10
+`tags.scenario` drift. Verified pre-merge by a full stack swap (all 17 supervised programs RUNNING
+across the 3 devices, console healthy, rendered packaging catalog served, Modbus + Kepware
+connected, parquet flowing, both bridges relaying), then the original stack restored. The adoption
+worktree is removed. The oracle map now targets the merged files and
+`kernel/tests/dallas_oracle.rs` asserts **all 22 oracle files byte-identical** — green. The Dallas
+site is generated end to end; hand edits to its configs are regressions the test catches.
 
 Next per deck ch. 13 (not started): evidence bundles in CI → Greengrass renderer + CLI port →
 storage/K8s → UI → execution/convergence.

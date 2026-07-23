@@ -22,16 +22,7 @@
     { "rendered": "gw-pack-01/telemetry-messaging.json", "harness": "configs/packaging-line/telemetry-messaging.json", "kind": "json" },
     { "rendered": "gw-pack-01/bridge-messaging.json", "harness": "configs/packaging-line/bridge-messaging.json", "kind": "json" },
     { "rendered": "gw-pack-01/config-component-config.json", "harness": "configs/packaging-line/config-component-config.json", "kind": "json" },
-    {
-      "rendered": "gw-pack-01/config-catalog.json",
-      "harness": "configs/packaging-line/config-catalog.tmpl.json",
-      "kind": "json-template",
-      "placeholders": {
-        "__KEPWARE_ENDPOINT__": "external.kepware.endpoint",
-        "__MODBUS_HOST__": "external.hostModbus.host",
-        "__MODBUS_PORT__": "external.hostModbus.port"
-      }
-    },
+    { "rendered": "gw-pack-01/config-catalog.json", "harness": "configs/packaging-line/config-catalog.json", "kind": "json" },
     { "rendered": "gw-pack-01/supervisord.conf", "harness": "supervisor/packaging-line.conf", "kind": "ini" }
   ]
 }

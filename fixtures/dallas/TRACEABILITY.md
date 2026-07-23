@@ -96,10 +96,14 @@ oracle files (13 messaging + 3 bootstraps + 3 catalogs + 3 supervisord confs):
   config-component command, where render-time binding substitution replaces the runtime
   `render-packaging-catalog` step (F-3). Comments and section ordering in hand confs are not compared.
 
-Net: **18/22 fully semantic-equal, and all four remaining deltas are the two documented, deliberate
-improvements.** Full byte-for-byte parity is reached by *adoption* — replacing the harness's hand
-files with the generated canonical output (which also fixes F-10) and letting the harness E2E prove
-behavioral equivalence. That is a bottling-company-test change, taken separately.
+Net at review time: **18/22 fully semantic-equal, all four remaining deltas the two documented,
+deliberate improvements.**
+
+**Adoption closed the loop (2026-07-22):** `bottling-company-test` PR #4 (merge `5d86363`) replaced
+the hand files with the generated canonical output — fixing F-10, deleting the F-3 template
+machinery and the F-8 vestigial scripts — after a full live stack-swap verification. The oracle map
+now targets the merged files and the kernel test asserts **all 22 files byte-identical**, which
+holds. From here, a hand edit to the Dallas site's configs is a regression this test catches.
 
 ## Verdict
 
