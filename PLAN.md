@@ -98,8 +98,20 @@ would run is proven green locally: cargo build/clippy -D warnings/tests (oracle 
 validation, `oracle --strict` exit 0, and the render-vs-committed-v1 diff clean. Once billing is
 fixed, re-run the failed runs (`gh run rerun`) — no workflow changes needed.
 
-Next per deck ch. 13: Greengrass renderer + CLI port (slice 3) →
-storage/K8s → UI → execution/convergence.
+**Slice-3 framing CORRECTED (2026-07-23).** The deck's "port the Python CLI" is stale: the
+scaffold-parity project already landed a Rust `edgecommons` CLI on core main (`core/cli`, crates
+`ec-cli`/`ec-scaffold`/`ec-deploy`/`ec-studio`/…), whose noun-verb surface already includes
+`edgecommons deployment {validate, lock, render, plan, diff, release --stream}` and
+`edgecommons studio serve` — designed against this same register (REVIEW #2, RM-012, D-CLI-10).
+Its `ec-deploy` crate is the hexagonal ports skeleton with **no renderers** (Phase P4; the verbs
+return NotImplemented). So slice 3 is a **convergence, not a port**: land this repo's working
+kernel (model → validator → HOST renderer → release/evidence, oracle-proven) as the implementation
+behind `core/cli`'s `ec-deploy` ports, reconcile the definition schema with DESIGN-cli §8's model
+vocabulary (`lock`, per-target render, stream-scoped release verbs), retire the standalone
+`ec-deploy` binary here, and add the Greengrass renderer in that home. Two parallel kernels is the
+drift disease — converge before building more into this one.
+
+Then per deck ch. 13: storage/K8s → UI → execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
 
