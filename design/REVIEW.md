@@ -649,10 +649,19 @@ immediately.
    with no re-authoring and no migration. Trigger: a concrete driver such as defending against out-of-band
    catalog edits.
 
-6. **Config delivery of rendered content: render-into-existing-sources vs `GitCatalogSource`.**
-   *Recommendation:* CI renders catalogs into file/ConfigMap first (the deck's second path); build
-   `GitCatalogSource` later, when on-edge ref pinning earns its keep — and record the ref in the catalog's
-   existing `provenance`/`version` fields meanwhile.
+6. **Config delivery of rendered content: render-into-existing-sources vs `GitCatalogSource`.** —
+   **RESOLVED 2026-07-23 (slice 4a).**
+   *Decision:* **render into the existing file/ConfigMap sources from CI** (the deck's second path).
+   `GitCatalogSource` is deferred until on-edge ref pinning earns its keep; the rendered ref is
+   recorded in the catalog's existing `provenance`/`version` fields meanwhile.
+   *Realized as the config adoption loop:* the site repo holds the canonical `definition.yaml` (+
+   `layers/`, `bindings/`), and its CI renders the definition and diffs against the checked-in config
+   sources — the definition is the source of truth, the configs are its output. First site:
+   `bottling-company-test/sites/dallas-site`, whose `config-drift-gate` builds the `edgecommons` CLI
+   from public core, renders, and diffs (self-contained, no secret). The kernel keeps a frozen
+   snapshot of the same definition as its byte-for-byte regression oracle. Two decisions folded in:
+   the definition lives **with the site** (deck's "Git-backed definition repositories"), and the gate
+   is **check-only** (render + diff), not regenerate-and-commit.
 
 7. **Runtime evidence: wire change or control-plane-derived.**
    *Recommendation:* control-plane-derived first — cfg-body hash comparison (with matched redaction), Greengrass

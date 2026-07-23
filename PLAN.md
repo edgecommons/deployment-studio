@@ -182,7 +182,25 @@ Two side findings fixed in the same sweep: the stale `component.global` example 
 `core/docs/TELEMETRY_PROCESSOR.md`, and **edge-console's missing `config.schema.json`**, now authored
 from `ConsoleConfig::from_global` (edge-console PR #10, closes that repo's P0-3).
 
-Then per deck ch. 13: storage/K8s → UI → execution/convergence.
+**Slice 4a — the config adoption loop: SHIPPED (2026-07-23).** Deck ch. 13 slice 4's first half
+(REVIEW #6, resolved). The definition is now the **source of truth in the site repo**: the canonical
+`definition.yaml` + `layers/` + `bindings/` moved into `bottling-company-test/sites/dallas-site`, and
+its `config-drift-gate` was rewritten to build the `edgecommons` CLI from public core, **render the
+definition, and diff against the checked-in config sources** — self-contained, no cross-repo golden
+clone, no secret (which also retires the last consumer of the deleted `EDGECOMMONS_READ_TOKEN`).
+Proven locally: the render reproduces all 22 checked-in config files byte-for-byte. Decisions folded
+in: definition lives **with the site** (not in core), and the gate is **check-only** (render + diff),
+not regenerate-and-commit. Core keeps `fixtures/dallas` as a **frozen regression oracle** — relabeled,
+with a README pointing at bct as canonical — so the two copies can't silently drift (the golden test
+enforces byte-identity). Config sources covered: the **FILE** sources this HOST site uses; per REVIEW
+#3 each config source is its own delivery adapter (`CONFIGMAP`/`GG_CONFIG`/… are other platforms).
+`GitCatalogSource` stays deferred until on-edge ref pinning earns its keep.
+
+**Remaining in slice 4:** the **Kubernetes renderer** (4b) — demand-gated on its first consumer (the
+org's hand-maintained k8s test chart), so it waits until that chart is ready to be regenerated.
+
+Then per deck ch. 13: slice 5 UI (`studio serve`, read-only config-layers + render-review) →
+slice 6 execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
 
@@ -210,9 +228,9 @@ Mock verified: all nine pages render with zero console errors; wizard walks 4 st
 
 ## Still open on the register (user rulings, no urgency)
 
-- `design/REVIEW.md` §6: #5 (device layers / blocked overrides — recommendation authoring-side only),
-  #6 (render into existing config sources first), #8 (commit render snapshots at release boundaries).
-  #4 (dataflows) resolves with step 2.4.
+- `design/REVIEW.md` §6: #8 (commit render snapshots at release boundaries) remains open. #5 (device
+  layers) resolved 2026-07-22 (PLAN step 4, 5A); #6 (render into existing config sources) resolved
+  2026-07-23 (slice 4a); #4 (dataflows) resolved with step 2.4.
 - **W8** — concurrent drafts have no story; bites in the first multi-user week.
 - Dependency: the deck's Greengrass scenario needs the deferred IPC-primary `uns-bridge` variant
   (ROADMAP A52) — a real blocker recorded in REVIEW W7.1.
