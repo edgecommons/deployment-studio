@@ -145,6 +145,28 @@ underivable fact, the Greengrass component name, now lives in the registry
 (`greengrassComponentName`, registry PR #7, harvested from each repo's recipe) and is authored as
 `artifact.greengrassName` until `deployment lock` resolves it.
 
+**`deployment lock`: SHIPPED (2026-07-23).** The one verb that reaches the network (DESIGN-cli §8.7)
+resolves each pinned component version against the registry and writes `<stem>.lock` beside the
+definition, so `validate`, `render`, and `plan` are pure functions over files already in Git. Three
+consequences landed with it:
+
+- **The lock retires the `artifact.greengrassName` override.** The Greengrass renderer now resolves
+  the name override-first, then from the lock; a definition no longer has to carry the one fact that
+  is not derivable from the token. With neither, it still refuses rather than guessing.
+- **The compatibility guard (§8.5.5) is wired end to end.** `validate` gained a fourth stage that
+  checks each component's `component.global` against the config schema the *pinned version* publishes
+  — `EC5005` names the offending key and the version that rejected it. The enforcement path is built
+  now and engages automatically when components start publishing schemas (RM-013); no flag, no
+  redesign.
+- **Degradation is stated, never implied.** No component publishes a release index today, so every
+  digest comes back unverified: the lock records that as `unresolved` **with its reason**, `lock`
+  warns `EC4006`, and `validate` repeats it plus `EC5006` (no config schema) and `EC5007` (no lock at
+  all). A corrupt or future-version lock is a usage error, never silently ignored.
+
+`--source` takes a local catalog path (or `$EDGECOMMONS_REGISTRY_URL`), which is both the offline
+escape hatch and what makes the networked verb testable without a network. All four core gates green;
+coverage 90.75%.
+
 Then per deck ch. 13: storage/K8s → UI → execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
