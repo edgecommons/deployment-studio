@@ -1,0 +1,285 @@
+{
+  "release": "v1",
+  "definition": "dallas-bottling",
+  "environment": "local",
+  "definitionCommit": "26af609f5c8fedd65f2209c145941eb57a756b07",
+  "renderer": "edgecommons-deploy 0.1.0",
+  "configRelease": "initial",
+  "devMode": true,
+  "$comment": "The release correlates two independently versioned, independently rolled-back streams; it never fuses them. devMode=true means at least one artifact is source-form rather than version+digest pinned - promotion to a protected environment requires full pins.",
+  "streams": {
+    "config": {
+      "dallas-console": {
+        "catalogVersion": "bottles-r-us-dallas-site-initial",
+        "catalogSha256": "sha256:3722a62241a2a073b1b71b87749ee8d33efeeb298ebc311599836853e3f2aa0e",
+        "bootstrapSha256": "sha256:75c87dd8a8c75f0548a58a0c8aec25c29a38667c7d7c69ff494d6aa71cc1de47"
+      },
+      "gw-fill-01": {
+        "catalogVersion": "bottles-r-us-dallas-filling-line-initial",
+        "catalogSha256": "sha256:42d3c44edeabfd577182111be8f144d91528979b6dcd8d7d54c20d5a80a61ba5",
+        "bootstrapSha256": "sha256:19bf7ece0b7a139e39492a332aad4b1437bb68b3ed3b38a429e8e03aae9c7d4e"
+      },
+      "gw-pack-01": {
+        "catalogVersion": "bottles-r-us-dallas-packaging-line-initial",
+        "catalogSha256": "sha256:61fec90561c04cbad50cfb12fca11ac191bf82da50db469cc0a5cc02c9ad0662",
+        "bootstrapSha256": "sha256:936f1b270f02f20d594ede5db61ff356f46c83ac963b510622f89804222d510e"
+      }
+    },
+    "artifact": [
+      {
+        "node": "dallas-console",
+        "component": "edge-console",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "edge-console",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-fill-01",
+        "component": "opcua-adapter",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "opcua-adapter",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-fill-01",
+        "component": "modbus-adapter",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "modbus-adapter",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-fill-01",
+        "component": "telemetry-processor",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "telemetry-processor",
+          "ref": null,
+          "features": [
+            "standalone",
+            "streaming",
+            "streaming-file-parquet",
+            "scripting-lua"
+          ]
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-fill-01",
+        "component": "file-replicator",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "file-replicator",
+          "ref": null,
+          "features": [
+            "standalone"
+          ]
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-fill-01",
+        "component": "uns-bridge",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "uns-bridge",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-pack-01",
+        "component": "opcua-adapter",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "opcua-adapter",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-pack-01",
+        "component": "modbus-adapter",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "modbus-adapter",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-pack-01",
+        "component": "telemetry-processor",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "telemetry-processor",
+          "ref": null,
+          "features": [
+            "standalone",
+            "streaming",
+            "streaming-file-parquet",
+            "scripting-lua"
+          ]
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      },
+      {
+        "node": "gw-pack-01",
+        "component": "uns-bridge",
+        "version": null,
+        "digest": null,
+        "source": {
+          "kind": "sibling",
+          "repo": "uns-bridge",
+          "ref": null,
+          "features": []
+        },
+        "configSource": "CONFIG_COMPONENT",
+        "restartImpact": "hot-push"
+      }
+    ]
+  },
+  "bindings": {
+    "file": "bindings/local.json",
+    "sha256": "sha256:8d28267eef44cce586107e992f88d4cf3b8b5a3c0954cd42a94b50643755b625"
+  },
+  "files": [
+    {
+      "path": "dallas-console/config-catalog.json",
+      "sha256": "sha256:3722a62241a2a073b1b71b87749ee8d33efeeb298ebc311599836853e3f2aa0e"
+    },
+    {
+      "path": "dallas-console/config-component-config.json",
+      "sha256": "sha256:75c87dd8a8c75f0548a58a0c8aec25c29a38667c7d7c69ff494d6aa71cc1de47"
+    },
+    {
+      "path": "dallas-console/config-component-messaging.json",
+      "sha256": "sha256:cfa4ad3454c13b78733dec173330db23ddfb467327314f8e8cb22162a6529310"
+    },
+    {
+      "path": "dallas-console/console-messaging.json",
+      "sha256": "sha256:979b8caacd329cc59ed0f70131680f4440e21ef29eb650f93ce14e5fbfc4ac56"
+    },
+    {
+      "path": "dallas-console/supervisord.conf",
+      "sha256": "sha256:7088dd357f9657adb2bb32305aefcc066fa5eceeb59f08840c26198e1a182265"
+    },
+    {
+      "path": "gw-fill-01/config-catalog.json",
+      "sha256": "sha256:42d3c44edeabfd577182111be8f144d91528979b6dcd8d7d54c20d5a80a61ba5"
+    },
+    {
+      "path": "gw-fill-01/config-component-config.json",
+      "sha256": "sha256:19bf7ece0b7a139e39492a332aad4b1437bb68b3ed3b38a429e8e03aae9c7d4e"
+    },
+    {
+      "path": "gw-fill-01/config-component-messaging.json",
+      "sha256": "sha256:abfa72ef6aa44c92af5f8c80569d0a8e54b6b0d895513db49fcb1374dd06ea49"
+    },
+    {
+      "path": "gw-fill-01/opcua-messaging.json",
+      "sha256": "sha256:66f68ac176403a797c704d599d87d6609f3b4177e17eb396bb4db5ae52114d5f"
+    },
+    {
+      "path": "gw-fill-01/modbus-messaging.json",
+      "sha256": "sha256:583ae8d79fd3b8c456c486466158614422a178eb9e8a1c659ac2d927f0d5f7cc"
+    },
+    {
+      "path": "gw-fill-01/telemetry-messaging.json",
+      "sha256": "sha256:368d428cee118509d317b4c74be29247d31a652507a6b67fe7e74ec4f9bd419f"
+    },
+    {
+      "path": "gw-fill-01/filerep-messaging.json",
+      "sha256": "sha256:b07f77ef2250b227703c268166dd381024cced6e7e72cad21192f83233ec46dd"
+    },
+    {
+      "path": "gw-fill-01/bridge-messaging.json",
+      "sha256": "sha256:580110ef3239d35f25e26d43d493ca97a98810092dbd277cb1aded6f198ec44d"
+    },
+    {
+      "path": "gw-fill-01/supervisord.conf",
+      "sha256": "sha256:7b5a7234a0d99ed1af599017344e50417a562bea531d3b8b50b0b376ee772951"
+    },
+    {
+      "path": "gw-pack-01/config-catalog.json",
+      "sha256": "sha256:61fec90561c04cbad50cfb12fca11ac191bf82da50db469cc0a5cc02c9ad0662"
+    },
+    {
+      "path": "gw-pack-01/config-component-config.json",
+      "sha256": "sha256:936f1b270f02f20d594ede5db61ff356f46c83ac963b510622f89804222d510e"
+    },
+    {
+      "path": "gw-pack-01/config-component-messaging.json",
+      "sha256": "sha256:f5ce15466b9be5db8aacdc9a50274d43202ea1e83ad7bda4d5b78f72d1de98d8"
+    },
+    {
+      "path": "gw-pack-01/opcua-messaging.json",
+      "sha256": "sha256:5b8f4752970ece17a784e3cff39ac30b8cc817e837b835fed56db4ae48f4062d"
+    },
+    {
+      "path": "gw-pack-01/modbus-messaging.json",
+      "sha256": "sha256:764746397100bea118625a6afe7e6939cb026356dc064a127fe9b889b69eccc8"
+    },
+    {
+      "path": "gw-pack-01/telemetry-messaging.json",
+      "sha256": "sha256:0db3480205391467e6f14162e40c0c5819698f6b212e05a349d437804a63297d"
+    },
+    {
+      "path": "gw-pack-01/bridge-messaging.json",
+      "sha256": "sha256:7ed44901f09122730ce820708c2f383b4a4445f88670b9c661995f17ec2bdc67"
+    },
+    {
+      "path": "gw-pack-01/supervisord.conf",
+      "sha256": "sha256:886eb75764f2180ad41bd67e6e3d82363c43eb595f7f117a225f8d5e4370de06"
+    },
+    {
+      "path": "requirements.json",
+      "sha256": "sha256:5b9e24e4f7fa9d758796a6318f65a94b219b8f6710a9ee6e556b8ac4d2d9e30a"
+    },
+    {
+      "path": "plan.json",
+      "sha256": "sha256:c5d7220a9c90e93be53803633e39bd756561627a4b77cd1632ae66bc38a6ef14"
+    }
+  ]
+}

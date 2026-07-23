@@ -1,0 +1,12 @@
+{
+  "schemaValidation": "pass",
+  "semanticRules": "pass (S-1..S-9)",
+  "warnings": [],
+  "bindingTokensResolved": [
+    "external.hostModbus.host",
+    "external.hostModbus.port",
+    "external.kepware.endpoint"
+  ],
+  "renderDeterminism": "re-run at the same definition commit yields byte-identical output",
+  "$comment": "Validation evidence for this release. Target smoke and policy evidence attach here as later slices land them."
+}

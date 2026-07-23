@@ -1,0 +1,50 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: deployment-studio
+
+      # The Dallas oracle needs the harness. Private cross-repo checkout uses the org read
+      # token; if it is absent the checkout fails softly and the oracle test self-skips.
+      - uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: edgecommons/bottling-company-test
+          token: ${{ secrets.EDGECOMMONS_READ_TOKEN || github.token }}
+          path: bottling-company-test
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: deployment-studio/kernel
+
+      - name: Build, lint, test (oracle runs when the harness is present)
+        working-directory: deployment-studio/kernel
+        env:
+          BOTTLING_HARNESS_DIR: ${{ github.workspace }}/bottling-company-test/sites/dallas-site
+        run: |
+          cargo build --locked
+          cargo clippy --all-targets -- -D warnings
+          cargo test --locked
+
+      - name: Fixture validates against the schema
+        working-directory: deployment-studio
+        run: |
+          pip install --quiet jsonschema pyyaml
+          python schema/validate.py fixtures/dallas/definition.yaml
+
+      - name: Release determinism against the committed v1 snapshot
+        working-directory: deployment-studio/kernel
+        run: |
+          cargo run --locked -q -- render ../fixtures/dallas/definition.yaml --environment local --out /tmp/render-check
+          diff -r --strip-trailing-cr /tmp/render-check ../fixtures/dallas/releases/v1/rendered

@@ -6,5 +6,6 @@ pub mod context;
 pub mod merge;
 pub mod model;
 pub mod oracle;
+pub mod release;
 pub mod render;
 pub mod validate;

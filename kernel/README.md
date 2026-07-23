@@ -13,9 +13,20 @@ cargo test                       # includes the Dallas oracle acceptance test
 ```
 ec-deploy validate <definition.yaml> [--environment <name>]
 ec-deploy render   <definition.yaml> --environment <name> [--release-tag <tag>] --out <dir>
+ec-deploy release  <definition.yaml> --environment <name> --tag <tag> [--config-release <tag>] [--out <dir>]
 ec-deploy oracle   <definition.yaml> --environment <name> --map <oracle-map.json> \
-                   --harness <dir> --out <dir>
+                   --harness <dir> --out <dir> [--strict]
 ```
+
+`release` validates, renders, and writes the committable release record to
+`<workspace>/releases/<tag>/`: `manifest.json` (definition commit, renderer version, per-file
+sha256, the config and artifact streams correlated but never fused, `devMode` when any artifact is
+source-form rather than version+digest pinned), `evidence.json` (what was validated), and the
+`rendered/` snapshot — register decision #8's "commit at release boundaries" made concrete.
+Deterministic like everything else: no timestamps; the Git commit carries the time.
+
+`oracle --strict` exits non-zero unless every mapped file is byte-identical — the CI gate mode used
+by bottling-company-test's `config-drift-gate` workflow and this repo's own CI.
 
 `render` emits, per node: the ConfigComponent catalog, the rendered bootstrap config, the messaging
 files, and the supervisord conf — plus workspace-level `plan.json` (per-component restart impact by

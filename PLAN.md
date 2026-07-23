@@ -80,7 +80,18 @@ worktree is removed. The oracle map now targets the merged files and
 `kernel/tests/dallas_oracle.rs` asserts **all 22 oracle files byte-identical** — green. The Dallas
 site is generated end to end; hand edits to its configs are regressions the test catches.
 
-Next per deck ch. 13 (not started): evidence bundles in CI → Greengrass renderer + CLI port →
+**Slice 2 — evidence bundles and releases: DONE (2026-07-22).** The repo is published
+(`edgecommons/deployment-studio`, private; in `clone.sh` and the org map). `ec-deploy release`
+writes `releases/<tag>/{manifest.json, evidence.json, rendered/**}` — definition commit, renderer
+version, per-file sha256, the two streams correlated (never fused), `devMode` flag for source-form
+artifacts; deterministic, no timestamps. Dallas `releases/v1` is committed (register #8 resolved by
+construction). CI on both repos: this repo's `ci.yml` (build, clippy -D warnings, tests incl. the
+oracle via harness checkout, schema validation, render-vs-v1 determinism check) and
+bottling-company-test **PR #5** — the `config-drift-gate` workflow re-renders the fixture on every
+push/PR and fails unless the site's configs are byte-identical (`ec-deploy oracle --strict`).
+`EDGECOMMONS_READ_TOKEN` set on both repos (org stopgap pattern — replace with a dedicated read PAT).
+
+Next per deck ch. 13: Greengrass renderer + CLI port (slice 3) →
 storage/K8s → UI → execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**

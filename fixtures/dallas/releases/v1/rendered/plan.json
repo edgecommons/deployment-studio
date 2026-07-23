@@ -1,0 +1,221 @@
+{
+  "definition": "dallas-bottling",
+  "environment": "local",
+  "targetStandard": "HOST",
+  "configRelease": "initial",
+  "nodes": [
+    {
+      "key": "dallas-console",
+      "thingName": "dallas-console",
+      "scope": "site/dallas",
+      "levels": [
+        "enterprise",
+        "site",
+        "device"
+      ],
+      "catalogVersion": "bottles-r-us-dallas-site-initial",
+      "components": [
+        {
+          "name": "edge-console",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "edge-console",
+              "features": []
+            }
+          },
+          "files": []
+        }
+      ]
+    },
+    {
+      "key": "gw-fill-01",
+      "thingName": "gw-fill-01",
+      "scope": "line/filling-line",
+      "levels": [
+        "enterprise",
+        "site",
+        "line",
+        "device"
+      ],
+      "catalogVersion": "bottles-r-us-dallas-filling-line-initial",
+      "components": [
+        {
+          "name": "opcua-adapter",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "opcua-adapter",
+              "features": []
+            }
+          },
+          "files": []
+        },
+        {
+          "name": "modbus-adapter",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "modbus-adapter",
+              "features": []
+            }
+          },
+          "files": []
+        },
+        {
+          "name": "telemetry-processor",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "telemetry-processor",
+              "features": [
+                "standalone",
+                "streaming",
+                "streaming-file-parquet",
+                "scripting-lua"
+              ]
+            }
+          },
+          "files": [
+            {
+              "from": "configs/lua/**",
+              "to": "/scripts"
+            }
+          ]
+        },
+        {
+          "name": "file-replicator",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "file-replicator",
+              "features": [
+                "standalone"
+              ]
+            }
+          },
+          "files": []
+        },
+        {
+          "name": "uns-bridge",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "uns-bridge",
+              "features": []
+            }
+          },
+          "files": []
+        }
+      ]
+    },
+    {
+      "key": "gw-pack-01",
+      "thingName": "gw-pack-01",
+      "scope": "line/packaging-line",
+      "levels": [
+        "enterprise",
+        "site",
+        "line",
+        "device"
+      ],
+      "catalogVersion": "bottles-r-us-dallas-packaging-line-initial",
+      "components": [
+        {
+          "name": "opcua-adapter",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "opcua-adapter",
+              "features": []
+            }
+          },
+          "files": []
+        },
+        {
+          "name": "modbus-adapter",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "modbus-adapter",
+              "features": []
+            }
+          },
+          "files": []
+        },
+        {
+          "name": "telemetry-processor",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "telemetry-processor",
+              "features": [
+                "standalone",
+                "streaming",
+                "streaming-file-parquet",
+                "scripting-lua"
+              ]
+            }
+          },
+          "files": [
+            {
+              "from": "configs/lua/**",
+              "to": "/scripts"
+            }
+          ]
+        },
+        {
+          "name": "uns-bridge",
+          "configSource": "CONFIG_COMPONENT",
+          "restartImpact": "hot-push",
+          "artifact": {
+            "version": null,
+            "digest": null,
+            "source": {
+              "kind": "sibling",
+              "repo": "uns-bridge",
+              "features": []
+            }
+          },
+          "files": []
+        }
+      ]
+    }
+  ]
+}

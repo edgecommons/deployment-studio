@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use anyhow::{bail, Context as _, Result};
 use clap::{Parser, Subcommand};
 
-use edgecommons_deploy::{context::Workspace, oracle, render, validate};
+use edgecommons_deploy::{context::Workspace, oracle, release, render, validate};
 
 #[derive(Parser)]
 #[command(name = "ec-deploy", about = "EdgeCommons Deployment Studio kernel (slice 1)")]
@@ -50,6 +50,23 @@ enum Command {
         /// Directory to write the rendered output into (kept for inspection).
         #[arg(long)]
         out: PathBuf,
+        /// Exit non-zero unless every mapped file is byte-identical (CI gate mode).
+        #[arg(long)]
+        strict: bool,
+    },
+    /// Validate, render, and write a committable release: manifest, evidence, rendered snapshot.
+    Release {
+        definition: PathBuf,
+        #[arg(long)]
+        environment: String,
+        /// Release tag; output lands in <workspace>/releases/<tag>/ unless --out is given.
+        #[arg(long)]
+        tag: String,
+        /// Config-release tag appended to derived catalog versions.
+        #[arg(long, default_value = "initial")]
+        config_release: String,
+        #[arg(long)]
+        out: Option<PathBuf>,
     },
 }
 
@@ -76,7 +93,24 @@ fn main() -> Result<()> {
             write_files(&out, &output)?;
             println!("rendered {} files to {}", output.files.len(), out.display());
         }
-        Command::Oracle { definition, environment, release_tag, map, harness, out } => {
+        Command::Release { definition, environment, tag, config_release, out } => {
+            let ws = Workspace::load(&definition)?;
+            let release_dir = out.unwrap_or_else(|| ws.root.join("releases").join(&tag));
+            let output = release::build_release(&ws, &environment, &tag, &config_release)?;
+            for (rel, text) in &output.files {
+                let path = release_dir.join(rel);
+                if let Some(parent) = path.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::write(&path, text).with_context(|| format!("writing {}", path.display()))?;
+            }
+            println!(
+                "release '{tag}' written: {} files under {}",
+                output.files.len(),
+                release_dir.display()
+            );
+        }
+        Command::Oracle { definition, environment, release_tag, map, harness, out, strict } => {
             let ws = Workspace::load(&definition)?;
             ensure_valid(&ws, &environment)?;
             let output = render::render(&ws, &environment, &release_tag)?;
@@ -107,6 +141,9 @@ fn main() -> Result<()> {
                 reports.len(),
                 reports.len()
             );
+            if strict && byte != reports.len() {
+                bail!("strict mode: {} file(s) are not byte-identical", reports.len() - byte);
+            }
         }
     }
     Ok(())

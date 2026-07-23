@@ -669,9 +669,13 @@ immediately.
    not part of the model. This supersedes ch. 11's earlier "may need an agent or command collector" language,
    which is corrected in the deck.
 
-8. **Render snapshots in Git** (the deck's own open card).
-   *Recommendation:* commit at release boundaries — required for GitOps handoff anyway; keep previews ephemeral.
-   This endorses the deck's leaning.
+8. **Render snapshots in Git** (the deck's own open card). — **RESOLVED 2026-07-22, by construction
+   (slice 2).**
+   *Decision:* commit at release boundaries, keep previews ephemeral — exactly the deck's leaning,
+   now implemented: `ec-deploy release` writes `releases/<tag>/{manifest.json, evidence.json,
+   rendered/**}` (deterministic, no timestamps; the Git commit carries the time), and the Dallas
+   `releases/v1` snapshot is committed with CI verifying renders stay identical to it. Previews
+   (`ec-deploy render --out`) remain uncommitted.
 
 9. **Studio vs edge-console hosting.** — **RESOLVED 2026-07-11, deck ch. 12.**
    *Decision:* standalone app for v1, as recommended. The Studio and the console share a *stack* (Rust/`axum`
