@@ -83,10 +83,16 @@ and reachability assumptions; compose is one way a lab satisfies them. The site 
   display keys (`OpcUaAdapter`, …) are hand-chosen and not mechanically derivable; the schema carries
   them as `messaging.file` and `catalogKey` overrides with derivable defaults.
 
-## Oracle results (2026-07-22, kernel slice 1)
+## Render results
 
-`cargo test -p edgecommons-deploy` / `ec-deploy oracle` render the fixture and compare all **22**
-oracle files (13 messaging + 3 bootstraps + 3 catalogs + 3 supervisord confs):
+> **Where this runs now.** The byte-for-byte gate is core's `ec-deploy` golden test
+> (`cli/crates/ec-deploy/tests/dallas_golden.rs`), which renders this fixture via the
+> `edgecommons` binary and compares against a committed golden snapshot — green on core `main`.
+> The standalone-kernel oracle described below is retired (merged into `bottling-company-test`
+> and the core golden test); the historical results are kept for the record.
+
+The original oracle rendered the fixture and compared all **22** files (13 messaging + 3 bootstraps
++ 3 catalogs + 3 supervisord confs):
 
 - **13/13 messaging files byte-identical** (CRLF-normalized).
 - **3/3 catalogs semantic-equal** — packaging compared against its template after binding

@@ -98,17 +98,23 @@ would run is proven green locally: cargo build/clippy -D warnings/tests (oracle 
 validation, `oracle --strict` exit 0, and the render-vs-committed-v1 diff clean. Once billing is
 fixed, re-run the failed runs (`gh run rerun`) — no workflow changes needed.
 
-**Slice 3 — kernel convergence: PR OPEN (2026-07-23).** `edgecommons/edgecommons` **PR #60**
-(`feat/deployment-kernel`, draft) lands this repo's kernel behind `core/cli`'s `ec-deploy` ports:
+**Slice 3 — kernel convergence: MERGED (2026-07-23).** `edgecommons/edgecommons` **PR #60**
+(merge `6d332b7`) landed this repo's kernel behind `core/cli`'s `ec-deploy` ports:
 `edgecommons deployment {validate, render, plan, release}` are real (three validation stages, HOST
 renderer, normalized Plan, two-stream release lock); `lock`/`diff`/`studio serve` stay honest
-NotImplemented seams. Proof: 210/210 CLI workspace tests, clippy clean, and the Dallas fixture
-renders **byte-identical through the `edgecommons` binary**. Deviations surfaced in the PR:
-merge conformance via the shared vectors instead of linking `layered.rs`; §8.3(1) "sorted keys" →
-stable authored order (design doc amended); single-env release; the CONFIGMAP serde fix.
-**After merge:** retire `kernel/` here (fixtures + oracle CI re-point at the `edgecommons` binary),
-then the Greengrass renderer in its converged home. Credential remediation: bottling-company-test
-**PR #6** scrubs the Kepware literals from the tree (history stays private; rotation recommended).
+NotImplemented seams. **PR #61** (merge into core `e76f070`) moved the **Dallas golden test** into
+core (`cli/crates/ec-deploy/tests/dallas_golden.rs` + `tests/fixtures/dallas`), so core CI enforces
+byte-for-byte on every renderer change. **The standalone `kernel/` in this repo is deleted**; the
+engine is now solely the `edgecommons` binary. CI here is now design-only: it validates the fixture
+against the schema and checks the schema matches the copy the kernel embeds. `releases/v1` (an
+old-format artifact of the retired kernel) is removed — releases are produced by
+`edgecommons deployment release`. Credential remediation: bottling-company-test **PR #6** (merge
+`3166bd0`) scrubbed the Kepware literals from the tree (history stays private; rotation recommended,
+lab-side).
+
+**Verification of the final state:** on core `main` (`e76f070`), `edgecommons deployment validate`
+passes the Dallas fixture and `edgecommons deployment render … --target HOST` is byte-identical to
+the adopted `bottling-company-test` site; core's Dallas golden test is green.
 
 **Slice-3 framing CORRECTED (2026-07-23).** The deck's "port the Python CLI" is stale: the
 scaffold-parity project already landed a Rust `edgecommons` CLI on core main (`core/cli`, crates

@@ -672,10 +672,12 @@ immediately.
 8. **Render snapshots in Git** (the deck's own open card). — **RESOLVED 2026-07-22, by construction
    (slice 2).**
    *Decision:* commit at release boundaries, keep previews ephemeral — exactly the deck's leaning,
-   now implemented: `ec-deploy release` writes `releases/<tag>/{manifest.json, evidence.json,
-   rendered/**}` (deterministic, no timestamps; the Git commit carries the time), and the Dallas
-   `releases/v1` snapshot is committed with CI verifying renders stay identical to it. Previews
-   (`ec-deploy render --out`) remain uncommitted.
+   now implemented: `edgecommons deployment release --stream config|artifact` writes
+   `releases/<tag>/{manifest.json, evidence.json, rendered/**}` (deterministic, no timestamps; the
+   Git commit carries the time), correlating the two streams without fusing them. Determinism is
+   enforced by core's Dallas golden test (`cli/crates/ec-deploy/tests/dallas_golden.rs`), which
+   byte-compares a render against a committed snapshot. Previews (`deployment render`) remain
+   uncommitted.
 
 9. **Studio vs edge-console hosting.** — **RESOLVED 2026-07-11, deck ch. 12.**
    *Decision:* standalone app for v1, as recommended. The Studio and the console share a *stack* (Rust/`axum`
