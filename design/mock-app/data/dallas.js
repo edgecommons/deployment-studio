@@ -5,7 +5,7 @@ window.MOCK_DATA.dallas =
   "repo": "bottling-company-test/sites/dallas-site",
   "description": "Bottles-R-Us Dallas plant — the north-star site.",
   "hierarchy": { "levels": ["enterprise", "site", "line", "device"] },
-  "draft": { "branch": "deploy/add-file-replicator", "author": "@m.breissinger", "changed": 3 },
+  "draft": { "title": "Add file-replicator to the filling line", "branch": "draft/add-file-replicator-7f3a", "author": "@m.breissinger", "changed": 3 },
   "evidence": { "mode": "snapshot", "age": "02:15", "source": "dallas", "degraded": false },
   "scopes": [
     { "id": "enterprise/bottles-r-us", "parent": null, "layer": "layers/scopes/enterprise-bottles-r-us.json", "keys": 6 },

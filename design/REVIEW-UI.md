@@ -194,9 +194,11 @@ instance-leaf scope, blocked-override language) and one real missing feature (bl
   (`fleet.html:193`). Under the decided model every node carries a *pair* (config release, artifact
   release), each with its own drift state. The fleet roll-up needs both, or it will actively mislead the
   first time a config release ships without an artifact release.
-- **F2 — The draft list displays the exact hazard the design has no story for (W8).** Two drafts touch
-  line 7 (`fleet.html:231-232`) with no overlap/conflict indicator. Until W8 is decided, the minimum is a
-  conflict badge when two drafts modify the same layer file or definition object.
+- **F2 — The draft list displays the exact hazard the design had no story for (W8).** Two drafts touched
+  one line with no overlap/conflict indicator. **Answered by register #16:** presence is *advisory, not a
+  claim* — the surface shows "N other open drafts touch this scope" (ruling 6), while a real conflict badge
+  is raised by **semantic** detection at submit and apply (ruling 3 — compare rendered outputs, not layer
+  text), never by textual overlap alone.
 - **F3 — Components as tree leaves** (`fleet.html:54`) makes "Component" an eighth pseudo-level. Fine —
   but state the rule: tree tiers = `hierarchy.levels` + two fixed leaf kinds (node, component).
 - **F4 — "Open draft" in the header routes to Dataflows** (`fleet.html:40`) — an arbitrary landing. Draft
@@ -296,7 +298,9 @@ instance-leaf scope, blocked-override language) and one real missing feature (bl
 - **M7 — Secret provider management.** The component editor picks refs (`component-editor.html:81-90`);
   nothing defines providers.
 - **M8 — Draft management (W8).** No draft detail view: dirty objects, base release, rebase state,
-  conflicts with sibling drafts.
+  conflicts with sibling drafts. **Scoped by register #16:** the view is keyed on the change's *name*
+  (never a ref), shows the consequence diff when the base has moved under it, and lists semantic
+  conflicts for a human to resolve — it never offers auto-resolution or a lock.
 - **M9 — Day-two component addition.** Adding a component to an existing node lives only inside the wizard
   (U1); the component editor has no add flow, and "Add component instance" on Dataflows (`definition-map.html:40`)
   routes to an editor with no such capability.
