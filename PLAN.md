@@ -241,6 +241,17 @@ branch/draft orchestration both require the server to *gain a write path* into G
 deliberately do not. Branch/draft orchestration additionally depends on **W8 (concurrent drafts), still
 open on the register**; it should not be invented unilaterally. These are the next decision before slice 6.
 
+**Design-repo drift from the profiles epic — closed (2026-07-23).** This repo's `schema/` and
+`fixtures/dallas/` were still the pre-profiles **flat form** (the profiles epic updated the kernel copy
+but never this mirror), so the `design-and-fixture` CI gate had been red since #69. Synced to the
+authored form: `schema/deployment-definition.schema.json` and the whole `fixtures/dallas/` (definition +
+bindings + layers) are copied from the kernel's canonical fixture and byte-match; the bespoke 151-line
+proto-validator `schema/validate.py` is replaced by a **thin structural check** (authored-schema
+conformance + referenced-files) — the S-rules, the `effective` merge, and the byte proof stay solely the
+kernel's, per the "two kernels is the drift disease" principle. `DEFINITION.md` rewritten to the authored
+model with pointers to the canonical schema + `DESIGN-deployment-profiles.md`; `TRACEABILITY.md`'s
+validation claim and model note corrected. Gate green.
+
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
 
 All seven REVIEW-UI §5 decisions ruled (user: 1A 2A 3A 4A 5A 6A; #2/#6 fell out of step 2) and
