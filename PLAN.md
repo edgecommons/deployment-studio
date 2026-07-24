@@ -182,7 +182,35 @@ Two side findings fixed in the same sweep: the stale `component.global` example 
 `core/docs/TELEMETRY_PROCESSOR.md`, and **edge-console's missing `config.schema.json`**, now authored
 from `ConsoleConfig::from_global` (edge-console PR #10, closes that repo's P0-3).
 
-Then per deck ch. 13: storage/K8s → UI → execution/convergence.
+**Deployment profiles — one topology, all platforms: SHIPPED (2026-07-23).** The north-star cut
+(user: "consider the Dallas topology the north star and use it for proving everything works", "GG
+needs to be complete", "no backward compatibility"). A definition is now one shared `topology` (the
+plant) plus per-platform `profiles`; `effective(profile)` merges them into the flat form the
+renderers consume. Design in `core/docs/platform/DESIGN-deployment-profiles.md`; recorded D-CLI-24/-25.
+On core branch `feat/deployment-profiles`, six verified stages:
+
+1. **Model + merge** — `AuthoredDefinition` (topology + profiles) + `effective()`; the functional
+   half (layer/messaging/files/catalogKey) lives in the topology, the delivery half
+   (configSource/artifact/image/launch + node scaffolding) in a profile.
+2. **Unify Dallas** — the three divergent fixtures collapse to one; HOST + Greengrass goldens proven
+   **byte-neutral** through the refactor (`dallas-gg` deleted, its subset an explicit `deploys`).
+3. **CLI threading** — the flat definition form is **removed** (no backward compat); the schema is
+   rewritten to the authored shape; `--target <family>` selects a profile; `validate` checks all.
+4. **Greengrass complete** — the profile deploys the **whole plant** (4 things, 12 assignments), not
+   the filling-line subset; golden regenerated (reviewed). `config-component` is HOST-only (GG uses
+   `GG_CONFIG` natively).
+5. **Kubernetes renderer** — `kubernetes.rs` emits per-component ServiceAccount + ConfigMap +
+   Deployment + Service (CONFIGMAP whole-volume hot-reload, Downward-API identity, non-root/RO-rootfs,
+   `nodeSelector` placement); `profiles.kubernetes` + a k8s golden. S-6 accepts an `image` as the k8s
+   artifact. This is deck slice 4's Kubernetes renderer (REVIEW #11), realized against Dallas.
+6. **bct onto the unified definition** — `bottling-company-test/sites/dallas-site` (its canonical
+   home) now carries the authored definition; its drift gate renders the `host` profile.
+
+One Dallas topology renders to HOST (24 files), Greengrass (6), and Kubernetes (14). Every stage
+kept the four core gates green (coverage ≥90%). This subsumes the deck's ch.13 slice-4 Kubernetes
+work and REVIEW #6's config-adoption loop into a single coherent model.
+
+Then per deck ch. 13: slice 5 UI (`studio serve`) → slice 6 execution/convergence.
 
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
 
