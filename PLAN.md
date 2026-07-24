@@ -212,6 +212,35 @@ work and REVIEW #6's config-adoption loop into a single coherent model.
 
 Then per deck ch. 13: slice 5 UI (`studio serve`) → slice 6 execution/convergence.
 
+**Slice 5 — the `studio serve` UI, read-only cuts: SHIPPED (2026-07-23).** An `axum` server over the
+same kernel the CLI uses, with an embedded React + Carbon SPA that reuses **edge-console's design
+language** (the `--ec-*` brand tokens mapped onto Carbon, the Night Iris app bar with the EdgeCommons
+logo lockup — core PR #71). Four read-only screens, each over a JSON API and each computing in-memory,
+writing nothing:
+
+1. **Config layers** + **Render review** (core PR #70) — the effective config per profile × node ×
+   component, and the rendered artifacts + normalized plan.
+2. **Evidence** (this cut) — the correlation envelope a release would carry (REVIEW #13): the two streams
+   (config, artifact) correlated but **never fused**, per-file `sha256`, the `devMode` flag, and the
+   evidence bundle. Built from the same `build_release` the CLI uses; the definition commit comes from
+   `describe_head`, reported honestly (`-dirty` / `unknown`).
+3. **Access** (this cut) — a rendering of the repo's `CODEOWNERS` (REVIEW #10 — approval is a *rendering*
+   of Git-host review state, not a parallel system). A pure last-match-wins CODEOWNERS matcher
+   (`ec-deploy::codeowners`) resolves the definition and each component layer to its required reviewers;
+   no `CODEOWNERS` degrades honestly to "default branch-protection review". Proven end to end against the
+   north-star site: `bottling-company-test` gains a real Dallas `CODEOWNERS` (scope-governance,
+   per-line controls, platform, plant-ops-UI) so the Access screen shows real per-scope ownership.
+
+Verified live in a browser against `sites/dallas-site` (all three profiles): Evidence shows the 10-entry
+artifact stream in devMode with the 24-file digest set; Access shows last-match-wins ownership (the
+`edge-console` leaf rule beating the line/site catch-alls). Console clean; all four core gates green
+(workspace coverage 90.70%).
+
+**Remaining slice-5 cuts — the write path (a decision for the user, not yet built).** Authoring and
+branch/draft orchestration both require the server to *gain a write path* into Git — the read-only cuts
+deliberately do not. Branch/draft orchestration additionally depends on **W8 (concurrent drafts), still
+open on the register**; it should not be invented unilaterally. These are the next decision before slice 6.
+
 ## Step 4 — UI decisions — **DONE (2026-07-22)**
 
 All seven REVIEW-UI §5 decisions ruled (user: 1A 2A 3A 4A 5A 6A; #2/#6 fell out of step 2) and
