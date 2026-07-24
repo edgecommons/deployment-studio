@@ -5,8 +5,16 @@ a dedicated inventory pass; every claim below cites harness files). **Question a
 compiler regenerate the harness's hand-maintained files from `definition.yaml`? — **Yes**, with the
 gaps recorded below, all additive rather than structural.
 
-**Validation:** `python schema/validate.py fixtures/dallas/definition.yaml` → JSON Schema conformance,
-semantic rules S-1..S-9, and all `${binding:…}` tokens resolved against `bindings/local.json`.
+**Validation:** `python schema/validate.py fixtures/dallas/definition.yaml` → authored-schema
+conformance plus a referenced-files check (this design repo's structural gate). The semantic rules
+S-1..S-9, the `effective(profile)` merge, `${binding:…}` resolution, and the byte-for-byte render proof
+are the kernel's (`edgecommons deployment validate` and the Dallas golden test).
+
+**Model note:** this fixture is the **authored** form — one shared `topology` plus per-platform
+`profiles` (host / greengrass / kubernetes), synced from the kernel's fixture. The element names in the
+mapping below are unchanged; the delivery-half fields (`configProvider`, `components[].launch`,
+`configSource`, `artifact`, `environments`) now live under `profiles.<platform>` rather than at the node
+root, and the HOST rows describe the `host` profile's effective render.
 
 ## Extraction
 

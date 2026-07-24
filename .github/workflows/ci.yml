@@ -18,12 +18,12 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
+          # edgecommons/edgecommons is public — anonymous checkout, no token.
           repository: edgecommons/edgecommons
-          token: ${{ secrets.EDGECOMMONS_READ_TOKEN || github.token }}
           path: edgecommons
           sparse-checkout: cli/crates/ec-deploy/schema
 
-      - name: Fixture validates against the definition schema (S-1..S-9 + bindings)
+      - name: Fixture conforms to the authored schema (structure + referenced files)
         working-directory: deployment-studio
         run: |
           pip install --quiet jsonschema pyyaml
