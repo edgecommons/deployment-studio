@@ -795,7 +795,7 @@ nodes:
                 <div>
                   <span>2</span>
                   <b>Open a draft</b>
-                  <p>Create a Git branch and lock the editing context.</p>
+                  <p>Name the change. Nothing is locked, and no ref is ever typed.</p>
                 </div>
                 <div>
                   <span>3</span>
@@ -864,8 +864,11 @@ nodes:
                 <article>
                   <b>Create a deployment draft</b>
                   <p>
-                    Entry is the current release lock for a site, line, or set of nodes. The UI creates a Git branch,
-                    freezes the base release, and shows dirty fields separately from rendered artifact changes.
+                    Entry is the current release lock for a site, line, or set of nodes. A draft is a <b>named
+                    change</b> — the author names it, the Studio derives the ref, and nothing is locked
+                    (register #16). Dirty fields show separately from rendered artifact changes, and the draft
+                    stays rebased on main: when the base moves, the author sees a consequence diff rather than a
+                    Git conflict.
                   </p>
                 </article>
                 <article>
@@ -932,13 +935,13 @@ nodes:
                 </div>
                 <div class="mock-link-grid">
                   <a href="mock-app/index.html"><b>Workspace setup</b><span>Empty workspace wizard, ordered hierarchy levels, instance graph, target standard, component assignments.</span></a>
-                  <a href="mock-app/fleet.html"><b>Fleet</b><span>Site tree, target standard, exceptions, runtime evidence, open drafts.</span></a>
-                  <a href="mock-app/definition-map.html"><b>Dataflows</b><span>Component instances, dataflows, config bindings, runtime capabilities.</span></a>
-                  <a href="mock-app/hierarchy-config.html"><b>Config layers</b><span>Scope selector, winning values, blocked overrides, raw/effective preview.</span></a>
-                  <a href="mock-app/component-editor.html"><b>Components</b><span>Instance fields, commands, secret refs, selected-target impact.</span></a>
-                  <a href="mock-app/render-review.html"><b>Render review</b><span>Selected-target artifacts, consequences, and evidence.</span></a>
-                  <a href="mock-app/release-gate.html"><b>Releases</b><span>Evidence gates, approvals, apply mode, audit preview, rollback.</span></a>
-                  <a href="mock-app/plan-drift.html"><b>Drift</b><span>Definition, artifact, target apply, and runtime drift classification.</span></a>
+                  <a href="mock-app/index.html"><b>Fleet</b><span>Site tree, target standard, exceptions, runtime evidence, open drafts.</span></a>
+                  <a href="mock-app/index.html#tab=Topology"><b>Dataflows</b><span>Component instances, dataflows, config bindings, runtime capabilities.</span></a>
+                  <a href="mock-app/index.html#tab=Config"><b>Config layers</b><span>Scope selector, winning values, blocked overrides, raw/effective preview.</span></a>
+                  <a href="mock-app/index.html#tab=Components"><b>Components</b><span>Instance fields, commands, secret refs, selected-target impact.</span></a>
+                  <a href="mock-app/index.html#tab=Render"><b>Render review</b><span>Selected-target artifacts, consequences, and evidence.</span></a>
+                  <a href="mock-app/index.html#area=Releases"><b>Releases</b><span>Evidence gates, approvals, apply mode, audit preview, rollback.</span></a>
+                  <a href="mock-app/index.html#area=Operations"><b>Drift</b><span>Definition, artifact, target apply, and runtime drift classification.</span></a>
                 </div>
               </div>
 

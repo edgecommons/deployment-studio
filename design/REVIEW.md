@@ -48,7 +48,8 @@ which is the failure mode this review exists to catch. They are now consistent:
   bundle's `config:`. All corrected.
 
 **W4.1 and W4.2 are deliberately untouched** — device-scope layers and blocked overrides are decision #5,
-which is still the user's to make. **W8** (concurrent drafts) remains open and unaddressed.
+which is still the user's to make. **W8** (concurrent drafts) is **resolved as of 2026-07-24 — register #16**
+(optimistic concurrency, semantic output-level conflict detection, no user-visible branches).
 
 **A separate adversarial review of the mock UI now exists: `REVIEW-UI.md` (2026-07-22)** — feature/function
 review of all eight screens against the deck's ch. 10 contracts, the settled decisions, and the shipped
@@ -393,12 +394,18 @@ Separately, chapter 4's "moving toward full hierarchical config" (`index.html:31
 the shipped state (§2). The design is stronger than its own current-state chapter says, and should claim that
 credit accurately.
 
-### W8 — Concurrent drafts have no story
+### W8 — Concurrent drafts have no story — **RESOLVED 2026-07-24, register #16**
 
-The fleet mock shows two open drafts touching the same line (`fleet.html:227-234`); the draft model is "a Git
-branch that freezes the base release" (`app.js:735-738`). Two branches editing the same layer file merge
-textually, not semantically; nothing addresses definition-level conflict detection, rebase semantics, or lock
-scope. For a multi-owner site — which the ownership matrix implies — this will surface in week one of real use.
+The fleet mock showed two open drafts touching the same line; the draft model was "a Git branch that freezes
+the base release". Two branches editing the same layer file merge textually, not semantically; nothing
+addressed definition-level conflict detection, rebase semantics, or lock scope. For a multi-owner site — which
+the ownership matrix implies — this would surface in week one of real use.
+
+**Answered by register #16:** optimistic concurrency, **no locks**; conflict detection is **semantic, at the
+effective-config level** (render `base`, `draft`, `main-now`, `merge(draft, main-now)` and compare outputs, so
+the no-textual-conflict-but-changed-output case is caught); rebase is continuous and surfaced as a consequence
+diff rather than a Git conflict; conflicts are detected and surfaced, never auto-resolved; and **branches are
+not user-visible** — a draft is a named change, the vocabulary is propose → review → apply.
 
 ---
 
@@ -750,6 +757,53 @@ immediately.
     change, and DESIGN-cli gains §8.5.6. Revisit only if per-deployment recipe customization (site
     access-policy narrowing) acquires a driver — the cheap path then is publishing each component's
     existing recipe in its release descriptor and overlaying version/artifact/config.
+
+16. **Concurrent drafts (W8).** — **RESOLVED 2026-07-24 (user).**
+    *Decision:* **optimistic concurrency with semantic, output-level conflict detection, and no
+    user-visible branches.** Seven rulings:
+
+    1. **A draft is a named change; the branch is an implementation detail.** The author names the
+       change ("Add file-replicator to the filling line"); the Studio derives the ref
+       (`draft/<slug>-<id>`). The vocabulary is **propose → review → apply** — never create-branch or
+       merge-branch. A draft opens implicitly on the first edit to committed state. Git remains the
+       only durable state; the author simply never types a ref.
+    2. **Optimistic concurrency. No locks, at any granularity.** A lock is a second control plane over
+       Git: it goes stale, it blocks across teams at exactly the scale this product targets, and
+       enforcing it properly needs identity that is deliberately deferred. Rejected as the mechanism.
+    3. **Conflict detection is semantic, at the effective-config level — never textual.** Because
+       render is deterministic and pure, the Studio renders four points at submit and again
+       immediately before apply — `base`, `draft`, `main-now`, and `merge(draft, main-now)` — and
+       compares **outputs**. A merged render that differs from what the draft's own diff predicted is
+       a conflict, whether or not Git found one. Textual auto-merge is never trusted alone; it is a
+       proposal that must survive an output-level check. This catches the case Git cannot see: two
+       drafts touching *different* files (one re-parents a node, another edits the layer at its old
+       scope) with no textual conflict and a changed effective config.
+    4. **Rebase is continuous and invisible.** The Studio keeps a draft rebased on main. When main
+       moves underneath, the author sees "your change now produces a different result than when you
+       started" plus the consequence diff — not a Git conflict.
+    5. **Detect and surface; never auto-resolve.** A semantic conflict requires a human decision.
+       Scope deletion or rename across drafts is an unconditional conflict.
+    6. **Presence is advisory, not a claim.** "N other open drafts touch this scope" removes surprise
+       without blocking anyone — the fleet surface already depicts concurrent drafts on one line.
+    7. **Apply is the Git host's PR merge**, gated by CODEOWNERS (already built and rendering on the
+       gate). No parallel approval system — consistent with #10.
+
+    *Consequence — the write path forces a credential decision now.* The Studio deliberately holds no
+    credentials today (the Runner port holds target credentials; the Studio holds none). Writing to Git
+    requires write access, in one of two shapes: **(i)** the Studio acts as itself (bot/App identity,
+    human attributed in commit trailers) — simple, unblocks authoring, per-user permissions unenforced
+    but CODEOWNERS still gates the merge; or **(ii)** the Studio acts as the user (per-user OAuth,
+    GitHub App user-to-server) — the host enforces everything per-user, correct at enterprise scale,
+    needs the auth work. **Design for (ii), ship (i) behind the same port** so the swap is plumbing.
+
+    *Consequence — the authorization posture is already decided and must not drift.* When
+    authentication arrives it buys attribution, acting-as-user, and "you can/cannot approve this" —
+    **not** a role system. Authorization stays CODEOWNERS + branch protection, enforced by the host
+    (#10). Authenticate users; do not build a policy engine.
+
+    *Propagated in the same change:* this register, `PLAN.md`, the deck's draft-journey and anatomy
+    cards (which said the UI "creates a Git branch and locks the editing context" — both now wrong),
+    the mock's draft chip (branch name → change title), and `DESIGN-cli` §8.4.
 
 ---
 

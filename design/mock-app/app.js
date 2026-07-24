@@ -94,10 +94,12 @@ function renderContextBar() {
     .map((k) => `<option value="${k}"${k === state.key ? ' selected' : ''}>${esc(window.MOCK_DATA[k].workspace)}</option>`)
     .join('');
 
+  // Register #16 ruling 1: a draft is a *named change*; the ref is derived, never shown as the
+  // primary identity and never typed by the author.
   const d = state.data.draft;
   el('draft-chip').innerHTML = d
-    ? `<span class="mock-chip mock-chip--draft" title="The branch this workspace is editing">draft <code>${esc(d.branch)}</code> · ${d.changed} files</span>`
-    : `<span class="mock-chip" title="No draft branch — the workspace is showing committed state">no draft · reading <code>main</code></span>`;
+    ? `<span class="mock-chip mock-chip--draft" title="The change this workspace is editing (ref ${esc(d.branch)})">draft: ${esc(d.title)} · ${d.changed} files</span>`
+    : `<span class="mock-chip" title="No open change — the workspace is showing committed state">no draft · showing committed state</span>`;
 
   // Evidence provenance is global and always visible; a degraded state is designed, not promised.
   const e = state.data.evidence;
@@ -443,11 +445,38 @@ function render() {
   renderPanel();
 }
 
+/* Deep links, so the deck can point at a screen: `#area=Releases` selects a global area,
+ * `#tab=Config` selects a workspace tab over the root scope. */
+function applyHash() {
+  if (typeof location === 'undefined' || !location.hash) return;
+  const h = new Map(
+    location.hash.replace(/^#/, '').split('&').filter(Boolean).map((kv) => {
+      const i = kv.indexOf('=');
+      return i < 0 ? [kv, ''] : [kv.slice(0, i), decodeURIComponent(kv.slice(i + 1))];
+    }),
+  );
+  const area = h.get('area');
+  if (area && GLOBAL_AREAS.some((g) => g.id === area)) {
+    state.sel = { kind: 'global', id: area };
+    return;
+  }
+  const tab = h.get('tab');
+  if (tab) {
+    // Pick a selection that actually offers the requested tab (Components/Topology need nodes).
+    const node = state.data.nodes[0];
+    if (node && (tab === 'Components' || tab === 'Topology')) {
+      state.sel = { kind: 'node', id: node.key };
+    }
+    if (tabsFor(state.sel).includes(tab)) state.tab = tab;
+  }
+}
+
 function load(key) {
   state.key = key;
   state.data = window.MOCK_DATA[key];
   state.sel = { kind: 'scope', id: state.data.scopes.find((s) => !s.parent).id };
   state.tab = 'Overview';
+  applyHash();
   render();
 }
 

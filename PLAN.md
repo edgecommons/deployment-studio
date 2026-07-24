@@ -236,10 +236,24 @@ artifact stream in devMode with the 24-file digest set; Access shows last-match-
 `edge-console` leaf rule beating the line/site catch-alls). Console clean; all four core gates green
 (workspace coverage 90.70%).
 
-**Remaining slice-5 cuts — the write path (a decision for the user, not yet built).** Authoring and
+**Remaining slice-5 cuts — the write path. UNBLOCKED 2026-07-24 (register #16).** Authoring and
 branch/draft orchestration both require the server to *gain a write path* into Git — the read-only cuts
-deliberately do not. Branch/draft orchestration additionally depends on **W8 (concurrent drafts), still
-open on the register**; it should not be invented unilaterally. These are the next decision before slice 6.
+deliberately do not. The concurrency story that gated branch/draft is now ruled: **optimistic
+concurrency, no locks; semantic conflict detection at the effective-config level; continuous invisible
+rebase; detect-and-surface, never auto-resolve; branches are not user-visible — a draft is a named change
+and the vocabulary is propose → review → apply; apply is the host's PR merge gated by CODEOWNERS.**
+
+Two consequences to carry into the build:
+
+- **Credentials.** The Studio holds none today by design. The write path needs Git write access:
+  ship **(i)** a bot/App identity with the human in commit trailers, behind the same port as
+  **(ii)** per-user OAuth (acting-as-user), which is the enterprise-scale target. Design for (ii),
+  ship (i).
+- **Authorization must not drift.** Authentication, when it lands, buys attribution, acting-as-user
+  and "you can/cannot approve this" — **not** a role system. Authorization stays CODEOWNERS + branch
+  protection enforced by the Git host (register #10).
+
+Next: the authoring cut (designable now), then branch/draft orchestration, then slice 6.
 
 **Design-repo drift from the profiles epic — closed (2026-07-23).** This repo's `schema/` and
 `fixtures/dallas/` were still the pre-profiles **flat form** (the profiles epic updated the kernel copy
@@ -281,7 +295,9 @@ Mock verified: all nine pages render with zero console errors; wizard walks 4 st
 - `design/REVIEW.md` §6: #5 (device layers / blocked overrides — recommendation authoring-side only),
   #6 (render into existing config sources first), #8 (commit render snapshots at release boundaries).
   #4 (dataflows) resolves with step 2.4.
-- **W8** — concurrent drafts have no story; bites in the first multi-user week.
+- ~~**W8** — concurrent drafts have no story; bites in the first multi-user week.~~ **RESOLVED
+  2026-07-24 (user), register #16** — optimistic concurrency, semantic output-level conflict detection,
+  no user-visible branches. Propagated to the deck's draft cards, the mock's draft chip, and DESIGN-cli §8.4.
 - Dependency: the deck's Greengrass scenario needs the deferred IPC-primary `uns-bridge` variant
   (ROADMAP A52) — a real blocker recorded in REVIEW W7.1.
 
