@@ -267,6 +267,8 @@ function panelConfig() {
   const isNode = state.sel.kind === 'node';
   const nodes = isNode ? [nodeByKey(state.sel.id)] : nodesUnder(scopeId);
   const comps = nodes.reduce((a, n) => a + n.components.length, 0);
+  // The layer authored at the selection's own scope (absent is a real, displayable state).
+  const ownLayer = (scopeById(scopeId) || {}).layer;
 
   const chainRows = chain.map((s, i) => `
     <div class="mock-chain__row ${s.layer ? '' : 'mock-chain__row--empty'}">
@@ -290,19 +292,21 @@ function panelConfig() {
     ${note('S-7 — lineage is derived from the node’s placement, never enumerated per component, so this list is computed rather than authored.')}
     <div class="mock-chain">${chainRows}${leafRows}</div>
 
-    <h2>What an edit here would write</h2>
+    <h2>Layer at this scope</h2>
     <div class="mock-writes">
-      <span><strong>File</strong> <code>${esc(chain[chain.length - 1].layer || 'layers/scopes/' + levelOf(scopeId) + '-' + valueOf(scopeId) + '.json')}</code></span>
-      <span><strong>Scope</strong> ${esc(scopeId)}</span>
-      <span><strong>Blast radius</strong> ${nodes.length} node(s) × ${comps} component(s)</span>
-      <span><strong>Restart</strong> ${nodes.flatMap((n) => n.components).every((c) => c.hotReloads) ? 'none — hot-reload' : 'mixed'}</span>
+      <span><strong>File</strong> <code>${esc(ownLayer || '— none authored')}</code></span>
+      <span><strong>Applies to</strong> ${nodes.length} node(s) · ${comps} component(s)</span>
+      <span><strong>Restart impact</strong> ${nodes.flatMap((n) => n.components).every((c) => c.hotReloads) ? 'none — hot-reload' : 'mixed'}</span>
     </div>
-    ${note('The declared-write panel is the honesty layer: every editor states its target file, scope and blast radius before a commit, so the Studio cannot become a second, hidden configuration system. Editing itself is the write-path cut.')}
+    ${note('This is the read-only face of the declared-write honesty layer. In the editor it becomes a pre-commit statement — target file, scope, blast radius — so the Studio cannot become a second, hidden configuration system. The editor itself is the write-path cut.')}
 
-    <h2>Set from placement</h2>
-    <div class="mock-note"><strong>hierarchy</strong> and <strong>identity</strong> cannot be authored in a layer — they are
-      set from this node's placement. Levels here are <code>${state.data.hierarchy.levels.join(' → ')}</code>.</div>
-    ${note('S-4 — these two keys are rejected in authored layers. The Dallas extraction found them hand-copied into three catalogs, which is the drift the rule removes.')}`;
+    <h2>Derived</h2>
+    <p class="mock-sub" style="margin-top:-0.25rem">Computed from placement and merged into every component here.</p>
+    <dl class="mock-kv">
+      <dt>hierarchy.levels</dt><dd><code>${esc(state.data.hierarchy.levels.join(', '))}</code></dd>
+      ${chain.map((s) => `<dt>identity.${esc(levelOf(s.id))}</dt><dd><code>${esc(valueOf(s.id))}</code></dd>`).join('')}
+    </dl>
+    ${note('S-4 — these two keys are rejected in authored layers, so they are shown here as computed values rather than editable fields; attempting to author them is a validation error at save. The Dallas extraction found them hand-copied into three catalogs, which is the drift the rule removes.')}`;
 }
 
 function panelRender() {
