@@ -1,0 +1,335 @@
+/* Deployment Studio — high-fidelity mock shell.
+ *
+ * Layout only. Every colour, font, radius and spacing value comes from the EdgeCommons brand
+ * tokens (edgecommons-tokens.css) or Carbon (product.css, generated from the shipped UI), so this
+ * mock cannot drift from the product's design language.
+ *
+ * The structure realises decision 1A (REVIEW-UI §4): a persistent context spine on the left whose
+ * selection drives the workspace, four global areas below it, a breadcrumb that is always present,
+ * and tabs that appear by level over the current selection.
+ */
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--ec-font-sans);
+  background: var(--ec-color-background);
+  color: var(--ec-color-text);
+}
+
+.mock-shell {
+  display: grid;
+  grid-template-rows: 3rem 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── context bar ─────────────────────────────────────────────────────────────────── */
+
+.mock-contextbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ec-space-4);
+  padding: 0 var(--ec-space-4);
+  background: var(--ec-night-iris);
+  border-bottom: 1px solid var(--ec-color-border);
+}
+
+.mock-brand { display: flex; align-items: center; }
+.mock-brand img { height: 1.15rem; display: block; }
+
+.mock-product {
+  font-weight: var(--ec-weight-heading);
+  font-size: var(--ec-text-sm);
+  letter-spacing: var(--ec-tracking-wide);
+  padding-left: var(--ec-space-4);
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--ec-white);
+}
+
+.mock-contextbar__group { display: flex; align-items: center; gap: var(--ec-space-3); }
+.mock-contextbar__spacer { flex: 1; }
+
+.mock-field { display: flex; align-items: center; gap: var(--ec-space-2); }
+.mock-field > span {
+  font-size: var(--ec-text-xs);
+  color: var(--ec-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--ec-tracking-wide);
+}
+
+.mock-select, .mock-search {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ec-color-text);
+  border: 1px solid var(--ec-color-border);
+  border-radius: var(--ec-radius-sm);
+  padding: 0.25rem 0.5rem;
+  font-size: var(--ec-text-sm);
+  font-family: inherit;
+}
+.mock-search { width: 20rem; }
+.mock-select:focus, .mock-search:focus { outline: 2px solid var(--ec-color-focus); outline-offset: 1px; }
+
+/* Context chips: draft and evidence provenance are visible at all times, never implied. */
+.mock-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: var(--ec-text-xs);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--ec-radius-full);
+  border: 1px solid var(--ec-color-border);
+  color: var(--ec-color-text);
+  white-space: nowrap;
+}
+.mock-chip--draft { border-color: var(--ec-iris); color: var(--ec-iris-mist); }
+.mock-chip--evidence { border-color: rgba(255, 255, 255, 0.2); }
+.mock-chip--degraded { border-color: var(--ec-warning); color: var(--ec-warning); }
+.mock-chip code { font-family: var(--ec-font-mono); font-size: var(--ec-text-xs); }
+
+/* ── body: rail + workspace ──────────────────────────────────────────────────────── */
+
+.mock-body {
+  display: grid;
+  grid-template-columns: 17rem 1fr;
+  min-height: 0;
+}
+
+.mock-rail {
+  display: flex;
+  flex-direction: column;
+  background: var(--ec-color-surface-subtle);
+  border-right: 1px solid var(--ec-color-border);
+  overflow-y: auto;
+  padding-bottom: var(--ec-space-4);
+}
+
+.mock-rail__heading {
+  font-size: var(--ec-text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ec-tracking-wide);
+  color: var(--ec-color-text-muted);
+  padding: var(--ec-space-4) var(--ec-space-4) var(--ec-space-2);
+}
+.mock-rail__heading--global { border-top: 1px solid var(--ec-color-border); margin-top: var(--ec-space-3); }
+
+/* the spine */
+.mock-tree { padding: 0 var(--ec-space-2); }
+
+.mock-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.3rem var(--ec-space-2);
+  border: 0;
+  background: none;
+  color: var(--ec-color-text);
+  font: inherit;
+  font-size: var(--ec-text-sm);
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--ec-radius-sm);
+  border-left: 2px solid transparent;
+}
+.mock-tree__row:hover { background: rgba(255, 255, 255, 0.05); }
+.mock-tree__row[aria-selected="true"] {
+  background: rgba(111, 127, 189, 0.18);
+  border-left-color: var(--ec-iris);
+  font-weight: var(--ec-weight-label);
+}
+.mock-tree__row--node { color: var(--ec-color-text); }
+
+/* The level badge is rendered from the data's own vocabulary — never a hardcoded name. */
+.mock-level {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: var(--ec-tracking-wide);
+  color: var(--ec-color-text-muted);
+  border: 1px solid var(--ec-color-border);
+  border-radius: var(--ec-radius-sm);
+  padding: 0 0.3rem;
+  flex: none;
+}
+.mock-tree__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mock-tree__count { margin-left: auto; font-size: var(--ec-text-xs); color: var(--ec-color-text-muted); flex: none; }
+
+.mock-global { list-style: none; margin: 0; padding: 0 var(--ec-space-2); }
+.mock-global button {
+  display: flex; align-items: baseline; gap: 0.5rem; width: 100%;
+  padding: 0.4rem var(--ec-space-2);
+  border: 0; background: none; color: var(--ec-color-text);
+  font: inherit; font-size: var(--ec-text-sm); text-align: left; cursor: pointer;
+  border-radius: var(--ec-radius-sm); border-left: 2px solid transparent;
+}
+.mock-global button:hover { background: rgba(255, 255, 255, 0.05); }
+.mock-global button[aria-current="true"] {
+  background: rgba(111, 127, 189, 0.18); border-left-color: var(--ec-iris);
+  font-weight: var(--ec-weight-label);
+}
+.mock-global small { color: var(--ec-color-text-muted); font-size: var(--ec-text-xs); }
+
+.mock-rail__footer {
+  margin-top: auto;
+  padding: var(--ec-space-4);
+  display: flex; flex-direction: column; gap: 0.25rem;
+  border-top: 1px solid var(--ec-color-border);
+}
+.mock-legend { display: flex; align-items: center; gap: 0.4rem; font-size: var(--ec-text-xs); color: var(--ec-color-text-muted); }
+.mock-dot { width: 0.5rem; height: 0.5rem; border-radius: var(--ec-radius-full); display: inline-block; }
+.mock-dot--config { background: var(--ec-chart-3); }
+.mock-dot--artifact { background: var(--ec-iris); }
+
+/* ── workspace ───────────────────────────────────────────────────────────────────── */
+
+.mock-workspace { overflow-y: auto; overflow-x: hidden; padding: var(--ec-space-5) var(--ec-space-6) var(--ec-space-8); min-width: 0; }
+.mock-workspace > * { min-width: 0; }
+
+.mock-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; font-size: var(--ec-text-sm); }
+.mock-breadcrumb button {
+  border: 0; background: none; padding: 0; cursor: pointer;
+  color: var(--ec-color-link); font: inherit; font-size: var(--ec-text-sm);
+}
+.mock-breadcrumb button:hover { text-decoration: underline; }
+.mock-breadcrumb span[aria-current] { color: var(--ec-color-text-muted); }
+.mock-breadcrumb .sep { color: var(--ec-color-text-muted); }
+
+.mock-selection { display: flex; align-items: baseline; gap: var(--ec-space-3); margin: var(--ec-space-3) 0 var(--ec-space-2); flex-wrap: wrap; }
+.mock-selection h1 { font-size: var(--ec-text-2xl); font-weight: var(--ec-weight-h1); margin: 0; letter-spacing: var(--ec-tracking-tight); }
+.mock-selection .mock-sub { color: var(--ec-color-text-muted); font-size: var(--ec-text-sm); }
+
+.mock-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--ec-color-border); margin-bottom: var(--ec-space-5); flex-wrap: wrap; }
+.mock-tabs button {
+  border: 0; background: none; color: var(--ec-color-text-muted);
+  font: inherit; font-size: var(--ec-text-sm); cursor: pointer;
+  padding: 0.6rem var(--ec-space-4); border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.mock-tabs button:hover { color: var(--ec-color-text); }
+.mock-tabs button[aria-selected="true"] { color: var(--ec-color-text); border-bottom-color: var(--ec-iris); font-weight: var(--ec-weight-label); }
+
+/* ── panel primitives ────────────────────────────────────────────────────────────── */
+
+.mock-panel h2 { font-size: var(--ec-text-lg); font-weight: var(--ec-weight-heading); margin: var(--ec-space-6) 0 var(--ec-space-3); }
+.mock-panel h2:first-child { margin-top: 0; }
+.mock-panel p { color: var(--ec-color-text); line-height: var(--ec-leading-normal); }
+.mock-panel code { font-family: var(--ec-font-mono); font-size: var(--ec-text-xs); }
+
+.mock-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--ec-space-3); }
+.mock-card {
+  border: 1px solid var(--ec-color-border);
+  border-radius: var(--ec-radius-md);
+  background: var(--ec-color-surface);
+  padding: var(--ec-space-4);
+}
+.mock-card__label { font-size: var(--ec-text-xs); text-transform: uppercase; letter-spacing: var(--ec-tracking-wide); color: var(--ec-color-text-muted); }
+.mock-card__value { font-size: var(--ec-text-2xl); font-weight: var(--ec-weight-h1); line-height: 1.1; margin-top: 0.25rem; }
+.mock-card__note { font-size: var(--ec-text-xs); color: var(--ec-color-text-muted); margin-top: 0.35rem; }
+
+/* Stream pair — config and artifact are always shown as a pair, never fused (REVIEW #2). */
+.mock-streams { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ec-space-4); }
+.mock-stream { border: 1px solid var(--ec-color-border); border-radius: var(--ec-radius-md); background: var(--ec-color-surface); overflow: hidden; }
+.mock-stream__head { padding: var(--ec-space-3) var(--ec-space-4); border-bottom: 1px solid var(--ec-color-border); display: flex; align-items: center; gap: var(--ec-space-2); }
+.mock-stream__body { padding: var(--ec-space-4); display: grid; gap: 0.5rem; }
+.mock-stream--config .mock-stream__head { border-top: 2px solid var(--ec-chart-3); }
+.mock-stream--artifact .mock-stream__head { border-top: 2px solid var(--ec-iris); }
+
+.mock-kv { display: grid; grid-template-columns: 10rem 1fr; gap: 0.35rem var(--ec-space-3); font-size: var(--ec-text-sm); }
+.mock-kv dt { color: var(--ec-color-text-muted); }
+.mock-kv dd { margin: 0; }
+
+table.mock-table { width: 100%; border-collapse: collapse; font-size: var(--ec-text-sm); }
+table.mock-table th {
+  text-align: left; font-size: var(--ec-text-xs); text-transform: uppercase;
+  letter-spacing: var(--ec-tracking-wide); color: var(--ec-color-text-muted);
+  font-weight: var(--ec-weight-label); padding: 0.5rem var(--ec-space-3);
+  border-bottom: 1px solid var(--ec-color-border);
+}
+table.mock-table td { padding: 0.5rem var(--ec-space-3); border-bottom: 1px solid var(--ec-color-border); vertical-align: top; }
+table.mock-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
+.mock-tablewrap { overflow-x: auto; }
+
+.mock-pill {
+  display: inline-block; font-size: var(--ec-text-xs); padding: 0.05rem 0.45rem;
+  border-radius: var(--ec-radius-full); border: 1px solid var(--ec-color-border);
+  color: var(--ec-color-text-muted); white-space: nowrap;
+}
+.mock-pill--config { border-color: var(--ec-chart-3); color: var(--ec-chart-3); }
+.mock-pill--artifact { border-color: var(--ec-iris); color: var(--ec-iris-mist); }
+.mock-pill--warn { border-color: var(--ec-warning); color: var(--ec-warning); }
+.mock-pill--ok { border-color: var(--ec-success); color: var(--ec-success); }
+.mock-pill--danger { border-color: var(--ec-danger); color: var(--ec-danger); }
+
+.mock-note {
+  border-left: 2px solid var(--ec-iris);
+  background: var(--ec-color-surface);
+  padding: var(--ec-space-3) var(--ec-space-4);
+  font-size: var(--ec-text-sm);
+  border-radius: 0 var(--ec-radius-sm) var(--ec-radius-sm) 0;
+}
+.mock-note--warn { border-left-color: var(--ec-warning); }
+.mock-note strong { font-weight: var(--ec-weight-label); }
+
+/* ── mock chrome ─────────────────────────────────────────────────────────────────────
+ * Deliberately styled to read as *not product*: reviewer annotations and undesigned-area
+ * markers. Everything here disappears from a real build.
+ */
+.mock-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: var(--ec-text-xs); color: var(--ec-color-text-muted); cursor: pointer; white-space: nowrap; }
+.mock-toggle input { accent-color: var(--ec-source-copper); }
+
+.mock-annot {
+  border: 1px dashed var(--ec-source-copper);
+  border-radius: var(--ec-radius-sm);
+  background: rgba(214, 122, 78, 0.07);
+  color: var(--ec-color-text-muted);
+  font-size: var(--ec-text-xs);
+  line-height: var(--ec-leading-snug);
+  padding: 0.4rem 0.6rem;
+  margin: 0 0 var(--ec-space-3);
+}
+.mock-annot::before {
+  content: "design note";
+  display: inline-block;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: var(--ec-tracking-wide);
+  color: var(--ec-source-copper);
+  margin-right: 0.5rem;
+}
+
+/* The declared-write panel: a real product feature (it states what an edit writes). */
+.mock-writes {
+  border: 1px dashed var(--ec-color-border);
+  border-radius: var(--ec-radius-md);
+  padding: var(--ec-space-3) var(--ec-space-4);
+  font-size: var(--ec-text-sm);
+  color: var(--ec-color-text-muted);
+  display: flex; gap: var(--ec-space-3); align-items: baseline; flex-wrap: wrap;
+}
+.mock-writes strong { color: var(--ec-color-text); font-weight: var(--ec-weight-label); }
+
+/* Chain rows: the merge order for a selection. */
+.mock-chain { display: grid; gap: 0.35rem; }
+.mock-chain__row {
+  display: grid; grid-template-columns: 1.5rem 9rem 1fr auto; gap: var(--ec-space-3);
+  align-items: center; padding: 0.45rem var(--ec-space-3);
+  border: 1px solid var(--ec-color-border); border-radius: var(--ec-radius-sm);
+  background: var(--ec-color-surface); font-size: var(--ec-text-sm);
+}
+/* Grid children default to min-width:auto, so a long path forces the row wider than the
+   workspace and the page scrolls sideways. Let them shrink and wrap instead. */
+.mock-chain__row > * { min-width: 0; overflow-wrap: anywhere; }
+.mock-chain__idx { color: var(--ec-color-text-muted); font-family: var(--ec-font-mono); font-size: var(--ec-text-xs); }
+.mock-chain__row--leaf { border-left: 2px solid var(--ec-source-copper); }
+.mock-chain__row--empty { opacity: 0.55; }
+
+.mock-empty {
+  border: 1px dashed var(--ec-color-border);
+  border-radius: var(--ec-radius-md);
+  padding: var(--ec-space-6);
+  text-align: center;
+  color: var(--ec-color-text-muted);
+  font-size: var(--ec-text-sm);
+}
+.mock-empty strong { display: block; color: var(--ec-color-text); margin-bottom: 0.35rem; font-size: var(--ec-text-base); }
