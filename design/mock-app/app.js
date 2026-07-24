@@ -13,10 +13,15 @@
  * as explicit "not designed yet" states rather than invented content.
  */
 
-const state = { key: 'dallas', data: null, sel: { kind: 'scope', id: null }, tab: 'Overview' };
+const state = { key: 'dallas', data: null, sel: { kind: 'scope', id: null }, tab: 'Overview', notes: false };
 
 const el = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* Reviewer annotation — mock chrome, never product copy. The screens state what the system does;
+ * *why* it is shaped that way lives here, off by default, and in REVIEW-UI. Keeping design rationale
+ * out of the surface is what lets the mock be judged on layout, density and hierarchy. */
+const note = (text) => (state.notes ? `<div class="mock-annot">${esc(text)}</div>` : '');
 
 /* ── data helpers — all level-agnostic ───────────────────────────────────────────── */
 
@@ -189,11 +194,14 @@ function renderTabs() {
 
 /* ── panels ──────────────────────────────────────────────────────────────────────── */
 
+/* Mock chrome. A reviewer must be able to tell an undesigned area from a designed-empty one, so
+ * these are marked — but the marker is chrome, not product copy, and carries no product voice. */
 const notDesigned = (what, why) => `
   <div class="mock-empty">
-    <strong>${esc(what)} is not designed yet</strong>
-    ${esc(why)}
-  </div>`;
+    <strong>${esc(what)}</strong>
+    Not designed in this pass.
+  </div>
+  ${note(why)}`;
 
 function panelOverview() {
   const isNode = state.sel.kind === 'node';
@@ -217,9 +225,8 @@ function panelOverview() {
         <div class="mock-card__note">${unpinned ? 'source-form; blocks protected promotion' : 'all pinned to version + digest'}</div></div>
     </div>
 
-    <h2>Streams at this selection</h2>
-    <p class="mock-sub" style="margin-top:-0.25rem">The config and artifact streams are versioned, promoted and rolled back
-       independently. They are always shown as a pair — never fused into one status.</p>
+    <h2>Streams</h2>
+    ${note('REVIEW #2 — config and artifact are promoted and rolled back independently, so every surface shows them as a pair and never fuses them into a single status.')}
     <div class="mock-streams">
       <div class="mock-stream mock-stream--config">
         <div class="mock-stream__head"><span class="mock-pill mock-pill--config">config</span>
@@ -279,8 +286,8 @@ function panelConfig() {
 
   return `
     <h2>Merge order</h2>
-    <p class="mock-sub" style="margin-top:-0.25rem">Lineage is derived from placement — the scope chain in order, then the
-       component leaf. It is never enumerated per component (S-7).</p>
+    <p class="mock-sub" style="margin-top:-0.25rem">Applied in order. Later entries win; the component leaf wins last.</p>
+    ${note('S-7 — lineage is derived from the node’s placement, never enumerated per component, so this list is computed rather than authored.')}
     <div class="mock-chain">${chainRows}${leafRows}</div>
 
     <h2>What an edit here would write</h2>
@@ -290,13 +297,12 @@ function panelConfig() {
       <span><strong>Blast radius</strong> ${nodes.length} node(s) × ${comps} component(s)</span>
       <span><strong>Restart</strong> ${nodes.flatMap((n) => n.components).every((c) => c.hotReloads) ? 'none — hot-reload' : 'mixed'}</span>
     </div>
-    <p class="mock-sub">Every editor declares what it writes before the user commits — the honesty layer that keeps the
-       Studio from becoming a second, hidden configuration system. Editing itself is the write-path cut, not this pass.</p>
+    ${note('The declared-write panel is the honesty layer: every editor states its target file, scope and blast radius before a commit, so the Studio cannot become a second, hidden configuration system. Editing itself is the write-path cut.')}
 
-    <h2>Forbidden in layers</h2>
-    <div class="mock-note"><strong>hierarchy</strong> and <strong>identity</strong> are stamped from placement and rejected
-      in authored layers (S-4). The level list here is <code>${state.data.hierarchy.levels.join(' → ')}</code>, derived from
-      this scope's chain — not written by hand.</div>`;
+    <h2>Set from placement</h2>
+    <div class="mock-note"><strong>hierarchy</strong> and <strong>identity</strong> cannot be authored in a layer — they are
+      set from this node's placement. Levels here are <code>${state.data.hierarchy.levels.join(' → ')}</code>.</div>
+    ${note('S-4 — these two keys are rejected in authored layers. The Dallas extraction found them hand-copied into three catalogs, which is the drift the rule removes.')}`;
 }
 
 function panelRender() {
@@ -322,9 +328,9 @@ function panelRender() {
     </tr>`)).join('');
 
   return `
-    <h2>This selection's slice of the plan</h2>
-    <p class="mock-sub" style="margin-top:-0.25rem">Consequences are grouped by stream. Restart impact follows the config
-       source, not the platform.</p>
+    <h2>Plan for this selection</h2>
+    <p class="mock-sub" style="margin-top:-0.25rem">Restart impact follows the config source.</p>
+    ${note('Hot-reload is a property of the config source, not of the platform — the plan classifies restart impact from the source alone.')}
     <div class="mock-tablewrap"><table class="mock-table">
       <thead><tr><th>Node</th><th>Component</th><th>Stream</th><th>Restarts</th><th>Consequence</th></tr></thead>
       <tbody>${rows}</tbody></table></div>
@@ -373,23 +379,23 @@ function panelReleases() {
 
   const ev = state.data.evidenceBundle;
   return `
-    <h2>Pending gate — two streams, correlated, never fused</h2>
-    <p class="mock-sub" style="margin-top:-0.25rem">Promoting one stream never moves the other; each keeps its own rollback
-       target. The lock correlates them, it does not fuse them.</p>
+    <h2>Pending gate</h2>
+    <p class="mock-sub" style="margin-top:-0.25rem">Each stream promotes and rolls back on its own.</p>
+    ${note('REVIEW #2 — the release lock correlates the two streams without fusing them; promoting one never moves the other, and each keeps its own rollback target.')}
     <div class="mock-streams">${state.data.releases.map(card).join('')}</div>
 
     <h2>Approvals</h2>
     ${co
-      ? `<p class="mock-sub" style="margin-top:-0.25rem">Rendered from <code>${esc(co.path)}</code>. The Studio surfaces the
-           Git-host rule that already governs each file — it never holds a parallel approval store.</p>
+      ? `<p class="mock-sub" style="margin-top:-0.25rem">Required reviewers, from <code>${esc(co.path)}</code>.</p>
+         ${note('REVIEW #10 — approval is a rendering of Git-host review state. The Studio surfaces the rule that already governs each file and holds no parallel approval store.')}
          <div class="mock-tablewrap"><table class="mock-table">
            <thead><tr><th>Rule</th><th>Required reviewers</th></tr></thead>
            <tbody>${co.rules.map((r) => `<tr><td><code>${esc(r.pattern)}</code></td>
              <td>${r.owners.map((o) => `<span class="mock-pill">${esc(o)}</span>`).join(' ')}</td></tr>`).join('')}
            </tbody></table></div>`
-      : `<div class="mock-note mock-note--warn">This repository defines no <code>CODEOWNERS</code>; changes to every file fall
-           to the default branch-protection review. That is a degraded state, shown as such — never rendered as
-           "no approval required".</div>`}
+      : `<div class="mock-note mock-note--warn">This repository defines no <code>CODEOWNERS</code>. Changes to every file fall
+           to the default branch-protection review.</div>
+         ${note('A degraded state is designed, not promised: an absent CODEOWNERS is shown as the review it falls back to, never as "no approval required".')}`}
 
     <h2>Evidence bundle</h2>
     <dl class="mock-kv">
@@ -405,7 +411,7 @@ function renderPanel() {
   if (state.sel.kind === 'global') {
     if (state.sel.id === 'Releases') { p.innerHTML = panelReleases(); return; }
     p.innerHTML = notDesigned(state.sel.id,
-      'Outside this pass. Agreed scope was the shell plus the screens the kernel can already serve: Overview, Config, Render and the Releases gate.');
+      'Agreed scope for this pass was the shell plus the screens the kernel can already serve: Overview, Config, Render and the Releases gate.');
     return;
   }
   switch (state.tab) {
@@ -455,6 +461,7 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('change', (e) => {
   if (e.target.id === 'workspace-switch') load(e.target.value);
+  if (e.target.id === 'notes-toggle') { state.notes = e.target.checked; renderPanel(); }
 });
 
 load('dallas');

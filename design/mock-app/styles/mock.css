@@ -271,7 +271,34 @@ table.mock-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
 .mock-note--warn { border-left-color: var(--ec-warning); }
 .mock-note strong { font-weight: var(--ec-weight-label); }
 
-/* The declared-write honesty layer: every editor states what it would write, even read-only. */
+/* ── mock chrome ─────────────────────────────────────────────────────────────────────
+ * Deliberately styled to read as *not product*: reviewer annotations and undesigned-area
+ * markers. Everything here disappears from a real build.
+ */
+.mock-toggle { display: flex; align-items: center; gap: 0.4rem; font-size: var(--ec-text-xs); color: var(--ec-color-text-muted); cursor: pointer; white-space: nowrap; }
+.mock-toggle input { accent-color: var(--ec-source-copper); }
+
+.mock-annot {
+  border: 1px dashed var(--ec-source-copper);
+  border-radius: var(--ec-radius-sm);
+  background: rgba(214, 122, 78, 0.07);
+  color: var(--ec-color-text-muted);
+  font-size: var(--ec-text-xs);
+  line-height: var(--ec-leading-snug);
+  padding: 0.4rem 0.6rem;
+  margin: 0 0 var(--ec-space-3);
+}
+.mock-annot::before {
+  content: "design note";
+  display: inline-block;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: var(--ec-tracking-wide);
+  color: var(--ec-source-copper);
+  margin-right: 0.5rem;
+}
+
+/* The declared-write panel: a real product feature (it states what an edit writes). */
 .mock-writes {
   border: 1px dashed var(--ec-color-border);
   border-radius: var(--ec-radius-md);

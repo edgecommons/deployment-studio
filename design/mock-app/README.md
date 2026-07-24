@@ -25,6 +25,23 @@ Decision **1A** (REVIEW-UI §4) — the context spine:
 - the **declared-write honesty layer** — every editing surface states which file it writes, at which
   scope, and its blast radius, before anything is committed.
 
+## Design rationale is not in the product surface
+
+The screens state **what the system does**, in the product's voice. They do not argue for the design,
+cite the decision register, or mark what is coming later — that belongs in `REVIEW-UI.md`, not in a
+surface an operator reads.
+
+Reviewer rationale lives behind the **Design notes** toggle in the context bar, **off by default**.
+Switch it on to see which agreed decision each region realises, rendered in a deliberately
+non-product style (dashed copper, "design note" label) so it can never be mistaken for UI copy.
+
+This matters for the mock's usefulness, not just tidiness: text density is one of the main things a
+high-fidelity mock exists to let you judge. Rationale paragraphs above every table would overstate the
+real copy budget and obscure the layout, density and visual hierarchy under review.
+
+The one place register language survives with notes off is the evidence bundle's `semanticRules` value
+(`pass (S-1..S-9)`) — that is the literal field the kernel's `evidence.json` records, shown as recorded.
+
 ## No level name is hardcoded
 
 The mock ships **two hierarchies** and a workspace switcher in the context bar:
