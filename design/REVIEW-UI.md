@@ -386,3 +386,44 @@ restructured to match in the same change (PLAN step 4).
 - Deliberately *not* fixed, because they are the open decisions themselves: the wizard's 4-level hierarchy
   (U1/U2b), the device layer and blocked-override language (G1/G2, decision #5), the Dataflows screen's
   prescriptive form (U3, decision #4).
+
+---
+
+## 7. The shipped UI deviated from 1A — and the high-fidelity mock that replaces this one (2026-07-24)
+
+**Finding, raised by the user:** the read-only UI shipped in `edgecommons/edgecommons` (PRs #70/#71/#72)
+"bears little resemblance to what was mocked". Confirmed, and it is a regression rather than a fidelity
+gap: the shipped UI is a profile dropdown plus four flat sibling tabs (Config layers, Render review,
+Evidence, Access). It has **no context spine, no fleet tree, no breadcrumb, no level-scoped tabs, and no
+global/scoped distinction** — i.e. none of decision 1A (§4, §5.7). The previous low-fidelity mock, for all
+its roughness, already carried the rail, the tree, the contextbar and the six workspace tabs, so the built
+UI is further from the agreed design than the mock it was supposed to realise.
+
+Two placements are also wrong against decisions already taken:
+
+- **Access** was shipped as a top-level tab. Approvals were decided (§5.6, REVIEW #10) to be rendered *by
+  the gate surface* — part of Releases.
+- **Evidence** was shipped as a single flat tab. Evidence provenance was decided (§4, REVIEW #13) to be
+  **pervasive** — a global mode badge plus per-datum source and age — with the release envelope living on
+  the gate and the feeds under Operations.
+
+The server-side work is unaffected: the four read-only endpoints map cleanly onto the agreed tabs. What
+must be rebuilt is the shell and the placement.
+
+**Resolution:** `mock-app/` is replaced by a high-fidelity mock built from the **product's own stylesheet**
+(the shipped Carbon build plus the EdgeCommons brand-token mapping), so a design artifact and the product
+cannot visually diverge. It realises the context spine, both streams as a pair, always-on evidence
+provenance with a designed degraded state, approvals on the gate, and the declared-write honesty layer.
+
+It also closes **U2b by construction**: the mock is driven from fixture data and ships two deliberately
+different hierarchies — `enterprise/site/line/device` and `region/plant/cell/device` — rendered by the same
+code, with every level badge, breadcrumb, chain and aggregate derived from the fixture's own
+`hierarchy.levels`. No level name appears in the mock's logic, matching the kernel, where the only special
+level is the terminal `device`.
+
+Scope of this pass is the shell plus the screens the kernel can already serve (Overview, Config, Render,
+Releases gate). Components, Topology, History, Operations, Registry, Settings and the wizard render as
+explicit "not designed yet" states rather than invented content. See `mock-app/README.md`.
+
+**Consequence for the product UI:** the shipped shell is to be rebuilt against this mock before any further
+UI work, and Evidence/Access relocated to their agreed homes.

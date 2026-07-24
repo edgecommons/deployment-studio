@@ -1,261 +1,68 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Deployment Studio Mock - First Run</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deployment Studio — high-fidelity mock</title>
+  <!-- product.css is generated from the shipped Studio UI, so this mock cannot visually drift
+       from the product: same Carbon build, same EdgeCommons brand-token mapping. -->
+  <link rel="stylesheet" href="styles/edgecommons-tokens.css" />
+  <link rel="stylesheet" href="styles/product.css" />
+  <link rel="stylesheet" href="styles/mock.css" />
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="mark">DS</div>
-        <div>
-          <span>Deployment Studio</span>
-          <b>Workspace setup</b>
-        </div>
+  <div class="ec-app ec-app--dark mock-shell">
+
+    <!-- ── context bar: workspace ▸ draft ▸ evidence ▸ search ───────────────────────── -->
+    <header class="mock-contextbar">
+      <a class="mock-brand" href="#" aria-label="EdgeCommons">
+        <img src="styles/logo-reversed.svg" alt="EdgeCommons" />
+      </a>
+      <span class="mock-product">Deployment Studio</span>
+
+      <div class="mock-contextbar__group">
+        <label class="mock-field">
+          <span>Workspace</span>
+          <select id="workspace-switch" class="mock-select"></select>
+        </label>
+        <span id="draft-chip"></span>
+        <span id="evidence-chip"></span>
       </div>
-      <div class="global-search">
-        <input aria-label="Search" placeholder="Search setup choices, registry components, or import sources">
-      </div>
-      <div class="top-actions">
-        <span class="pill">empty workspace</span>
-        <span class="pill">generate-only</span>
-      </div>
+
+      <div class="mock-contextbar__spacer"></div>
+      <input id="search" class="mock-search" type="search" placeholder="Search scopes, nodes, components…" aria-label="Search" />
     </header>
 
-    <div class="layout">
-      <nav class="nav" aria-label="Studio navigation">
-        <div class="nav-section">Workspace</div>
-        <a class="active" href="index.html">Setup</a>
-        <div class="nav-section">Fleet</div>
-        <span class="nav-future">Appears after the first nodes exist</span>
-        <a href="fleet.html">Fleet (demo: existing system)</a>
-        <div class="nav-section">Global</div>
-        <a href="settings.html">Settings</a>
-        <a class="book-link" href="../index.html#chapter-ui-depth">Back to book</a>
+    <div class="mock-body">
+
+      <!-- ── left rail: the context spine, then the global areas ───────────────────── -->
+      <nav class="mock-rail" aria-label="Context spine and global areas">
+        <div class="mock-rail__heading">Context</div>
+        <div id="tree" class="mock-tree" role="tree" aria-label="Fleet"></div>
+
+        <div class="mock-rail__heading mock-rail__heading--global">Global</div>
+        <ul id="global-nav" class="mock-global"></ul>
+
+        <div class="mock-rail__footer">
+          <span class="mock-legend"><i class="mock-dot mock-dot--config"></i>config stream</span>
+          <span class="mock-legend"><i class="mock-dot mock-dot--artifact"></i>artifact stream</span>
+        </div>
       </nav>
 
-      <main class="screen">
-        <header class="screen-header">
-          <div>
-            <span class="eyebrow">Day zero &mdash; or day two</span>
-            <h1>Create a workspace, or connect to one that already exists.</h1>
-            <p>Entry branches at the door. <b>Create</b> is three steps &mdash; storage, hierarchy and first nodes, target standard &mdash; then a milestone checklist that hands off to the owning screens; component assignment and rendering are not wizard steps. <b>Connect</b> is the day-two path: clone or attach, validate, open Fleet &mdash; no wizard. This page becomes Settings once the first render exists.</p>
-          </div>
-          <div class="actions">
-            <button class="button">Connect existing</button>
-            <button class="button primary">Create workspace</button>
-          </div>
-        </header>
-
-        <section class="workbench setup" data-wizard>
-          <aside class="rail">
-            <h2>Setup progress</h2>
-            <div class="step-list">
-              <button class="step wizard-step active" type="button" data-wizard-go="storage"><strong>1</strong><div><b>Create or connect storage</b><span>required</span></div></button>
-              <button class="step wizard-step" type="button" data-wizard-go="hierarchy"><strong>2</strong><div><b>Build hierarchy</b><span>levels + first nodes</span></div></button>
-              <button class="step wizard-step" type="button" data-wizard-go="target"><strong>3</strong><div><b>Set target standard</b><span data-current-target>Greengrass standard</span></div></button>
-              <button class="step wizard-step" type="button" data-wizard-go="milestones"><strong>4</strong><div><b>Milestones</b><span>handoffs, not steps</span></div></button>
-            </div>
-          </aside>
-
-          <section class="stack">
-            <div class="panel wizard-panel active" data-wizard-panel="storage">
-              <h2>1. Choose how deployment definitions will be stored</h2>
-              <div class="grid-3" data-select-group>
-                <button class="card selectable active" data-step-check>
-                  <b>Create deployment repo</b>
-                  <p class="muted">Initialize the Git-backed source of truth with definitions, layers, targets, releases, and evidence.</p>
-                </button>
-                <button class="card selectable">
-                  <b>Connect existing repo</b>
-                  <p class="muted">The day-two path: clone or attach an existing workspace, validate folders and branch rules, then open Fleet directly &mdash; steps 2-4 never appear.</p>
-                </button>
-              </div>
-              <p class="muted">Importing generated artifacts back into the model (reverse compilation) is out of scope by decision &mdash; it is not an entry path.</p>
-            </div>
-
-            <div class="panel hierarchy-builder wizard-panel" data-wizard-panel="hierarchy" data-hierarchy-builder>
-              <div class="hierarchy-toolbar">
-                <div>
-                  <h2>2. Define hierarchy levels and first instances</h2>
-                  <p class="muted">Level definitions are ordered metadata. Parentage is implied by position, and instance keys appear only in the graph below.</p>
-                </div>
-                <button class="button" type="button" data-add-level>Add level</button>
-              </div>
-
-              <h3 class="subhead">Hierarchy level definitions</h3>
-              <div class="hierarchy-chain" data-hierarchy-chain>
-                <div class="hierarchy-level" data-level>
-                  <strong data-order>1</strong>
-                  <label>Level type<select data-level-type><option selected>enterprise</option><option>region</option><option>site</option><option>building</option><option>zone</option><option>line</option><option>cell</option><option>edge node</option></select></label>
-                  <label>Display label<input data-level-label value="Enterprise"></label>
-                  <label>Description<input data-level-description value="Company-wide deployment root"></label>
-                  <div class="level-actions">
-                    <button type="button" data-move-up>Up</button>
-                    <button type="button" data-move-down>Down</button>
-                    <button type="button" data-delete-level>Delete</button>
-                  </div>
-                </div>
-                <div class="hierarchy-level" data-level>
-                  <strong data-order>2</strong>
-                  <label>Level type<select data-level-type><option>enterprise</option><option>region</option><option selected>site</option><option>building</option><option>zone</option><option>line</option><option>cell</option><option>edge node</option></select></label>
-                  <label>Display label<input data-level-label value="Site"></label>
-                  <label>Description<input data-level-description value="Plant or location boundary"></label>
-                  <div class="level-actions">
-                    <button type="button" data-move-up>Up</button>
-                    <button type="button" data-move-down>Down</button>
-                    <button type="button" data-delete-level>Delete</button>
-                  </div>
-                </div>
-                <div class="hierarchy-level" data-level>
-                  <strong data-order>3</strong>
-                  <label>Level type<select data-level-type><option>enterprise</option><option>region</option><option>site</option><option>building</option><option>zone</option><option selected>line</option><option>cell</option><option>edge node</option></select></label>
-                  <label>Display label<input data-level-label value="Line"></label>
-                  <label>Description<input data-level-description value="Production line or process area"></label>
-                  <div class="level-actions">
-                    <button type="button" data-move-up>Up</button>
-                    <button type="button" data-move-down>Down</button>
-                    <button type="button" data-delete-level>Delete</button>
-                  </div>
-                </div>
-                <div class="hierarchy-level" data-level>
-                  <strong data-order>4</strong>
-                  <label>Level type<select data-level-type><option>enterprise</option><option>region</option><option>site</option><option>building</option><option>zone</option><option>line</option><option>cell</option><option selected>edge node</option></select></label>
-                  <label>Display label<input data-level-label value="Edge node"></label>
-                  <label>Description<input data-level-description value="Deployable edge runtime node"></label>
-                  <div class="level-actions">
-                    <button type="button" data-move-up>Up</button>
-                    <button type="button" data-move-down>Down</button>
-                    <button type="button" data-delete-level>Delete</button>
-                  </div>
-                </div>
-              </div>
-              <div class="lineage-preview">
-                <span>Hierarchy shape</span>
-                <code data-lineage-preview>enterprise -> site -> line -> edge-node</code>
-              </div>
-
-              <div class="instance-graph">
-                <div class="hierarchy-toolbar">
-                  <div>
-                    <h3 class="subhead">Initial instance graph</h3>
-                    <p class="muted">Instances live inside levels. Each instance has an instance key and one parent instance, except the enterprise root.</p>
-                  </div>
-                  <button class="button" type="button">Add instance</button>
-                </div>
-                <div class="org-chart" data-instance-root>
-                  <div class="org-node-wrap">
-                    <button class="instance-node" type="button" data-instance-select data-instance-label="enterprise/acme" data-instance-detail="Enterprise root instance. Instance key acme.">
-                      <span>Enterprise</span><b>Acme Manufacturing</b><code>key: acme</code>
-                    </button>
-                    <div class="org-children">
-                      <div class="org-node-wrap">
-                        <button class="instance-node" type="button" data-instance-select data-instance-label="site/dallas" data-instance-detail="Site instance under enterprise/acme. Instance key dallas.">
-                          <span>Site</span><b>Dallas</b><code>key: dallas</code>
-                        </button>
-                        <div class="org-children">
-                          <div class="org-node-wrap">
-                            <button class="instance-node" type="button" data-instance-select data-instance-label="line/filling-line-7" data-instance-detail="Line instance under site/dallas. Instance key filling-line-7.">
-                              <span>Line</span><b>Filling line 7</b><code>key: filling-line-7</code>
-                            </button>
-                            <div class="org-children">
-                              <div class="org-node-wrap">
-                                <button class="instance-node active" type="button" data-instance-select data-instance-label="edge-node/gw-fill-01" data-instance-detail="Edge node instance under line/filling-line-7. Instance key gw-fill-01.">
-                                  <span>Edge node</span><b>gw-fill-01</b><code>key: gw-fill-01</code>
-                                </button>
-                              </div>
-                              <div class="org-node-wrap">
-                                <button class="instance-node" type="button" data-instance-select data-instance-label="edge-node/gw-fill-02" data-instance-detail="Second edge node instance under line/filling-line-7. Instance key gw-fill-02.">
-                                  <span>Edge node</span><b>gw-fill-02</b><code>key: gw-fill-02</code>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="org-node-wrap">
-                            <button class="instance-node" type="button" data-instance-select data-instance-label="line/packaging-2" data-instance-detail="Second line instance under site/dallas. Instance key packaging-2.">
-                              <span>Line</span><b>Packaging 2</b><code>key: packaging-2</code>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="org-node-wrap">
-                        <button class="instance-node" type="button" data-instance-select data-instance-label="site/austin" data-instance-detail="Second site instance under enterprise/acme. Instance key austin.">
-                          <span>Site</span><b>Austin</b><code>key: austin</code>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel wizard-panel" data-wizard-panel="target">
-              <h2>3. Set the enterprise target standard</h2>
-              <p class="muted">Most organizations standardize on one target family for deployments. Per-deployment platform exceptions are supported, but they should be governed and rare.</p>
-              <div class="target-grid" data-select-group>
-                <button class="target-card" data-preview-target="#setupPreview" data-preview="host" data-target-label="HOST standard">
-                  <b>HOST / supervisord standard</b>
-                  <span class="chip">enterprise default</span>
-                </button>
-                <button class="target-card" data-preview-target="#setupPreview" data-preview="kubernetes" data-target-label="Kubernetes standard">
-                  <b>Kubernetes standard</b>
-                  <span class="chip">enterprise default</span>
-                </button>
-                <button class="target-card active" data-preview-target="#setupPreview" data-preview="greengrass" data-target-label="Greengrass standard">
-                  <b>Greengrass standard</b>
-                  <span class="chip pass">enterprise default</span>
-                </button>
-              </div>
-              <div class="exception-policy">
-                <label><input type="checkbox"> Allow per-deployment target exceptions with platform-owner approval</label>
-                <span class="chip warn">exception path</span>
-              </div>
-            </div>
-
-            <div class="panel wizard-panel" data-wizard-panel="milestones">
-              <h2>4. Milestones - the wizard stops here and hands off</h2>
-              <p class="muted">Component assignment and rendering happen in the screens that own them, scoped to the node you pick; their empty states do the teaching. Once the first render exists, this page becomes Settings.</p>
-              <ul class="milestones">
-                <li><span class="state pass">done</span><div><b>Storage, hierarchy, target standard</b> - steps 1-3 above; the workspace repo exists with branch protection on.</div></li>
-                <li><span class="state warn">next</span><div><b>Assign first components</b> - open <a href="component-editor.html">Components</a> scoped to <code>gw-fill-01</code>; pick from the registry, configure the leaf.</div></li>
-                <li><span class="state">then</span><div><b>Render the lab bundle</b> - open <a href="render-review.html">Render review</a> for the node's slice of the plan.</div></li>
-                <li><span class="state">then</span><div><b>Write the first release lock</b> - open <a href="release-gate.html">Releases</a>; approvals are pull-request reviews on the workspace repo.</div></li>
-              </ul>
-            </div>
-
-            <div class="wizard-actions">
-              <button class="button" type="button" data-wizard-prev>Back</button>
-              <button class="button primary" type="button" data-wizard-next>Next</button>
-            </div>
-          </section>
-
-          <aside class="inspector">
-            <h2>Setup inspector</h2>
-            <dl>
-              <dt>Current step</dt><dd data-current-step>Create or connect storage</dd>
-              <dt>Target standard</dt><dd data-current-target>Greengrass standard</dd>
-              <dt>Hierarchy shape</dt><dd data-inspector-hierarchy>enterprise -> site -> line -> edge-node</dd>
-              <dt>Selected instance</dt><dd data-selected-instance>edge-node/gw-fill-01</dd>
-              <dt>Source path</dt><dd>deployment/workspace.yaml</dd>
-              <dt>First milestone</dt><dd>validated lab render</dd>
-              <dt>Selected row</dt><dd data-selected-detail>telemetry-processor is assigned to gw-fill-01 and configured for local pub/sub, durable buffer, and health.</dd>
-            </dl>
-            <hr>
-            <ul class="checklist">
-              <li>Storage location selected</li>
-              <li>Hierarchy names valid</li>
-              <li>Target standard selected</li>
-              <li class="warn">Apply credentials not configured</li>
-            </ul>
-          </aside>
-        </section>
+      <!-- ── workspace: breadcrumb + selection header + level-scoped tabs + panel ──── -->
+      <main class="mock-workspace">
+        <nav id="breadcrumb" class="mock-breadcrumb" aria-label="Breadcrumb"></nav>
+        <header id="selection-header" class="mock-selection"></header>
+        <nav id="tabs" class="mock-tabs" role="tablist" aria-label="Views over the current selection"></nav>
+        <section id="panel" class="mock-panel" role="tabpanel"></section>
       </main>
     </div>
   </div>
+
+  <!-- Fixtures are plain JS (not JSON) so the mock opens straight from disk — no server needed.
+       Two deliberately different hierarchies prove no level name is special. -->
+  <script src="data/dallas.js"></script>
+  <script src="data/northwind.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
