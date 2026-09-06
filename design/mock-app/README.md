@@ -3,8 +3,14 @@
 A clickable design artifact for the Studio UI. Open `index.html` (it works straight from disk — the
 fixtures are plain JS, not JSON, so no server is needed), or serve the directory if you prefer.
 
-This mock exists because the shipped read-only UI was built to a **different information architecture**
-than the one that was agreed. It is the reference the UI is rebuilt against.
+This mock records the agreed information architecture. Core PR #73 rebuilt the product shell to
+the persistent selection rail, scoped tabs and breadcrumbs on 2026-07-24. Layer authoring and
+draft workflows followed in PRs #75/#76. The mock remains the design reference for incomplete
+surfaces; its existence is not evidence that the whole shell is still off-design.
+
+The 2026-09-06 source review still finds the mock's global evidence mode/age/source indicator
+missing from the product. Components, Topology, History, Operations, Registry, Settings and the
+Create/Connect wizard also remain incomplete. See [the current baseline](../../PLAN.md#current-baseline--2026-09-06).
 
 ## What it realises
 
@@ -67,10 +73,10 @@ product. `styles/mock.css` adds layout only; every colour, font, radius and spac
 
 ## What this pass deliberately does not cover
 
-Agreed scope was the shell plus the screens the kernel can already serve. Rendered as explicit
+This mock pass covered the shell plus the screens the kernel could then serve. Rendered as explicit
 "not designed yet" states rather than invented content:
 
-- **Components** — the node-anchored component editor (decision 3A), which belongs with the write path;
+- **Components** — the full node-anchored component editor (decision 3A); the product's Config layer editor implements only part of that authoring scope;
 - **Topology** — the derived read-only graph (REVIEW #4);
 - **History** — needs a git-log port the kernel does not expose;
 - **Operations / Registry / Settings** — the remaining global areas;

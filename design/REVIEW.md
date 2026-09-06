@@ -1,5 +1,13 @@
 # Review — Deployment Studio design
 
+**Current-status note (2026-09-06):** this review preserves findings and accepted decisions from
+July 2026. The settled decision register in §6 remains binding; earlier prompts for a decision
+must be read with that register (including the later 5A Git-only evidence decision). Current core
+implementation and pending branches are summarized in [PLAN.md](../PLAN.md#current-baseline--2026-09-06).
+The kernel, three renderers, scoped Studio shell and layer/draft workflow now exist. Live delivery
+comparison and the agreed global evidence-provenance indicator remain incomplete. Historical
+line references and validation results below describe their recorded revisions.
+
 **Reviewed:** 2026-07-09
 **Artifacts:** `index.html` + `app.js` (the deck), `mock-app/` (nine screens + `app.js`), with supporting
 context from `roadmap/ROADMAP.md`, `roadmap/edgecommons-buildout-nextsteps.md`, and `AGENTS.md`.

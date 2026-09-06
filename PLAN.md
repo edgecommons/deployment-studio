@@ -3,6 +3,31 @@
 **Agreed:** 2026-07-22 (user + review sessions). This file is the canonical copy; conversations refer
 back to it. Update statuses here in the same change that does the work — stale status is a defect.
 
+## Current baseline — 2026-09-06
+
+This status review uses core `77518bc`, the current Studio source, and Git/PR history. The dated
+sections below preserve the implementation sequence and historical validation; they do not
+override this table or establish fresh runtime validation.
+
+| Surface | Reviewed status |
+|---|---|
+| Deployment kernel | Core `cli/crates/ec-deploy` owns `validate`, `lock`, `render`, `plan` and `release`; HOST, GREENGRASS and KUBERNETES renderers are implemented. The standalone kernel here is retired. |
+| Studio shell and review | Core `cli/crates/ec-studio` implements the agreed persistent selection rail, hierarchy-derived tabs and breadcrumbs, Overview/Config/Render, and Releases with separate streams and CODEOWNERS reviewers. The broad information-architecture mismatch was closed by core PR #73. |
+| Authoring and drafts | Main implements layer editing, named draft creation, draft listing, advisory scope presence and conflict checks, plus a derived Git-host PR-create URL (core PRs #75/#76). It does not publish the branch or open the PR itself. |
+| Git-host publication | Implemented on `feat/studio-apply-host`, open [core PR #77](https://github.com/edgecommons/edgecommons/pull/77); pending integration. Git-host review/merge remains the approval boundary. |
+| `deployment diff` | Implemented on unmerged `feat/deployment-diff` at `fd52751`; no PR found in this audit. Main still returns NotImplemented. |
+| Remaining product surfaces | Node-anchored Components editor, Topology, History, Operations, Registry, Settings and Create/Connect wizard are not complete. Config-layer authoring must not be mistaken for the entire Components editor. |
+| Evidence and execution | The agreed global evidence mode/age/source indicator is absent from the current shell. Live Console snapshot exchange, delivery adjudication and target execution/convergence remain work; the rendered release evidence is not proof of deployment. |
+| Design-only branches | `record/slice-4a` / Studio PR #3 and core `docs/dallas-fixture-frozen-oracle` / PR #68 were closed without merge. Their ownership claims do not replace the current definition/render/golden contract. |
+
+The Studio schema matches the core embedded schema, and the Dallas definition matches core's fixture
+and `bottling-company-test/sites/dallas-site/definition.yaml` byte-for-byte in this review. Dallas
+runtime configs remain generated from the definition/layers/bindings; its Lua scripts are authored.
+Recipes remain component-release artifacts (REVIEW #15). No acceptance decision is reduced by the
+remaining implementation gaps.
+
+## Historical plan and implementation record
+
 The verdict that produced this plan (see `design/REVIEW.md` and `design/REVIEW-UI.md`): the
 architecture is right — compiler-not-controller, Git as the only durable state, CLI-first with the
 server as a shell, honest per-target model, two-stream releases, per-thing Greengrass targets. The
@@ -91,7 +116,7 @@ bottling-company-test **PR #5** — the `config-drift-gate` workflow re-renders 
 push/PR and fails unless the site's configs are byte-identical (`ec-deploy oracle --strict`).
 `EDGECOMMONS_READ_TOKEN` set on both repos (org stopgap pattern — replace with a dedicated read PAT).
 
-**CI status: workflows in place, first runs BLOCKED on Actions billing** — both repos are private,
+**Historical CI status at this slice: workflows in place, first runs BLOCKED on Actions billing** — both repos were private,
 and GitHub reports "recent account payments have failed or your spending limit needs to be
 increased" (public org repos are unaffected; no self-hosted runners are registered). Every step CI
 would run is proven green locally: cargo build/clippy -D warnings/tests (oracle 22/22), schema
@@ -236,7 +261,9 @@ artifact stream in devMode with the 24-file digest set; Access shows last-match-
 `edge-console` leaf rule beating the line/site catch-alls). Console clean; all four core gates green
 (workspace coverage 90.70%).
 
-**Remaining slice-5 cuts — the write path. UNBLOCKED 2026-07-24 (register #16).** Authoring and
+**July 24 planning record — the write path. UNBLOCKED 2026-07-24 (register #16).** The later main
+authoring/draft implementation and pending PR #77 are recorded in the current baseline above.
+At this point in the implementation sequence, authoring and
 branch/draft orchestration both require the server to *gain a write path* into Git — the read-only cuts
 deliberately do not. The concurrency story that gated branch/draft is now ruled: **optimistic
 concurrency, no locks; semantic conflict detection at the effective-config level; continuous invisible
@@ -253,7 +280,8 @@ Two consequences to carry into the build:
   and "you can/cannot approve this" — **not** a role system. Authorization stays CODEOWNERS + branch
   protection enforced by the Git host (register #10).
 
-Next: the authoring cut (designable now), then branch/draft orchestration, then slice 6.
+Next at the time: the authoring cut, then branch/draft orchestration, then slice 6. PRs #75/#76
+subsequently delivered layers and drafts; publication and target execution remain separate work.
 
 **Design-repo drift from the profiles epic — closed (2026-07-23).** This repo's `schema/` and
 `fixtures/dallas/` were still the pre-profiles **flat form** (the profiles epic updated the kernel copy
@@ -290,16 +318,13 @@ Mock verified: all nine pages render with zero console errors; wizard walks 4 st
 
 ---
 
-## Still open on the register (user rulings, no urgency)
+## Decision follow-through
 
-- `design/REVIEW.md` §6: #5 (device layers / blocked overrides — recommendation authoring-side only),
-  #6 (render into existing config sources first), #8 (commit render snapshots at release boundaries).
-  #4 (dataflows) resolves with step 2.4.
-- ~~**W8** — concurrent drafts have no story; bites in the first multi-user week.~~ **RESOLVED
-  2026-07-24 (user), register #16** — optimistic concurrency, semantic output-level conflict detection,
-  no user-visible branches. Propagated to the deck's draft cards, the mock's draft chip, and DESIGN-cli §8.4.
-- Dependency: the deck's Greengrass scenario needs the deferred IPC-primary `uns-bridge` variant
-  (ROADMAP A52) — a real blocker recorded in REVIEW W7.1.
+REVIEW #4 (derived topology), #5 (authoring-side device layers), #6 (existing config sources),
+#8 (release-boundary snapshots) and #16 (optimistic drafts) have recorded dispositions. They are
+not fresh open questions. Their implementation and validation gaps must be tracked against the
+current baseline above. In particular, renderer output alone does not close the deployed
+Greengrass site-bridge or whole-plant validation requirements.
 
 ## Provenance
 

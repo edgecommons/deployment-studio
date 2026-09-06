@@ -39,7 +39,7 @@ The schema's own `description` fields are the element-by-element explainer — r
 
 `artifact` (version/digest/source/image) is the artifact stream; `layer` (+ the derived lineage) is the
 config stream. They are versioned, released, drifted, and rolled back **independently** (REVIEW #2); a
-release lock correlates them without fusing them (see the Studio's Evidence screen).
+release lock correlates them without fusing them (see the Studio's Releases gate).
 
 ### What is deliberately absent
 

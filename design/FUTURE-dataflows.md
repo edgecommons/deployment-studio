@@ -1,7 +1,8 @@
 # Future design — the prescriptive dataflow and capability model
 
 **Status:** extracted from the product's core narrative on 2026-07-22 (step 2.4 of `../PLAN.md`).
-Not scheduled. The product ships only the *derived, read-only* topology view; this note preserves
+Not scheduled. The accepted product scope includes only a *derived, read-only* topology view
+(still incomplete in core Studio main as of 2026-09-06); this note preserves
 the prescriptive branch so it can be revisited deliberately instead of leaking back in through
 mocks and examples — which is how it kept re-entering before the extraction.
 

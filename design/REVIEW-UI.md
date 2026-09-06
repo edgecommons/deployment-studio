@@ -1,5 +1,13 @@
 # Review — Deployment Studio mock UI (feature/function)
 
+**Current-status note (2026-09-06):** the decisions in §5 remain the UI contract. The mock was
+reworked to those decisions, and core PR #73 subsequently implemented the persistent selection
+rail, breadcrumb, selection header and scoped tabs. PRs #75/#76 add config-layer editing and
+draft collaboration. The original global-versus-scoped IA finding below is historical, while
+incomplete screens and evidence provenance remain actual gaps. See
+[PLAN.md](../PLAN.md#current-baseline--2026-09-06) for the current main/pending split; this review
+is not a fresh browser validation of the shipped UI.
+
 **Reviewed:** 2026-07-22
 **Artifacts:** the eight `mock-app/` screens plus `mock-app/app.js`, held against the deck's own product
 contracts (ch. 10, `index.html:673-990`), the resolved decisions (`REVIEW.md` §6: per-thing targets,
@@ -395,6 +403,13 @@ restructured to match in the same change (PLAN step 4).
 
 ## 7. The shipped UI deviated from 1A — and the high-fidelity mock that replaces this one (2026-07-24)
 
+**Resolved implementation status:** core PR #73 subsequently rebuilt the product's scope shell
+against this mock and moved evidence/reviewer rendering into Releases. PRs #75/#76 added layer
+editing and drafts. The finding and corrective requirement below describe the earlier PRs
+#70–#72; a complete shell rebuild is no longer pending. The global evidence mode/age/source
+indicator and the incomplete screens listed in the [current baseline](../PLAN.md#current-baseline--2026-09-06)
+remain real follow-through work.
+
 **Finding, raised by the user:** the read-only UI shipped in `edgecommons/edgecommons` (PRs #70/#71/#72)
 "bears little resemblance to what was mocked". Confirmed, and it is a regression rather than a fidelity
 gap: the shipped UI is a profile dropdown plus four flat sibling tabs (Config layers, Render review,
@@ -429,5 +444,6 @@ Scope of this pass is the shell plus the screens the kernel can already serve (O
 Releases gate). Components, Topology, History, Operations, Registry, Settings and the wizard render as
 explicit "not designed yet" states rather than invented content. See `mock-app/README.md`.
 
-**Consequence for the product UI:** the shipped shell is to be rebuilt against this mock before any further
-UI work, and Evidence/Access relocated to their agreed homes.
+**Consequence at the time:** rebuild the shell against this mock before further UI work and move
+Evidence/Access into their agreed homes. Core PR #73 implemented that placement and scope structure;
+the remaining evidence-provenance gap is recorded above.
