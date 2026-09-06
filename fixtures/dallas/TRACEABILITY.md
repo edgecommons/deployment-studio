@@ -1,5 +1,14 @@
 # Dallas golden fixture — traceability and findings
 
+**Current ownership note (2026-09-06):** the extraction/findings below preserve the July 22
+oracle's provenance, including old template paths and counts. Current authored definitions use
+topology plus profiles; core owns the renderer and golden tests. The harness's device configs
+and supervisor files are generated from its definition/layers/bindings, while `configs/lua/`
+remains authored. The packaging catalog is now static `config-catalog.json`, not a runtime
+template. Studio/core/Dallas definitions match byte-for-byte in this review. See
+[PLAN.md](../../PLAN.md#current-baseline--2026-09-06) for the current implementation and pending
+branch split. No historical oracle or live evidence below was rerun for this documentation review.
+
 **Date:** 2026-07-22. **Source of truth:** `bottling-company-test/sites/dallas-site/` (read in full by
 a dedicated inventory pass; every claim below cites harness files). **Question answered:** could a
 compiler regenerate the harness's hand-maintained files from `definition.yaml`? — **Yes**, with the

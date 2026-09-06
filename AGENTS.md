@@ -1,15 +1,17 @@
 # Deployment Studio — agent guidance
 
 This repo is the working home of the EdgeCommons Deployment Studio: design deck, mock app, reviews,
-the deployment-definition schema, and the Dallas golden fixture. It is a local Git repo with no
-remote. The org-wide rules in `../AGENTS.md` apply in full — especially design fidelity (agreed
+the deployment-definition schema mirror, and the Dallas golden fixture. Its public remote is
+`edgecommons/deployment-studio`; the runtime lives in `../core/cli/crates/ec-deploy` and
+`../core/cli/crates/ec-studio`. The org-wide rules in `../AGENTS.md` apply in full — especially design fidelity (agreed
 designs are binding; deviations are surfaced, never slipped in) and doc-sync (stale status is a
 defect; update docs in the same change as the work).
 
 Ground rules specific to this repo:
 
 - **`PLAN.md` is the canonical four-step plan.** Read it before starting work here; update its
-  status checkboxes in the same commit as the work they describe.
+  current-baseline section in the same change as implementation status. Preserve dated historical
+  entries and distinguish main from pending branches; a past green test run is not a fresh gate.
 - **`design/REVIEW.md` §6 is the decision register** for the deck. A decision recorded there or on
   the deck's decision surface must be propagated everywhere it binds (deck chapters, mock screens,
   reviews) in one change — the 2026-07-22 sessions exist because that discipline slipped.
@@ -25,3 +27,5 @@ Ground rules specific to this repo:
   `../core/docs/HIERARCHICAL_CONFIG.md` and `../core/schema/edgecommons-config-schema.json` (the
   shipped config contract), `../config-component/` and `../core/libs/rust/src/config/layered.rs`
   (the shipped lineage implementation). Verify against source, not against other docs.
+- Read current files directly. CodeGraph and Graphify are disabled and their remaining artifacts
+  are not evidence or active instructions.
